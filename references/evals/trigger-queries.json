@@ -1,0 +1,74 @@
+[
+  {
+    "query": "Use my Pixio API key to generate a product photo from a prompt and give me the final image URL.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want my agent to call Pixio, upload a reference image, start a generation, and poll until it gets the output.",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I list Pixio models and get the accepted params for one model?",
+    "should_trigger": true
+  },
+  {
+    "query": "Build me a backend script that uses pxio_live_... to create a video and check credits first.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can I pass image URLs to Pixio or do I need to upload files first?",
+    "should_trigger": true
+  },
+  {
+    "query": "My Pixio API generation returned 429. What should my agent do?",
+    "should_trigger": true
+  },
+  {
+    "query": "Make copyable API docs for pixio/video-ops/add-audio with curl examples.",
+    "should_trigger": true
+  },
+  {
+    "query": "Use the Pixio API to add audio to this uploaded video file.",
+    "should_trigger": true
+  },
+  {
+    "query": "I need a text-to-video workflow for another AI agent using Pixio.",
+    "should_trigger": true
+  },
+  {
+    "query": "How do I hide a React sidebar on mobile?",
+    "should_trigger": false
+  },
+  {
+    "query": "Use OpenAI image generation to make a logo.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a Supabase migration for a billing table.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a generic REST API client in TypeScript.",
+    "should_trigger": false
+  },
+  {
+    "query": "Analyze this CSV and make a chart.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this PR for race conditions.",
+    "should_trigger": false
+  },
+  {
+    "query": "Add a button to my Next.js page.",
+    "should_trigger": false
+  },
+  {
+    "query": "How do I upload a file to S3 from Node?",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain how bearer token auth works.",
+    "should_trigger": false
+  }
+]
