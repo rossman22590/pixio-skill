@@ -7,7 +7,6 @@ curl -X POST https://beta.pixio.myapps.ai/api/v1/generate \
   -H "Authorization: Bearer pxio_live_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
-    "providerId": "pixio",
     "modelId": "pixio/nano-banana/edit",
     "params": {
       "prompt": "turn this product photo into a clean studio ad",
@@ -22,17 +21,18 @@ curl -X POST https://beta.pixio.myapps.ai/api/v1/generate \
 
 ```json
 {
-  "providerId": "pixio",
   "modelId": "pixio/nano-banana/edit",
   "params": {}
 }
 ```
 
-- `providerId`: use `pixio`.
+- `providerId`: optional. If included, use `pixio`.
 - `modelId`: public Pixio model id from `/api/v1/models`.
 - `params`: object shaped from `/api/v1/params`.
 
 ## Accepted Response
+
+HTTP status: `202`.
 
 ```json
 {
@@ -53,6 +53,7 @@ Save `contentId` and poll `/api/v1/generations/{id}`.
 - Credits are checked before a successful generation is created.
 - API jobs appear in the Pixio account's history.
 - API concurrency is account-wide across all API keys.
+- The route returns public `providerId` and `modelId` values even when an internal provider handles the job.
 
 ## Agent Rules
 

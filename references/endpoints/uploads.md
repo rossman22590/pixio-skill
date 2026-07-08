@@ -2,7 +2,9 @@
 
 Upload local files or import public media URLs into the authenticated user's Pixio assets.
 
-Use this endpoint when the user provides a local file, or when you want a Pixio asset before generating.
+Use this endpoint when you want a Pixio asset before generating, especially when a model or workflow needs `filePath`, `signedUrl`, `contentType`, `fileSize`, or `mediaType`.
+
+For a simple clean URL to pass into `image_url`, `video_url`, `audio_url`, or workflow `fileUrl`, prefer `/api/v1/images` or `/api/v1/media`.
 
 ## JSON URL Upload
 

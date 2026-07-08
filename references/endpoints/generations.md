@@ -35,6 +35,7 @@ Poll until `succeeded` or `failed`.
   "assetVariants": {},
   "error": null,
   "creditsCost": 4,
+  "outputUrlExpiresAt": "1970-01-08T00:01:00.000Z",
   "createdAt": "1970-01-01T00:00:00.000Z",
   "updatedAt": "1970-01-01T00:01:00.000Z",
   "billedAt": "1970-01-01T00:00:00.000Z"
@@ -45,5 +46,6 @@ Poll until `succeeded` or `failed`.
 
 - Return `outputUrl` first when present.
 - Also expose useful typed outputs, such as `outputs.imageUrl`, `outputs.videoUrl`, or `outputs.thumbnailUrl`.
+- If `outputUrlExpiresAt` is non-null, the output URL is signed and should be refreshed by polling this endpoint again before reuse after expiration.
 - If `status` is `failed`, show `error`.
 - Do not expose internal API-key metadata. The API strips it from `params`.

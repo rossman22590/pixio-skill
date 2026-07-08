@@ -32,6 +32,22 @@
     "should_trigger": true
   },
   {
+    "query": "Update my agent docs with every Pixio API endpoint, including assets and workflows.",
+    "should_trigger": true
+  },
+  {
+    "query": "Which Pixio routes give me clean public media URLs versus signed asset URLs?",
+    "should_trigger": true
+  },
+  {
+    "query": "Show me the Pixio OpenAPI route and the route map for all API endpoints.",
+    "should_trigger": true
+  },
+  {
+    "query": "How does my backend run a saved Pixio workflow and poll the workflow outputs?",
+    "should_trigger": true
+  },
+  {
     "query": "I need a text-to-video workflow for another AI agent using Pixio.",
     "should_trigger": true
   },
