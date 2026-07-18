@@ -1,49 +1,57 @@
 # Pixio API Reference Index
 
-Use this index to load only the document needed for the current task.
+Load only what the current task needs.
 
-## Start Here
+## Orientation
 
-- `overview.md`: API mental model, base URL, auth, core flow, account behavior.
-- `guides/agent-integration.md`: full agent workflow from user request to final output URL.
-- `endpoints/guide.md`: public discovery route for agents.
-- `endpoints/openapi.md`: OpenAPI discovery route for tool/client generation.
-- `endpoints/assets.md`: all asset, media, upload, generated output, proxy, and local-media routes.
-- `endpoints/route-map.md`: full route inventory and public/internal/webhook classification.
+- `overview.md`: trust model, capabilities, lifecycle, and unsupported surfaces.
+- `pixio-api.md`: concise table of every public method and major response.
+- `endpoints/route-map.md`: public route inventory plus internal-route boundaries.
+- `endpoints/openapi.md`: live discovery and generated-client guidance.
 
-## Endpoints
+## Endpoint Contracts
 
-- `endpoints/guide.md`: `GET /api/v1/guide`, Markdown by default or JSON with `?format=json`.
-- `endpoints/openapi.md`: `GET /api/v1/openapi.json`, OpenAPI 3.1 spec.
-- `endpoints/models.md`: `GET /api/v1/models`, visible model catalog, model IDs.
-- `endpoints/params.md`: `GET /api/v1/params`, accepted params, required fields, options.
-- `endpoints/images.md`: `POST /api/v1/images`, clean public image URL from upload or remote URL.
-- `endpoints/media.md`: `POST /api/v1/media`, clean public image/video/audio URL from upload or remote URL.
-- `endpoints/uploads.md`: `POST /api/v1/uploads`, local file upload, public URL import, response fields.
-- `endpoints/generate.md`: `POST /api/v1/generate`, request body, accepted response, generation behavior.
-- `endpoints/generations.md`: `GET /api/v1/generations/{id}`, polling, status, outputs.
-- `endpoints/credits.md`: `GET /api/v1/credits`, recurring/permanent credit response.
-- `endpoints/workflows.md`: saved workflow listing, run creation, run listing, and run polling.
-- `endpoints/assets.md`: asset/media route map, including `/api/v1/images`, `/api/v1/media`, `/api/v1/uploads`, generated outputs, app asset library, local media, and proxies.
-- `endpoints/route-map.md`: all discovered `apps/web/app/api/**/route.*` routes with method and usage classification.
+- `endpoints/guide.md`: `GET /api/v1/guide`.
+- `endpoints/openapi.md`: `GET /api/v1/openapi.json`.
+- `endpoints/models.md`: model list, query lookup, and path detail.
+- `endpoints/params.md`: model input schema.
+- `endpoints/prompt-optimization.md`: `POST /api/v1/prompts/optimize`.
+- `endpoints/generation-estimates.md`: `POST /api/v1/generations/estimate`.
+- `endpoints/generate.md`: `POST /api/v1/generate`.
+- `endpoints/generations.md`: list, poll/detail, and delete.
+- `endpoints/images.md`: clean image URL creation.
+- `endpoints/media.md`: clean image/video/audio URL creation.
+- `endpoints/uploads.md`: reusable Pixio asset ingestion.
+- `endpoints/assets.md`: asset list, get, upload, rename, download, and delete.
+- `endpoints/credits.md`: balance, ledger, and subscription/concurrency.
+- `endpoints/workflows.md`: saved workflow listing, dispatch, history, and polling.
 
-## Guides
+## Operating Guides
 
-- `guides/media-workflow.md`: local files, public media URLs, Pixio assets, media limits.
-- `guides/errors-and-concurrency.md`: HTTP errors, insufficient credits, account-wide concurrency, retries.
-- `guides/model-docs-template.md`: template for generating selected-model API docs.
+- `guides/agent-integration.md`: safe autonomous execution protocol.
+- `guides/integration-patterns.md`: cURL, Node, Python, serverless, mobile, CI,
+  generated clients, and secret handling.
+- `guides/media-workflow.md`: choose URL normalization versus managed assets.
+- `guides/errors-and-concurrency.md`: retry matrix and ambiguous-dispatch recovery.
+- `guides/model-docs-template.md`: produce accurate docs for one selected model.
 
-## Examples
+## Connected Examples
 
-- `examples/add-audio-to-video.md`: video + audio workflow.
-- `examples/text-to-image.md`: prompt-only image generation workflow.
-- `examples/image-edit.md`: image edit workflow with public image URL.
-- `examples/text-to-video.md`: text-to-video workflow.
+- `examples/cost-aware-generation.md`: discover, estimate, approve, generate, poll.
+- `examples/asset-lifecycle.md`: upload, list, rename, download, and delete.
+- `examples/saved-workflow.md`: upload media, run a workflow, and collect outputs.
+- `examples/node-client.md`: reusable Node/TypeScript-style fetch client.
+- `examples/python-client.md`: reusable Python standard-library client.
+- `examples/text-to-image.md`: prompt-only image generation.
+- `examples/image-edit.md`: uploaded reference image to edited output.
+- `examples/text-to-video.md`: prompt-to-video.
+- `examples/add-audio-to-video.md`: two-input media operation.
 
-## All-In-One
+## Reusable Scripts
 
-- `pixio-api.md`: full combined reference when an agent needs everything in one file.
+- `scripts/pixio-smoke.mjs`: read-only authentication and API connectivity check.
+- `scripts/pixio-wait.mjs`: poll one existing generation without dispatching work.
 
-## Skill Maintenance
+## Skill Evaluation
 
-- `evals/trigger-queries.json`: sample should-trigger and should-not-trigger prompts for checking whether the skill description activates correctly.
+- `evals/trigger-queries.json`: should-trigger and should-not-trigger prompts.

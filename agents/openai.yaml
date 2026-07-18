@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pixio User API"
+  short_description: "Operate the complete Pixio public user API"
+  default_prompt: "Use $pixio-skill to build a safe, cost-aware Pixio API integration."

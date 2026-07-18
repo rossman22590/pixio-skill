@@ -1,80 +1,94 @@
-# Agent Integration Guide
+# Autonomous Agent Integration
 
-This guide is for agents using Pixio on behalf of a user.
+## Classify The User Goal
 
-## Required Inputs
+Route the request into one of these public capabilities:
 
-An agent needs:
+1. **Generate media**: direct model generation.
+2. **Run saved workflow**: list and run an existing workflow.
+3. **Manage assets**: upload, list, rename, download, or delete.
+4. **Inspect account**: credits, ledger, plan, or concurrency.
+5. **Discover/document**: OpenAPI, models, params, route inventory.
+6. **Unsupported app project**: explain the boundary; do not call internal routes.
 
-- a Pixio API key;
-- a user goal;
-- optional prompt text;
-- optional local files or public media URLs.
+## Direct Generation State Machine
 
-## Decision Flow
+```text
+DISCOVER_MODEL
+  -> LOAD_PARAMS
+  -> COLLECT_REQUIRED_INPUTS
+  -> INGEST_MEDIA
+  -> ESTIMATE_COST
+  -> APPROVE_IF_REQUIRED
+  -> SUBMIT_ONCE
+  -> PERSIST_ID
+  -> POLL
+  -> RETURN_OUTPUT | RETURN_FAILURE | RETURN_RESUMABLE_PENDING
+```
 
-1. If the route surface is uncertain, fetch `/api/v1/guide` or `/api/v1/openapi.json`.
-2. If no API key is available, ask the user for one.
-3. If the user requested a specific model, call `/api/v1/models` and confirm it exists.
-4. If no model is specified, call `/api/v1/models` and pick a visible model matching the task.
-5. Call `/api/v1/params` for the selected model.
-6. Map user inputs into required params.
-7. Convert local media to clean URLs with `/api/v1/images` or `/api/v1/media`, or use `/api/v1/uploads` when Pixio asset metadata is needed.
-8. Create the generation.
-9. Poll the generation.
-10. Return final URLs and a concise summary.
+### Discover And Select
 
-## Model Selection
+- Match the user's requested output and inputs to returned model `type` and
+  params.
+- Prefer an explicitly requested visible model.
+- If several models fit, compare capability, required inputs, base credits, and
+  estimated cost. Explain a meaningful tradeoff instead of choosing randomly.
+- Never use a memorized model ID without confirming current visibility.
 
-Prefer models by output need:
+### Collect And Validate Inputs
 
-- text/image prompt to image: choose image generation models.
-- image edit: choose image-to-image/edit models.
-- prompt to video: choose text-to-video models.
-- image to video: choose image-to-video models.
-- add or modify audio on video: choose video/audio operations.
+- Request missing required values rather than inventing them.
+- Preserve booleans/numbers/arrays as declared; do not stringify values because
+  a cURL example happened to use strings.
+- Reject unknown enum values locally.
+- Put media only into declared media/file params.
 
-Always use the actual `/models` response instead of memorized model names.
+### Estimate And Approve
 
-## Handling User Files
+- Estimate with exact params.
+- Compare `estimatedCost` with current credits and caller policy.
+- Require explicit approval for spend above the caller's threshold, multi-run
+  batches, destructive actions, or any policy-defined high-cost operation.
 
-If the user provides a local file path:
+### Submit And Persist
 
-1. Upload it with `/api/v1/images` for images or `/api/v1/media` for image/video/audio clean URLs.
-2. Use the upload result in the relevant media param.
-3. Keep the original file private; do not expose the API key or local path in final output.
+- Submit once and durably save `contentId` before polling.
+- Store model ID, sanitized params, estimate, submission time, and status.
+- Never store the API key in task state or logs.
 
-Use `/api/v1/uploads` instead when the selected model needs `filePath` or other Pixio asset metadata.
+### Poll And Return
 
-## Running Saved Workflows
+- Poll with bounded backoff until terminal.
+- On success return ID, model, actual `creditsCost`, `outputUrl`, useful typed
+  outputs, and URL expiry.
+- On Pixio failure return ID and `error` without claiming no credits were used.
+- On caller timeout return a resumable pending state with the ID.
 
-If the user wants to run a workflow saved in Pixio:
+## Workflow State Machine
 
-1. Call `/api/v1/workflows` and choose the correct workflow.
-2. Convert any local media to a clean URL with `/api/v1/images` or `/api/v1/media`.
-3. Start the run with `POST /api/v1/workflows/{id}/runs`.
-4. Save `runId`.
-5. Poll `/api/v1/workflows/{id}/runs/{runId}`.
-6. Return `outputs[]` and any step errors.
+```text
+LIST_WORKFLOWS -> SELECT_ID -> PREPARE_MEDIA -> SUBMIT_RUN_ONCE
+  -> PERSIST_RUN_ID -> POLL_RUN -> RETURN_OUTPUTS_AND_STEP_ERRORS
+```
 
-## Polling
+Workflows must already exist. Do not attempt to create or modify definitions.
 
-Use a 2-5 second polling interval. For long video jobs, continue polling until a final status or the user's timeout policy is reached.
+## Memory And Secret Hygiene
 
-## Final Response
+An agent may remember resource IDs, model IDs, non-secret params, and last-known
+status. It must not remember or repeat the API key. Redact authorization headers
+and signed URL query strings from diagnostics.
 
-When done, return:
+## Final Response Contract
 
-- generation id;
-- final status;
-- output URL;
-- any extra output URLs such as thumbnails;
-- credit cost when available.
+For a generation report:
 
-For workflow runs, return:
+- `contentId` and final/current status;
+- public `modelId`;
+- estimated and actual credits when available;
+- primary and additional output URLs;
+- expiration and refresh instructions when signed;
+- failure or resumable-pending explanation.
 
-- workflow id;
-- run id;
-- final status;
-- `outputs[]`;
-- failed step errors when present.
+For an asset operation report IDs, source, action, and not-found items. For a
+workflow report workflow ID, run ID, status, final outputs, and failed steps.

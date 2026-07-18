@@ -1,101 +1,78 @@
-# Model-Specific Docs Template
+# Model-Specific Documentation Template
 
-Use this when creating copyable docs for one selected Pixio model.
+Use this only after fetching the selected model from `/models/{id}`. Replace all
+placeholders with live values; omit unsupported params instead of guessing.
 
 ````markdown
-# <Model Name> API Reference
+# <Model Name> Through Pixio API
 
-Use this reference when integrating with the Pixio API.
+## Environment
 
-## Base URL
-
-`https://beta.pixio.myapps.ai`
-
-## Authentication
-
-All requests require a Pixio API key.
-
-```http
-Authorization: Bearer pxio_live_your_api_key
+```bash
+export PIXIO_BASE_URL="https://beta.pixio.myapps.ai/api/v1"
+export PIXIO_API_KEY="pxio_live_..."
+export MODEL_ID="<public pixio/... id>"
 ```
 
-## Core Endpoints
+Keep `PIXIO_API_KEY` in a trusted server, worker, CLI, or secret store.
 
-### Create Generation
+## Verify Model And Inputs
 
-```http
-POST https://beta.pixio.myapps.ai/api/v1/generate
+```bash
+curl -fsS "$PIXIO_BASE_URL/models/$MODEL_ID" \
+  -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-Body:
+Model:
 
-```json
-{
-  "providerId": "pixio",
-  "modelId": "<selected model id>",
-  "params": {
-    "<param>": "<example value>"
-  }
-}
+- ID: `<model id>`
+- Type: `<model type>`
+- Company: `<company>`
+- Catalog credits: `<base credits>`
+
+Inputs:
+
+- `<name>` (`<type>`, required/optional): `<label and constraints>`
+
+## Prepare Media
+
+For local media, use `/images`, `/media`, or `/uploads` according to the exact
+input type. Do not send local filesystem paths in generation JSON.
+
+## Estimate Exact Request
+
+```bash
+curl -fsS -X POST "$PIXIO_BASE_URL/generations/estimate" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"modelId":"<model id>","params":{<exact params>}}'
 ```
 
-Returns immediately with a generation id. Poll the generation endpoint for status and outputs.
+## Generate
 
-### Upload Media Asset
-
-```http
-POST https://beta.pixio.myapps.ai/api/v1/uploads
+```bash
+curl -fsS -X POST "$PIXIO_BASE_URL/generate" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"modelId":"<model id>","params":{<exact params>}}'
 ```
 
-Use for local files or public URL imports.
+Save `contentId`. HTTP `202` means queued, not complete.
 
-### Get Generation
+## Poll
 
-```http
-GET https://beta.pixio.myapps.ai/api/v1/generations/{id}
+```bash
+curl -fsS "$PIXIO_BASE_URL/generations/<contentId>" \
+  -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-### List Models
+Poll `pending`/`processing`; stop on `succeeded`/`failed`. Refresh expired output
+URLs through this route.
 
-```http
-GET https://beta.pixio.myapps.ai/api/v1/models
-```
+## Account And Errors
 
-### Get Input Params For A Model
-
-```http
-GET https://beta.pixio.myapps.ai/api/v1/params?modelId=<selected model id>
-```
-
-### Check Credits
-
-```http
-GET https://beta.pixio.myapps.ai/api/v1/credits
-```
-
-## Media URL Inputs
-
-When params include media URLs, Pixio imports those public URLs into Pixio media storage first.
-
-## Concurrency
-
-API concurrency is shared across the account, across all API keys. Default accounts get 1 in-flight API generation. Maker accounts get 3 in-flight API generations.
-
-## Credits
-
-API generations spend from the same Pixio account credits as web app generations.
-
-## Selected Model
-
-This model was selected when copied.
-
-### <Model Name>
-
-- modelId: `<selected model id>`
-- type: `<model type>`
-- credits: `<credit cost>`
-
-Params:
-
-- `<param>` (`<type>`, required/optional): `<label>`. Default: `<default>`.
+- Use `/subscription` for the live account-wide API concurrency limit.
+- Use `/credits` for balance and `/credits/ledger` for recent charges/refunds.
+- Handle `400`, `401`, `402`, `404`, `429`, `500`, `502`, and `503`.
+- Do not blindly resubmit after an uncertain `/generate` timeout.
 ````

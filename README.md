@@ -1,63 +1,46 @@
-# Pixio API Skill
+# Pixio User API Skill
 
-Agent Skill for using the Pixio API from agents, backend services, scripts, automations, and CLIs.
+Agent Skill for integrating with the complete Pixio public user REST API from
+backends, workers, scripts, automations, CLIs, mobile backends, and agents.
 
-This skill teaches compatible agents how to:
+It covers:
 
-- authenticate with Pixio API keys;
-- list visible Pixio models;
-- fetch model input params;
-- upload local files and import public media URLs;
-- create generations;
-- poll generation results;
-- check account credits;
-- handle Pixio API errors and account-wide concurrency.
+- API key authentication, revocation, and trust boundaries;
+- OpenAPI and guide discovery;
+- model selection and live parameter schemas;
+- prompt optimization and generation cost estimates;
+- credits, ledger, subscription, and concurrency;
+- image/media normalization and managed uploads;
+- complete asset list/get/rename/download/delete lifecycle;
+- generation submission, history, polling, URL refresh, and deletion;
+- saved workflow run submission/history/polling;
+- retries, ambiguous paid submissions, signed URLs, and pagination;
+- clear boundaries for unsupported app-only projects and internal routes.
 
 ## Install
 
-From a local checkout:
+From this checkout:
 
 ```bash
-npx skills add ./scripts/pixio-skill
+npx skills add .
 ```
 
-Install globally:
+Or install from the repository URL supported by your skill manager.
 
-```bash
-npx skills add -g ./scripts/pixio-skill
-```
-
-If this skill is moved to its own repository, install it from the repo:
-
-```bash
-npx skills add <owner>/<repo>
-```
-
-## Usage
-
-After installing, ask an agent something like:
+## Use
 
 ```text
-Use my Pixio API key to generate a product image and return the output URL.
+Use $pixio-skill to build a cost-aware Node integration that uploads a local
+reference, selects a visible edit model, estimates credits, generates once, and
+returns the final output URL.
 ```
 
-or:
-
-```text
-Create Pixio API docs for pixio/video-ops/add-audio with curl examples.
-```
-
-The agent should load `pixio-skill`, call the relevant references, and follow the Pixio API workflow.
-
-## Files
-
-- `SKILL.md`: required Agent Skill entrypoint and routing instructions.
-- `references/index.md`: map of all reference docs.
-- `references/endpoints/`: endpoint-specific API docs.
-- `references/guides/`: integration, media, errors, and model-docs guides.
-- `references/examples/`: practical example workflows.
-- `references/evals/trigger-queries.json`: sample prompts for testing skill activation.
+The skill entrypoint is `SKILL.md`. Detailed endpoint contracts, integration
+patterns, examples, smoke checks, and evaluation prompts live under the folders
+referenced directly from that file.
 
 ## Safety
 
-Pixio API keys are secrets. Do not put them in browser code, public repos, screenshots, or logs. Use them from a backend, server action, worker, CLI, automation, or agent runtime.
+Pixio API keys are secrets. Keep them out of browsers, mobile binaries, public
+repos, screenshots, logs, and signed-URL query strings. The included smoke script
+is read-only and never dispatches generation work.

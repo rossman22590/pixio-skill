@@ -1,60 +1,87 @@
-# GET /api/v1/models
+# Model Discovery
 
-List Pixio models visible to the authenticated account.
+All model routes require a Pixio API key. Results are filtered for the key's
+account and plan.
 
-```bash
-curl https://beta.pixio.myapps.ai/api/v1/models \
-  -H "Authorization: Bearer pxio_live_your_api_key"
-```
-
-Optional single-model lookup:
+## List Visible Models
 
 ```bash
-curl "https://beta.pixio.myapps.ai/api/v1/models?modelId=pixio/nano-banana/edit" \
-  -H "Authorization: Bearer pxio_live_your_api_key"
+curl -fsS "$PIXIO_BASE_URL/models" \
+  -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-## Response
-
-List response:
+Response:
 
 ```json
 {
   "models": [
     {
-      "id": "pixio/nano-banana/edit",
+      "id": "pixio/example/model",
       "providerId": "pixio",
-      "name": "Nano Banana Edit",
-      "description": "Model description",
-      "type": "image-to-image",
-      "credits": 4,
-      "company": "Pixio",
+      "name": "Example Model",
+      "description": "...",
+      "type": "text-to-image",
+      "credits": 10,
+      "company": "Example",
       "inputs": []
     }
   ]
 }
 ```
 
-Single response:
+## Query One Model From The List Route
+
+```bash
+curl -fsS --get "$PIXIO_BASE_URL/models" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
+  --data-urlencode "modelId=pixio/example/model"
+```
+
+Returns `{ "model": { ... } }` using the list-model shape.
+
+## Get Model Detail And Params
+
+Slash-delimited model IDs are part of the path:
+
+```bash
+curl -fsS "$PIXIO_BASE_URL/models/pixio/example/model" \
+  -H "Authorization: Bearer $PIXIO_API_KEY"
+```
+
+Returns:
 
 ```json
 {
   "model": {
-    "id": "pixio/nano-banana/edit",
+    "id": "pixio/example/model",
     "providerId": "pixio",
-    "name": "Nano Banana Edit",
-    "description": "Model description",
-    "type": "image-to-image",
-    "credits": 4,
-    "company": "Pixio",
-    "inputs": []
-  }
+    "name": "Example Model",
+    "description": "...",
+    "type": "text-to-image",
+    "credits": 10,
+    "company": "Example"
+  },
+  "params": [
+    {
+      "name": "prompt",
+      "type": "string",
+      "label": "Prompt",
+      "required": true,
+      "defaultValue": null,
+      "placeholder": "Describe the output"
+    }
+  ]
 }
 ```
 
-## Agent Rules
+`GET /params?modelId=...` returns the same detail shape.
 
-- Use only returned `id` values as `modelId`.
-- Do not show hidden/internal models.
-- Do not invent a model id from a model name.
-- If the user asks for a model not returned here, treat it as unavailable to this account.
+## Selection Rules
+
+- Filter by returned `type`, required media inputs, user goal, and estimated
+  cost. Do not select by name alone.
+- Never transform a company/provider model name into a guessed `pixio/...` ID.
+- Never call provider APIs directly. `providerId` is always public `pixio`.
+- Model availability and inputs can vary by plan; refresh rather than cache
+  indefinitely.
+- A `404` means malformed, hidden, unavailable, or unknown for this account.

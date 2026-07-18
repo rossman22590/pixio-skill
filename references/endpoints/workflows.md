@@ -2,6 +2,14 @@
 
 Saved workflow routes let an API key list and run workflows that were built in the Pixio app editor.
 
+## Contents
+
+- List saved workflows
+- Queue a workflow run with global and per-node overrides
+- List recent workflow runs
+- Poll one run and collect step/final outputs
+- Handle workflow validation, concurrency, and orchestration errors
+
 All workflow routes require:
 
 ```http

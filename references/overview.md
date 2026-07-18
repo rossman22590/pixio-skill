@@ -1,80 +1,77 @@
-# Pixio API Overview
+# Pixio User API Overview
 
-Pixio API lets agents, backend services, scripts, and automations generate images, videos, audio, and edits through a Pixio account.
+## Trust Boundary
 
-Base URL:
+The public API is every implemented route under `/api/v1`. All authenticated
+routes use a personal Pixio API key and operate on the account that owns the key.
+Revoked keys return `401` and cannot be used.
 
-```text
-https://beta.pixio.myapps.ai
-```
+Only these discovery routes are anonymous:
 
-Auth:
+- `GET /api/v1/guide`
+- `GET /api/v1/openapi.json`
+
+Every other `/api/v1` call requires:
 
 ```http
 Authorization: Bearer pxio_live_your_api_key
 ```
 
-Never expose a Pixio API key in frontend browser code, public repos, screenshots, logs, or client-side bundles.
+Create and revoke keys from the Pixio Integrations screen. Keys currently grant
+the full user API surface for their owning account; there are no per-key scopes.
 
-## Discovery
+## Capability Domains
 
-- `GET /api/v1/guide`: public Markdown guide, or JSON with `?format=json`.
-- `GET /api/v1/openapi.json`: public OpenAPI 3.1 spec for the v1 routes.
+The API supports:
 
-## Generation Flow
+- discovering visible models and their exact inputs;
+- optimizing prompts;
+- estimating generation credit cost;
+- reading balance, ledger, plan, and concurrency information;
+- normalizing public media URLs and uploading reusable assets;
+- listing, reading, renaming, downloading, and deleting owned assets;
+- submitting, listing, polling, and deleting generations;
+- listing and running workflows already saved in the Pixio app.
 
-1. `GET /api/v1/models` to list models visible to the account.
-2. Choose a `modelId` from the list. Public IDs use `pixio/...`.
-3. `GET /api/v1/params?modelId=...` to inspect required inputs, defaults, and options.
-4. For local image files, call `POST /api/v1/images` and pass the returned clean `url` into the model param.
-5. For local video or audio files, call `POST /api/v1/media` and pass the returned clean `url` into the model param.
-6. Use `POST /api/v1/uploads` when you need Pixio asset metadata such as `filePath`, `signedUrl`, or `mediaType`.
-7. `POST /api/v1/generate` to start a generation.
-8. Save `contentId`.
-9. Poll `GET /api/v1/generations/{id}` until the status is `succeeded` or `failed`.
-10. Return `outputUrl`, `outputs`, and `assetVariants` to the user.
+It does not expose Pixio project editors, Pix Agent, project export/rendering,
+Boards, Canvas, Video Agent, Cinema, Cam View, or workflow-definition editing.
 
-## Saved Workflow Flow
-
-1. Build and save workflows in the Pixio app editor.
-2. `GET /api/v1/workflows` to list saved workflows for the account.
-3. `POST /api/v1/workflows/{id}/runs` to queue a run.
-4. Save `runId`.
-5. Poll `GET /api/v1/workflows/{id}/runs/{runId}` until `succeeded` or `failed`.
-6. Return `outputs[]`, step outputs, and errors.
-
-## Public Model IDs
-
-Use public Pixio model IDs only:
+## Generation Lifecycle
 
 ```text
-pixio/nano-banana/edit
-pixio/video-ops/add-audio
-pixio/seedance-2-maker
+discover model
+    -> inspect params
+    -> normalize/upload media
+    -> estimate cost
+    -> submit once
+    -> persist contentId
+    -> poll status
+    -> use or refresh output URL
 ```
 
-Do not ask users for provider IDs other than Pixio. Send `providerId: "pixio"` when creating generations.
+`POST /generate` returns HTTP `202`. It never means the media is ready. Poll the
+returned `contentId` until `succeeded` or `failed`.
 
-Recent provider additions such as BytePlus Seedance and Seedream are implementation details behind the public model catalog. External callers must still discover and call them through public `pixio/...` IDs from `/api/v1/models`; never call provider dispatch, poll, or webhook routes directly.
+## Account Semantics
 
-## Media Behavior
+- API jobs spend the same account credits as Pixio web app jobs.
+- API jobs appear in the same generation and asset history.
+- Concurrency is account-wide across every API key.
+- `GET /subscription` is the authoritative current concurrency ceiling.
+- Generation estimates do not account for every allowance; actual charge may be
+  lower. A `402` response is authoritative when balance is insufficient.
 
-Pixio API media matches the web app:
+## Media Semantics
 
-- Local files can be converted into clean public media URLs first with `/api/v1/images` or `/api/v1/media`.
-- Public media URLs in generation params are imported into Pixio assets before generation.
-- Uploaded media appears in the authenticated account's Pixio media/assets.
-- Private, localhost, and non-media URLs are rejected.
+Use `/images` or `/media` for clean public URLs. Use `/uploads` or `/assets` for
+managed Pixio assets and metadata. Signed asset and generation URLs can expire;
+refresh them by getting the resource again.
 
-## Account Behavior
+## Consistency And Retry Semantics
 
-API generations:
+The API does not currently accept an idempotency key for generation submission.
+After an uncertain network failure, inspect `/generations` before resubmitting.
+Never assume a timeout means no provider work started.
 
-- spend from the same Pixio credits as web app generations;
-- appear in the same generation history;
-- return Pixio output URLs when complete;
-- are limited by account-wide API concurrency.
-
-Saved workflow API runs share the same account-wide API concurrency budget.
-
-Default accounts get 1 in-flight API generation or workflow run. Maker accounts get 3 in-flight API generations or workflow runs across all API keys.
+List endpoints use page-based pagination and return `hasMore`. Follow pages until
+`hasMore` is false when complete inventory matters.

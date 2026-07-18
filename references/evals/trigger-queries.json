@@ -1,54 +1,58 @@
 [
   {
-    "query": "Use my Pixio API key to generate a product photo from a prompt and give me the final image URL.",
+    "query": "Use my Pixio API key to generate a product photo and return the final output URL.",
     "should_trigger": true
   },
   {
-    "query": "I want my agent to call Pixio, upload a reference image, start a generation, and poll until it gets the output.",
+    "query": "Build a Node backend that discovers Pixio models, validates params, estimates credits, generates once, and polls.",
     "should_trigger": true
   },
   {
-    "query": "How do I list Pixio models and get the accepted params for one model?",
+    "query": "Upload this local video and audio to Pixio, then use the public API to combine them.",
     "should_trigger": true
   },
   {
-    "query": "Build me a backend script that uses pxio_live_... to create a video and check credits first.",
+    "query": "List my Pixio assets, rename an upload, create download links, and delete selected items.",
     "should_trigger": true
   },
   {
-    "query": "Can I pass image URLs to Pixio or do I need to upload files first?",
+    "query": "Show my Pixio generation history and resume polling the jobs that are still processing.",
     "should_trigger": true
   },
   {
-    "query": "My Pixio API generation returned 429. What should my agent do?",
+    "query": "What does my Pixio subscription allow and how many concurrent API jobs can I run?",
     "should_trigger": true
   },
   {
-    "query": "Make copyable API docs for pixio/video-ops/add-audio with curl examples.",
+    "query": "Audit my Pixio credit ledger and correlate generation charges by source ID.",
     "should_trigger": true
   },
   {
-    "query": "Use the Pixio API to add audio to this uploaded video file.",
+    "query": "Optimize this rough video prompt through the Pixio API, then estimate the selected model.",
     "should_trigger": true
   },
   {
-    "query": "Update my agent docs with every Pixio API endpoint, including assets and workflows.",
+    "query": "My Pixio generate request timed out after sending. Should I retry it?",
     "should_trigger": true
   },
   {
-    "query": "Which Pixio routes give me clean public media URLs versus signed asset URLs?",
+    "query": "My Pixio API returned 401 after I revoked the integration key. Is that expected?",
     "should_trigger": true
   },
   {
-    "query": "Show me the Pixio OpenAPI route and the route map for all API endpoints.",
+    "query": "Run my saved Pixio workflow with a local reference image and collect every output.",
     "should_trigger": true
   },
   {
-    "query": "How does my backend run a saved Pixio workflow and poll the workflow outputs?",
+    "query": "Generate a typed Pixio client from its OpenAPI spec and add polling and signed URL refresh.",
     "should_trigger": true
   },
   {
-    "query": "I need a text-to-video workflow for another AI agent using Pixio.",
+    "query": "Can the current Pixio user API create Boards, Cam View shots, or export editor projects?",
+    "should_trigger": true
+  },
+  {
+    "query": "Document every public Pixio v1 endpoint and separate app-internal routes.",
     "should_trigger": true
   },
   {
@@ -76,15 +80,7 @@
     "should_trigger": false
   },
   {
-    "query": "Add a button to my Next.js page.",
-    "should_trigger": false
-  },
-  {
     "query": "How do I upload a file to S3 from Node?",
-    "should_trigger": false
-  },
-  {
-    "query": "Explain how bearer token auth works.",
     "should_trigger": false
   }
 ]

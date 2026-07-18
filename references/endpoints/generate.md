@@ -1,63 +1,76 @@
 # POST /api/v1/generate
 
-Start a Pixio generation.
+Queue one media generation. This route can spend credits and start provider work.
 
 ```bash
-curl -X POST https://beta.pixio.myapps.ai/api/v1/generate \
-  -H "Authorization: Bearer pxio_live_your_api_key" \
+curl -fsS -X POST "$PIXIO_BASE_URL/generate" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "modelId": "pixio/nano-banana/edit",
+    "modelId": "pixio/example/model",
     "params": {
-      "prompt": "turn this product photo into a clean studio ad",
-      "image_url": "https://example.com/reference.png",
-      "aspect_ratio": "1:1",
-      "output_format": "png"
+      "prompt": "premium studio product photograph"
     }
   }'
 ```
 
-## Request Body
+Body:
 
 ```json
 {
-  "modelId": "pixio/nano-banana/edit",
+  "modelId": "pixio/example/model",
+  "providerId": "pixio",
   "params": {}
 }
 ```
 
-- `providerId`: optional. If included, use `pixio`.
-- `modelId`: public Pixio model id from `/api/v1/models`.
-- `params`: object shaped from `/api/v1/params`.
+- `modelId` is required and must come from `/models`.
+- `providerId` is optional; when supplied, use `pixio`.
+- `params` defaults to `{}` and must follow the selected model's live schema.
 
-## Accepted Response
-
-HTTP status: `202`.
+Accepted response is HTTP `202`:
 
 ```json
 {
   "success": true,
   "message": "Generation started successfully!",
-  "contentId": "00000000-0000-0000-0000-000000000000",
+  "contentId": "generation-id",
   "providerId": "pixio",
-  "modelId": "pixio/nano-banana/edit"
+  "modelId": "pixio/example/model"
 }
 ```
 
-Save `contentId` and poll `/api/v1/generations/{id}`.
+Persist `contentId` immediately and poll `/generations/{contentId}`.
 
-## Important Behavior
+## Preflight
 
-- This endpoint returns before generation finishes.
-- Public media URLs inside media params are imported into Pixio assets first.
-- Credits are checked before a successful generation is created.
-- API jobs appear in the Pixio account's history.
-- API concurrency is account-wide across all API keys.
-- The route returns public `providerId` and `modelId` values even when an internal provider handles the job.
+Before dispatch:
 
-## Agent Rules
+1. confirm model visibility;
+2. validate exact params and enum values;
+3. normalize/upload local media;
+4. call `/generations/estimate` when cost matters;
+5. compare estimate with `/credits` and approval policy;
+6. check `/subscription` for worker concurrency sizing.
 
-- Never invent params.
-- Use `/api/v1/params` before calling generate.
-- For user-provided local files, upload first.
-- Surface `402`, `429`, and validation errors clearly to the user.
+## Media Ingestion
+
+Public HTTP(S) URLs inside declared media params are imported into Pixio assets
+before provider dispatch. Private hosts, localhost, non-media responses, and
+unsupported/oversized media fail with `400 invalid_media_url`. Temporary imports
+are cleaned up if generation dispatch fails.
+
+## Failure Semantics
+
+- `400`: invalid params/media or dispatch error;
+- `401`: invalid/revoked key;
+- `402`: insufficient credits with balance and shortfall fields;
+- `404`: model missing, malformed, hidden, or unavailable;
+- `429`: account-wide API concurrency limit reached.
+
+## Duplicate-Dispatch Rule
+
+The route does not accept an idempotency key. If the connection fails after the
+request was sent, do not immediately submit again. Query recent `/generations`
+and reconcile by model, params, and creation time. Ask before resubmitting when
+the result remains ambiguous.

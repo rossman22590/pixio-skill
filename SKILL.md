@@ -1,122 +1,154 @@
 ---
 name: pixio-skill
-description: Use this skill when a user wants to use, document, audit, or integrate Pixio API routes from another agent, backend, script, automation, or CLI. Trigger for Pixio API keys, all endpoint inventories, route maps, OpenAPI, model discovery, input params, assets, media uploads, clean public media URLs, signed output URLs, saved workflows, creating generations, polling outputs, credits, or Pixio API errors, even if the user only says they want to use Pixio from an app or agent. Do not use for unrelated image generation APIs or generic frontend-only work.
+description: Integrate, operate, document, or audit the Pixio public user REST API from an agent, backend, worker, script, automation, CLI, mobile backend, or generated client. Use for Pixio API keys, authentication and revocation, OpenAPI discovery, model selection, model parameters, prompt optimization, credit estimates and balances, subscription/concurrency checks, uploads, clean media URLs, asset CRUD and downloads, generation submission/history/polling/deletion, saved workflow runs, retries, signed URLs, or Pixio API errors. Also use to determine whether a Pixio app feature is public API-supported. Do not use app-internal, admin, provider, webhook, chat, project-editor, or browser-session routes for third-party integrations.
 ---
 
-# Pixio API Skill
+# Pixio User API
 
-Use this skill to help an agent or backend service consume the Pixio public `/api/v1` routes safely and correctly.
-
-Base URL:
+Operate Pixio through the stable public `/api/v1` surface. Treat the current
+OpenAPI document and route implementation as the source of truth.
 
 ```text
-https://beta.pixio.myapps.ai
+Base URL: https://beta.pixio.myapps.ai/api/v1
+Auth:     Authorization: Bearer $PIXIO_API_KEY
 ```
 
-Auth header:
+Never put an API key in browser code, a mobile binary, public source, URLs,
+screenshots, telemetry, or logs. Make authenticated requests from a trusted
+backend, worker, CLI, automation runtime, or agent secret store.
 
-```http
-Authorization: Bearer pxio_live_your_api_key
-```
+## Start Every Integration
 
-## Core Workflow
+1. Read `GET /guide?format=json` or `GET /openapi.json` when the deployed API
+   may be newer than this skill.
+2. Verify the key with `GET /subscription`; this also returns the plan, credit
+   totals, and account-wide API concurrency limit.
+3. Discover a model with `GET /models`. Never invent a model ID.
+4. Fetch `GET /models/{pixio/...}` or `GET /params?modelId=...`. Never invent
+   input names, enum values, or required fields.
+5. When cost matters, call `POST /generations/estimate` before dispatch.
+6. Upload local media or normalize remote media before using it in a model.
+7. Submit with `POST /generate`, persist `contentId`, and poll
+   `GET /generations/{id}` to `succeeded` or `failed`.
+8. Refresh expiring output URLs by fetching the generation or asset again.
 
-1. If unsure of the current API surface, read `GET /api/v1/guide` or `GET /api/v1/openapi.json`.
-2. If the user has not provided an API key, ask for one or tell them to create one in Pixio billing.
-3. Call `GET /api/v1/models` to list models visible to the authenticated account.
-4. Choose a public `modelId` from the response. Public model IDs look like `pixio/...`.
-5. Call `GET /api/v1/params?modelId=...` for accepted params, required fields, defaults, and options.
-6. For local or remote media inputs, prefer `POST /api/v1/images` for images or `POST /api/v1/media` for image/video/audio clean public URLs. Use `POST /api/v1/uploads` when the model or workflow needs Pixio asset metadata such as `filePath`.
-7. Create the job with `POST /api/v1/generate`. Include `providerId: "pixio"` only if a caller expects a provider field; `modelId` and `params` are the core fields.
-8. Save `contentId`.
-9. Poll `GET /api/v1/generations/{id}` until `succeeded` or `failed`.
-10. Return `outputUrl`, useful `outputs`, and the generation id.
+## Complete Public Surface
 
-## Saved Workflow Flow
+| Area | Routes |
+|---|---|
+| Discovery | `GET /guide`, `GET /openapi.json` |
+| Models | `GET /models`, `GET /models/{id}`, `GET /params` |
+| Prompting | `POST /prompts/optimize` |
+| Cost/account | `POST /generations/estimate`, `GET /credits`, `GET /credits/ledger`, `GET /subscription` |
+| Media ingestion | `POST /images`, `POST /media`, `POST /uploads` |
+| Assets | `GET/POST/DELETE /assets`, `GET/PATCH/DELETE /assets/{id}`, `GET /assets/{id}/download`, `GET /assets/download` |
+| Generations | `POST /generate`, `GET /generations`, `GET/DELETE /generations/{id}` |
+| Saved workflows | `GET /workflows`, `GET/POST /workflows/{id}/runs`, `GET /workflows/{id}/runs/{runId}` |
 
-1. Build and save workflows in the Pixio app editor.
-2. Call `GET /api/v1/workflows` to list workflows visible to the API key account.
-3. Call `POST /api/v1/workflows/{id}/runs` to queue a run. Optional body fields are `prompt`, `negativePrompt`, and per-node `overrides`.
-4. Poll `GET /api/v1/workflows/{id}/runs/{runId}` until `succeeded` or `failed`.
-5. Return `outputs[]`, step statuses, and any run error.
+Read `references/endpoints/route-map.md` for method, auth, mutation, and billing
+classification of every route.
 
-## Gotchas
+## Choose The Correct Media Path
 
-- Never expose a Pixio API key in browser/client-side code, public repos, examples, or logs.
-- Never invent model IDs. Use `/api/v1/models` or a user-provided `pixio/...` model ID.
-- Never invent params. Use `/api/v1/params` for the selected model.
-- `GET /api/v1/guide` and `GET /api/v1/openapi.json` are public discovery routes. All generation, media, catalog, credit, and workflow routes require a Bearer API key.
-- Public media URLs in generation params are imported into Pixio assets before generation starts.
-- Local files can be turned into clean URLs with `/api/v1/images` or `/api/v1/media`, or uploaded into Pixio assets with `/api/v1/uploads`.
-- API concurrency is shared across the account, across all API keys. Default accounts get 1 in-flight API generation; Maker accounts get 3.
-- API generations spend the same Pixio credits and appear in the same account generation history as web app generations.
-- Workflow API runs share the same account-wide API concurrency budget as API generations.
+- Use `POST /images` for a clean public image URL.
+- Use `POST /media` for a clean public image, video, or audio URL.
+- Use `POST /uploads` or `POST /assets` when the integration needs a reusable
+  Pixio asset, `filePath`, signed URL metadata, or later asset management.
+- A public media URL may be passed directly in a declared media parameter;
+  Pixio imports it before dispatch. Local paths, private hosts, and localhost do
+  not work as model inputs.
+
+Read `references/guides/media-workflow.md` before implementing file handling.
+
+## Cost-Aware Generation Protocol
+
+Use this sequence for autonomous agents and user-facing products:
+
+1. `GET /subscription` to learn the concurrency ceiling and credit balance.
+2. `GET /models/{id}` to validate visibility and input shape.
+3. `POST /generations/estimate` with the exact intended params.
+4. Ask for approval when the caller's policy or estimated cost requires it.
+5. `POST /generate` once.
+6. Persist `contentId` before polling or returning control.
+7. Poll with bounded backoff and stop on `succeeded` or `failed`.
+8. Reconcile uncertain submissions through `GET /generations`; do not blindly
+   resubmit after a timeout because `/generate` has no idempotency key contract.
+
+Read `references/guides/errors-and-concurrency.md` for retry classification.
+
+## Saved Workflow Protocol
+
+Saved workflows must already exist in Pixio:
+
+1. `GET /workflows` and select by returned ID.
+2. Upload local media first and pass clean URLs in per-node overrides.
+3. `POST /workflows/{id}/runs`, persist `runId`, and poll the run route.
+4. Return final `outputs[]` plus failed step errors.
+
+The public API can list and run workflows. It cannot create or edit workflow
+definitions.
+
+## Unsupported Public Capabilities
+
+Do not claim that the user REST API can currently create, list, edit, export, or
+delete these app projects:
+
+- Boards or spatial canvas projects
+- Canvas designs
+- Chat conversations or Pix Agent tools
+- Video Agent projects
+- Cinema storyboards
+- Cam View scenes or mobile camera sessions
+- Timeline/video-editor projects, operations, renders, or exports
+
+Do not call `/api/chat`, `/api/projects`, `/api/editor-agent`, `/api/latest/*`,
+provider proxies, admin routes, or webhooks with a Pixio API key. Those routes
+use different trust and authentication models. If a requested capability is
+absent from `/api/v1/openapi.json`, report it as unsupported rather than trying
+an internal route.
 
 ## Reference Routing
 
-Load only the reference needed for the task:
+- Read `references/index.md` when choosing a document.
+- Read `references/pixio-api.md` for the concise capability and contract matrix.
+- Read `references/guides/agent-integration.md` for autonomous execution.
+- Read `references/guides/integration-patterns.md` for Node, Python, serverless,
+  mobile-backend, CI, and OpenAPI connectivity patterns.
+- Read `references/guides/media-workflow.md` for uploads and URL lifetimes.
+- Read `references/guides/errors-and-concurrency.md` for retries and recovery.
+- Read `references/endpoints/route-map.md` for all public and non-public route
+  boundaries.
+- Read one file under `references/endpoints/` for exact endpoint contracts.
+- Read one file under `references/examples/` for an end-to-end recipe.
 
-- Start with `references/index.md` when unsure which document to load.
-- Use `references/overview.md` for the API mental model and core behavior.
-- Use `references/guides/agent-integration.md` when building an end-to-end agent workflow.
-- Use `references/guides/media-workflow.md` for local files, public media URLs, upload response fields, and asset usage.
-- Use `references/guides/errors-and-concurrency.md` when handling non-2xx responses, retries, insufficient credits, or concurrency.
-- Use `references/guides/model-docs-template.md` when generating copyable docs for one selected model.
-- Use `references/endpoints/assets.md` when the user asks about assets, media URLs, generated outputs, signed URLs, upload endpoints, local media, or proxies.
-- Use `references/endpoints/route-map.md` when the user asks for all endpoints, non-public routes, webhooks, admin routes, provider proxies, or app-internal APIs.
+## Non-Negotiable Agent Rules
 
-Endpoint docs:
-
-- `references/endpoints/guide.md` for `GET /api/v1/guide`.
-- `references/endpoints/openapi.md` for `GET /api/v1/openapi.json`.
-- `references/endpoints/models.md` for `GET /api/v1/models`.
-- `references/endpoints/params.md` for `GET /api/v1/params`.
-- `references/endpoints/images.md` for `POST /api/v1/images`.
-- `references/endpoints/media.md` for `POST /api/v1/media`.
-- `references/endpoints/uploads.md` for `POST /api/v1/uploads`.
-- `references/endpoints/generate.md` for `POST /api/v1/generate`.
-- `references/endpoints/generations.md` for `GET /api/v1/generations/{id}`.
-- `references/endpoints/credits.md` for `GET /api/v1/credits`.
-- `references/endpoints/workflows.md` for `GET /api/v1/workflows`, `POST /api/v1/workflows/{id}/runs`, `GET /api/v1/workflows/{id}/runs`, and `GET /api/v1/workflows/{id}/runs/{runId}`.
-- `references/endpoints/assets.md` for all asset/media/upload/output URL routes across public and app-internal APIs.
-- `references/endpoints/route-map.md` for the full Next API route inventory and public/internal classification.
-
-Examples:
-
-- `references/examples/text-to-image.md` for prompt-only image generation.
-- `references/examples/image-edit.md` for image edit workflows.
-- `references/examples/text-to-video.md` for text-to-video workflows.
-- `references/examples/add-audio-to-video.md` for video plus audio workflows.
-
-## Minimum Request Shapes
-
-Create generation:
-
-```json
-{
-  "providerId": "pixio",
-  "modelId": "pixio/example-model",
-  "params": {}
-}
-```
-
-Upload public URL:
-
-```json
-{
-  "url": "https://example.com/reference.png"
-}
-```
+- Use only model IDs returned for the authenticated account.
+- Use the returned param schema and preserve parameter types exactly.
+- Treat `202` as queued, not completed.
+- Treat `outputUrl` and asset `url` values as potentially expiring.
+- Treat `401` as missing, invalid, or revoked credentials; do not retry it.
+- Treat `402` as a credit decision; surface `availableCredits`,
+  `requiredCredits`, and `shortfall`.
+- Treat `429` as account-wide backpressure; poll known jobs before retrying.
+- Do not retry destructive operations automatically.
+- Do not silently dispatch paid work after an ambiguous network failure.
+- Do not expose provider IDs, provider secrets, internal storage paths, or
+  app-only endpoints as part of the public contract.
 
 ## Completion Checklist
 
-Before answering that an integration is ready:
+Before saying an integration is complete, verify:
 
-- Confirm the integration uses the current route list from `GET /api/v1/guide`, `GET /api/v1/openapi.json`, or these skill references.
-- Confirm the model ID came from `/api/v1/models` or the user.
-- Confirm params came from `/api/v1/params`.
-- Confirm media handling matches the model's param names.
-- Confirm local files were sent through `/api/v1/images`, `/api/v1/media`, or `/api/v1/uploads`.
-- Confirm the generation id is saved and polling is implemented.
-- Confirm workflow runs save `runId` and poll `/api/v1/workflows/{id}/runs/{runId}` when using saved workflows.
-- Confirm errors `400`, `401`, `402`, `404`, `422`, `429`, and `502` are handled.
+- the API key is server-side and revocation produces `401`;
+- `/subscription`, `/models`, and model params were read successfully;
+- estimated cost and approval policy are handled;
+- local media follows an upload path and remote media is public;
+- `contentId` or `runId` is durably saved;
+- terminal success and failure states are handled;
+- `400`, `401`, `402`, `404`, `422`, `429`, `500`, `502`, and `503` have an
+  explicit policy;
+- signed URL expiry and refresh are handled;
+- list pagination is followed while `hasMore` is true;
+- destructive calls require deliberate user intent;
+- no unsupported app-internal capability is represented as `/api/v1`.
