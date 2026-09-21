@@ -5,29 +5,31 @@ API. Every route requires the API key and account ownership.
 
 ## Contents
 
-- List and filter assets
+- List and filter assets, including by producing model
 - Upload managed assets
 - Get and refresh one asset
 - Rename uploaded assets
-- Create single and batch download links
+- Create single and batch download links (Songcraft tiers)
 - Delete single and bulk assets
 - URL lifetime and safety rules
+
+Folders live in `collections.md`.
 
 ## List Assets
 
 ```http
-GET /api/v1/assets?type=image&source=upload&search=product&page=1&limit=20
+GET /api/v1/assets?type=image&source=generated&modelId=pixio/flux/dev&search=product&page=1&limit=20
 ```
 
-Optional query fields:
+Query (all optional):
 
-- `type`: `image`, `video`, `audio`;
+- `type`: `image`, `video`, `audio`, `3d`;
 - `source`: `upload`, `generated`;
 - `search`: 1–200 characters; matches upload names or generated prompts;
+- `modelId`: only generations produced by this model (get candidates from
+  `GET /assets/models`);
 - `page`: at least 1, default 1;
 - `limit`: 1–100, default 20.
-
-Response:
 
 ```json
 {
@@ -55,30 +57,28 @@ Response:
 }
 ```
 
-Generated assets have `source: "generated"`, public `providerId/modelId`, and
-`status: "succeeded"`.
+Generated assets have `source: "generated"`, public `providerId`/`modelId`,
+and `status: "succeeded"`.
+
+## Models That Produced Assets
+
+```http
+GET /api/v1/assets/models
+```
+
+```json
+{ "data": [{ "modelId": "pixio/flux/dev", "name": "FLUX Dev", "company": "BFL", "count": 42 }] }
+```
+
+Only models with at least one asset appear, so a "filter by model" control
+built from this list always returns results. Pass `modelId` back to
+`GET /assets?modelId=`.
 
 ## Upload Assets
 
-`POST /assets` is an alias of `POST /uploads`.
-
-```bash
-curl -fsS -X POST "$PIXIO_BASE_URL/assets" \
-  -H "Authorization: Bearer $PIXIO_API_KEY" \
-  -F "file=@./reference.png"
-```
-
-Remote import:
-
-```bash
-curl -fsS -X POST "$PIXIO_BASE_URL/assets" \
-  -H "Authorization: Bearer $PIXIO_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"urls":["https://example.com/a.png","https://example.com/b.mp4"]}'
-```
-
-The response is `{ "uploads": [...] }`. See `uploads.md` for accepted fields
-and metadata.
+`POST /assets` is an alias of `POST /uploads` (see `uploads.md`), including
+`?collectionId=` filing. The response is `{ "uploads": [...] }` with each
+upload's `id`.
 
 ## Get One Asset
 
@@ -87,7 +87,8 @@ curl -fsS "$PIXIO_BASE_URL/assets/$ASSET_ID?source=upload" \
   -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-`source` is optional. Supplying it avoids searching both asset stores.
+`source` is optional; supplying it avoids searching both stores. Returns the
+asset with a fresh signed URL.
 
 ## Rename One Upload
 
@@ -98,20 +99,26 @@ curl -fsS -X PATCH "$PIXIO_BASE_URL/assets/$ASSET_ID?source=upload" \
   -d '{"name":"approved-product-reference.png"}'
 ```
 
-Name length is 1–200 characters. Only uploaded assets can be renamed. Generated
-assets return `422`.
+Name length 1–200. Only uploads can be renamed; generated assets return `422`.
 
-## Get A Download URL
+## Download URLs
 
 ```bash
-curl -fsS "$PIXIO_BASE_URL/assets/$ASSET_ID/download?source=upload" \
+curl -fsS "$PIXIO_BASE_URL/assets/$ASSET_ID/download?source=generated" \
   -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-Returns `{ "url", "expiresAt", "fileName" }` with a one-hour attachment URL.
-Add `redirect=true` to receive a `302` directly to the file.
+Returns `{ "url", "expiresAt", "fileName", "creditsCharged" }` with a
+one-hour attachment URL. Add `redirect=true` for a `302` straight to the file.
 
-Batch download URLs:
+Songcraft songs are the one paid download:
+
+- `?tier=preview` (default): 100 credits.
+- `?tier=official`: 300 credits, the official commercial MP3.
+- Each tier is charged once per song; re-downloads are free.
+- `402` when credits are short. `creditsCharged` reports the debit.
+
+Batch:
 
 ```bash
 curl -fsS --get "$PIXIO_BASE_URL/assets/download" \
@@ -120,18 +127,22 @@ curl -fsS --get "$PIXIO_BASE_URL/assets/download" \
   --data-urlencode "source=generated"
 ```
 
-Returns `{ "downloads": [...], "notFound": [...] }`. Maximum 100 unique IDs.
+Returns `{ "downloads": [{ id, url, expiresAt, fileName, creditsCharged }],
+"notFound": [...], "failed": [{ id, code, error }] }`. Songs that could not be
+charged appear under `failed`. Maximum 100 unique IDs.
 
 ## Delete Assets
 
-One asset:
+One:
 
 ```bash
 curl -fsS -X DELETE "$PIXIO_BASE_URL/assets/$ASSET_ID?source=upload" \
   -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-Bulk JSON request:
+Returns `{ deleted, id, source }`.
+
+Bulk:
 
 ```bash
 curl -fsS -X DELETE "$PIXIO_BASE_URL/assets" \
@@ -140,14 +151,15 @@ curl -fsS -X DELETE "$PIXIO_BASE_URL/assets" \
   -d '{"ids":["id-one","id-two"],"source":"upload"}'
 ```
 
-Bulk deletion accepts 1–100 IDs and returns `deleted`, `deletedCount`, and
-`notFound`. Deletion removes the database record and best-effort deletes storage.
+Also accepts `?ids=a,b,c&source=upload`. 1–100 IDs. Returns `deletedCount`,
+`deleted`, and `notFound`. Deletion removes the record and best-effort deletes
+storage. Folder memberships disappear with the asset.
 
 ## Rules
 
-- Treat asset URLs as temporary and refresh through `GET /assets/{id}`.
-- Persist asset IDs and source, not signed URLs, for long-lived references.
-- Require explicit intent before delete; do not retry deletion automatically.
+- Treat asset URLs as temporary; refresh through `GET /assets/{id}`.
+- Persist asset IDs and `source`, not signed URLs.
+- Require explicit intent before delete; never retry deletion automatically.
 - Asset delete and generation delete can target the same generated record. Do
   not issue both for one ID.
-- The asset API does not expose folders, tags, Boards, Canvas, or project links.
+- Warn before a Songcraft `official` download; it spends 300 credits.

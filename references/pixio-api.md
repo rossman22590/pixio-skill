@@ -1,89 +1,140 @@
-# Pixio User API Contract Matrix
+# Pixio Public API Contract Matrix
 
 Base URL: `https://beta.pixio.myapps.ai/api/v1`
 
 Authenticated calls require `Authorization: Bearer $PIXIO_API_KEY`.
 
-## Discovery
+## Discovery And Account
 
 | Method | Path | Auth | Purpose |
 |---|---|---:|---|
-| GET | `/guide` | No | Human/agent guide; add `?format=json` for structured output. |
-| GET | `/openapi.json` | No | OpenAPI 3.1 contract using the current request origin. |
+| GET | `/guide` | No | Agent guide; `?format=json` for structured output. |
+| GET | `/openapi.json` | No | Media API OpenAPI 3.1 document. |
+| GET | `/platform/openapi.json` | No | Project/platform API OpenAPI 3.1 document. |
+| GET | `/capabilities` | Yes | `{ authentication, contracts, supported[], unsupported[] }`. |
+| GET | `/me` | Yes | Identity, `plan`, `credits`, `concurrencyLimit`, `makerCaps[]`. |
+| GET | `/subscription` | Yes | `plan`, `credits`, `apiConcurrencyLimit`. |
+| GET | `/credits` | Yes | Recurring, permanent, and total balance. |
+| GET | `/credits/ledger?limit=&generationId=` | Yes | Movements with `generationId`, `debitedCredits`, `creditedCredits`. |
+| GET | `/pricing?type=&modelId=` | Yes | Live price list: `listCredits`, `yourCredits`, `pricing`, plans, packs. |
 
-## Models And Prompts
-
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/models` | List models visible to the account. |
-| GET | `/models?modelId=pixio/...` | Get one list-format model record. |
-| GET | `/models/pixio/...` | Get model metadata plus `params`. |
-| GET | `/params?modelId=pixio/...` | Get model metadata plus accepted `params`. |
-| POST | `/prompts/optimize` | Rewrite a prompt for image, video, audio, or 3D. |
-
-## Cost And Account
+## Models And Prompting
 
 | Method | Path | Purpose |
 |---|---|---|
-| POST | `/generations/estimate` | Estimate base and plan-adjusted credits. |
-| GET | `/credits` | Current recurring, permanent, and total credits. |
-| GET | `/credits/ledger?limit=50` | Recent top-ups, debits, and refunds. |
-| GET | `/subscription` | Plan, credit quota, balance, and concurrency limit. |
+| GET | `/models` | Visible models with `credits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `inputs`. |
+| GET | `/models?modelId=pixio/...` | One list-format model as `{ model }`. |
+| GET | `/models/pixio/...` | `{ model, params }` with `constraints` and `outputs`. |
+| GET | `/params?modelId=pixio/...` | Same detail shape. |
+| GET | `/models/favorites` | `{ data: [{ modelId, name, type, createdAt }] }`. |
+| POST | `/models/favorites` | `{ modelId }` → `201 { modelId, favorited: true }`. |
+| DELETE | `/models/favorites?modelId=` | `{ modelId, favorited: false }`. |
+| GET | `/preferences/models` | Read-only quick-action defaults with public IDs. |
+| GET | `/preferences/models/catalog` | Every action key with eligible models. |
+| GET | `/prompts/optimize` | `messageTypes`, `modes`, `legacyTypes`, `limits`. |
+| POST | `/prompts/optimize` | Legacy `{ prompt, type?, context? }` or full optimizer body. |
+| GET | `/styles?kind=&category=&search=` | Styles (`append`) and viral templates (`replace` + `recipe`). |
+| GET | `/prompt-library?type=&query=&limit=` | Prompts mined from generation history. |
+| GET | `/prompt-library/{id}` | One prompt with its saved `params`. |
+
+## Generation
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/generations/estimate` | `{ modelId, params, durationSeconds? }` → `quote`, `pricing`, `baseCost`, `estimatedCost`. |
+| POST | `/generate` | `{ modelId, params }` + `Idempotency-Key` → `202 { contentId }` or `200` replay. |
+| GET | `/generations?status=&type=&page=&limit=` | History with `creditsCost` and `billedAt`. |
+| GET | `/generations/{id}` | Status, output, `billing`, `media`. |
+| DELETE | `/generations/{id}` | Delete record and stored output. Not cancellation. |
+
+Generation statuses: `pending`, `processing`, `succeeded`, `failed`.
 
 ## Media And Assets
 
 | Method | Path | Purpose |
 |---|---|---|
-| POST | `/images` | Upload/mirror up to 10 images into clean public URLs. |
-| POST | `/media` | Upload/mirror up to 10 image/video/audio items into clean URLs. |
-| POST | `/uploads` | Upload/import up to 8 reusable Pixio assets. |
-| GET | `/assets` | Page through uploaded and generated assets. |
+| POST | `/images` | Up to 10 images → clean public URLs. |
+| POST | `/media` | Up to 10 image/video/audio items → clean public URLs. |
+| POST | `/media/resolve` | `{ refs[1..100] }` → `{ urls: { ref: url \| null } }`. |
+| POST | `/uploads?collectionId=` | Up to 8 items → managed assets with `id`, `filePath`, signed URL. |
+| GET | `/assets?type=&source=&search=&modelId=&page=&limit=` | Uploads and generated assets. |
+| GET | `/assets/models` | Models that produced assets, with counts. |
 | POST | `/assets` | Alias of `/uploads`. |
-| DELETE | `/assets` | Delete up to 100 owned assets. |
-| GET | `/assets/{id}` | Fetch one owned asset with a fresh signed URL. |
-| PATCH | `/assets/{id}` | Rename an uploaded asset; generated assets cannot be renamed. |
-| DELETE | `/assets/{id}` | Delete one owned asset. |
-| GET | `/assets/{id}/download` | Get a one-hour attachment URL or redirect. |
-| GET | `/assets/download?ids=...` | Batch attachment URLs for up to 100 assets. |
+| DELETE | `/assets` | Bulk delete up to 100 IDs. |
+| GET | `/assets/{id}?source=` | One asset with a fresh signed URL. |
+| PATCH | `/assets/{id}` | Rename an upload; generated assets return `422`. |
+| DELETE | `/assets/{id}` | Delete one asset. |
+| GET | `/assets/{id}/download?redirect=&tier=` | Attachment URL; Songcraft `tier` charges once per song. |
+| GET | `/assets/download?ids=&source=&tier=` | Batch attachment URLs with `failed[]`. |
+| GET | `/assets/collections` | Folders with item counts. |
+| POST | `/assets/collections` | `{ name, parentId?, color? }` → `201`; `409` on sibling name clash. |
+| GET/PATCH/DELETE | `/assets/collections/{id}` | Read, rename/recolour/re-parent, delete (assets kept). |
+| GET | `/assets/collections/{id}/items?page=&limit=` | Filed assets. |
+| POST | `/assets/collections/{id}/items` | `{ assetIds }` → `{ added, skipped[] }`. |
+| DELETE | `/assets/collections/{id}/items` | `{ assetIds }` or `?ids=` → `{ removed }`. |
 
-## Generations
-
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/generate` | Queue one paid generation and return `contentId`. |
-| GET | `/generations` | Page through generation history and all statuses. |
-| GET | `/generations/{id}` | Poll/detail with output, error, cost, and timestamps. |
-| DELETE | `/generations/{id}` | Delete an owned generation and best-effort output object. |
-
-Generation statuses: `pending`, `processing`, `succeeded`, `failed`.
-
-## Saved Workflows
+## Workflows
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/workflows` | List workflows already saved in Pixio. |
-| POST | `/workflows/{id}/runs` | Queue a saved workflow with optional overrides. |
-| GET | `/workflows/{id}/runs?limit=20` | List recent runs. |
-| GET | `/workflows/{id}/runs/{runId}` | Poll run, step status, and final outputs. |
+| GET | `/workflows` | Saved workflows with `latestRun`. |
+| POST | `/workflows` | `{ name, description?, definition }` → `201`. |
+| GET | `/workflows/{id}` | Definition with node IDs; `422` if invalid. |
+| PATCH | `/workflows/{id}` | Update `name`, `description`, or `definition`. |
+| DELETE | `/workflows/{id}` | `{ deleted: true, id }`; runs cascade. |
+| POST | `/workflows/{id}/runs` | `{ prompt?, negativePrompt?, overrides? }` → `202 { runId }`. |
+| GET | `/workflows/{id}/runs?limit=` | Recent runs (1–50, default 20). |
+| GET | `/workflows/{id}/runs/{runId}` | Run status, `steps[]`, `outputs[]`. |
 
-Workflow statuses: `queued`, `running`, `succeeded`, `failed`.
+Workflow run statuses: `queued`, `running`, `succeeded`, `failed`.
+
+## Projects
+
+Project types: `boards`, `canvas`, `cinema-storyboards`, `cam-view-scenes`,
+`video-agent-projects`, `editor-projects`.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/projects?type=&query=&limit=&cursor=` | Any type; `{ data, nextCursor }`. |
+| POST | `/projects` | `{ type, ...create body }` → `201 Project`. |
+| GET/PATCH/DELETE | `/projects/{id}` | Generic read, update, delete. |
+| GET/POST | `/boards`, `/canvas`, `/cinema/storyboards`, `/cam-view/scenes`, `/video-agent/projects`, `/editor/projects` | Typed list and create. |
+| GET/PATCH/DELETE | `.../{id}` | Typed read, update (`expectedUpdatedAt`), delete (`?expectedUpdatedAt=`). |
+| POST | `/boards/{id}/operations`, `/canvas/{id}/operations`, `/editor/projects/{id}/operations` | `{ operations[1..100], expectedUpdatedAt?, fps? }`. |
+| POST | `/boards/from-prompt`, `/canvas/from-prompt`, `/cinema/storyboards/from-prompt`, `/cam-view/scenes/from-prompt`, `/video-agent/projects/from-prompt` | Direct a project from a brief → `201`. |
+| POST | `/video-agent/projects/{id}/generate` | Dispatch per-segment generations → `202`. |
+
+## Agent, Characters, Training
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/agent` | `{ messages }` → SSE stream; needs 5+ credits. |
+| GET | `/characters` | `{ data: Character[], updatedAt }`. |
+| POST | `/characters` | `{ name, description?, referenceImageUrl? }` → `201`; replaces by name. |
+| GET/PATCH/DELETE | `/characters/{name}` | Read, partial update, delete. |
+| GET | `/training` | Up to 200 training jobs (snake_case fields). |
+| GET | `/training/{id}` | One job. |
 
 ## Standard Status Policy
 
 | Status | Meaning | Client action |
 |---:|---|---|
-| 200/201 | Read/upload completed | Consume response. |
-| 202 | Generation/workflow queued | Persist ID and poll. |
-| 400 | Invalid body, params, query, or media | Fix request; do not blind retry. |
+| 200/201 | Read, create, or upload completed | Consume response. |
+| 200 + `idempotentReplay` | `/generate` replayed an earlier job | Resume polling the returned `contentId`. |
+| 202 | Generation, workflow run, or segment dispatch queued | Persist ID and poll. |
+| 302 | `?redirect=true` download | Follow to the file. |
+| 400 | Invalid body, params, query, media, cursor, or idempotency key | Fix request; do not blind retry. |
 | 401 | Missing, invalid, or revoked key | Replace credentials; do not retry. |
-| 402 | Insufficient credits | Ask user or choose a cheaper model. |
-| 404 | Resource/model unavailable to this account | Re-discover or correct ID. |
-| 422 | Semantically unsupported or invalid saved definition | Change operation or repair in app. |
-| 429 | Account API concurrency reached | Wait for a known job to finish. |
-| 500/502/503 | Server/provider/storage failure | Back off; reconcile before paid resubmit. |
+| 402 | Insufficient credits (generate, Songcraft download) | Ask user or choose a cheaper path. |
+| 404 | Resource, model, project, character, or prompt unavailable | Re-discover or correct ID. |
+| 409 | Project version conflict, unsupported project type, or folder name clash | Reload and reapply, or rename. |
+| 413 | Project payload over 5 MB | Shrink content. |
+| 422 | Content policy, invalid workflow definition, rename of generated asset, canvas operation unsupported | Change the input or operation. |
+| 429 | Account API concurrency reached | Poll the blocking job; honour `Retry-After`. |
+| 500/502/503 | Server, provider, upload, or key-storage failure | Back off; reconcile before paid resubmit. |
 
 ## Boundary
 
-Anything outside `/api/v1` is not part of this user API contract. Do not use
-browser-session, app project, internal provider, admin, or webhook endpoints from
-external integrations.
+Anything outside `/api/v1` is not part of this contract. Do not use
+browser-session, app project, internal provider, admin, or webhook endpoints
+from external integrations.

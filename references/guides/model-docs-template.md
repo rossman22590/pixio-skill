@@ -1,10 +1,11 @@
 # Model-Specific Documentation Template
 
-Use this only after fetching the selected model from `/models/{id}`. Replace all
-placeholders with live values; omit unsupported params instead of guessing.
+Use this only after fetching the selected model from `/models/{id}` and
+`/pricing?modelId=`. Replace all placeholders with live values; omit
+unsupported params instead of guessing.
 
 ````markdown
-# <Model Name> Through Pixio API
+# <Model Name> Through The Pixio API
 
 ## Environment
 
@@ -16,11 +17,11 @@ export MODEL_ID="<public pixio/... id>"
 
 Keep `PIXIO_API_KEY` in a trusted server, worker, CLI, or secret store.
 
-## Verify Model And Inputs
+## Verify Model, Inputs, And Price
 
 ```bash
-curl -fsS "$PIXIO_BASE_URL/models/$MODEL_ID" \
-  -H "Authorization: Bearer $PIXIO_API_KEY"
+curl -fsS "$PIXIO_BASE_URL/models/$MODEL_ID" -H "Authorization: Bearer $PIXIO_API_KEY"
+curl -fsS "$PIXIO_BASE_URL/pricing?modelId=$MODEL_ID" -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
 Model:
@@ -28,51 +29,56 @@ Model:
 - ID: `<model id>`
 - Type: `<model type>`
 - Company: `<company>`
-- Catalog credits: `<base credits>`
+- List price: `<listCredits>`; your price: `<yourCredits>`
+- Pricing basis: `<flat | rate per unit | varies by options>`; measured from
+  file: `<yes/no>`
+- Plan tier: `<freeForCurrentPlan>`, Maker pool `<makerCap.slug or none>`
 
 Inputs:
 
-- `<name>` (`<type>`, required/optional): `<label and constraints>`
+- `<name>` (`<type>`, required/optional): `<label>`; constraints
+  `<maxBytes / maxSeconds / accepts>`
 
 ## Prepare Media
 
-For local media, use `/images`, `/media`, or `/uploads` according to the exact
-input type. Do not send local filesystem paths in generation JSON.
+Use `/uploads`, `/media`, or `/images` according to the input type. Never send
+local paths in JSON. Check `constraints` before uploading.
 
-## Estimate Exact Request
+## Quote The Exact Request
 
 ```bash
 curl -fsS -X POST "$PIXIO_BASE_URL/generations/estimate" \
-  -H "Authorization: Bearer $PIXIO_API_KEY" \
-  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" -H "Content-Type: application/json" \
   -d '{"modelId":"<model id>","params":{<exact params>}}'
 ```
+
+Read `quote.status` (`measured` vs `provisional`) and `quote.expectedDebit`.
 
 ## Generate
 
 ```bash
 curl -fsS -X POST "$PIXIO_BASE_URL/generate" \
-  -H "Authorization: Bearer $PIXIO_API_KEY" \
-  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" -H "Content-Type: application/json" \
+  -H "Idempotency-Key: <stable unique id>" \
   -d '{"modelId":"<model id>","params":{<exact params>}}'
 ```
 
-Save `contentId`. HTTP `202` means queued, not complete.
+Save `contentId`. HTTP `202` means queued.
 
 ## Poll
 
 ```bash
-curl -fsS "$PIXIO_BASE_URL/generations/<contentId>" \
-  -H "Authorization: Bearer $PIXIO_API_KEY"
+curl -fsS "$PIXIO_BASE_URL/generations/<contentId>" -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-Poll `pending`/`processing`; stop on `succeeded`/`failed`. Refresh expired output
-URLs through this route.
+Poll `pending`/`processing`; stop on `succeeded`/`failed`. Read `billing` for
+the settled cost. Refresh expired output URLs through this route.
 
 ## Account And Errors
 
-- Use `/subscription` for the live account-wide API concurrency limit.
-- Use `/credits` for balance and `/credits/ledger` for recent charges/refunds.
-- Handle `400`, `401`, `402`, `404`, `429`, `500`, `502`, and `503`.
-- Do not blindly resubmit after an uncertain `/generate` timeout.
+- `/me` for the account-wide `concurrencyLimit` and `makerCaps`.
+- `/credits/ledger?generationId=` for the exact charge.
+- Handle `400`, `401`, `402`, `404`, `422 content_policy`, `429
+  concurrency_limit`, `500`, `502`, `503`.
+- Retry `/generate` only with the same `Idempotency-Key`.
 ````

@@ -5,7 +5,8 @@ const args = new Set(process.argv.slice(2));
 if (args.has("--help") || args.has("-h")) {
   console.log(`Usage: PIXIO_API_KEY=pxio_live_... node scripts/pixio-smoke.mjs
 
-Read-only checks: OpenAPI, subscription, models, and credits.
+Read-only checks: both OpenAPI documents, /me, /capabilities, /models, /credits.
+Never dispatches generation work.
 Optional: PIXIO_BASE_URL=https://beta.pixio.myapps.ai/api/v1`);
   process.exit(0);
 }
@@ -43,23 +44,36 @@ async function request(path, authenticated) {
 }
 
 try {
-  const [openapi, subscription, catalog, credits] = await Promise.all([
-    request("/openapi.json", false),
-    request("/subscription", true),
-    request("/models", true),
-    request("/credits", true),
-  ]);
+  const [mediaSpec, platformSpec, me, capabilities, catalog, credits] =
+    await Promise.all([
+      request("/openapi.json", false),
+      request("/platform/openapi.json", false),
+      request("/me", true),
+      request("/capabilities", true),
+      request("/models", true),
+      request("/credits", true),
+    ]);
 
   console.log(
     JSON.stringify(
       {
         ok: true,
-        apiVersion: openapi?.info?.version ?? null,
-        documentedPaths: Object.keys(openapi?.paths ?? {}).length,
-        plan: subscription?.plan ?? null,
-        apiConcurrencyLimit: subscription?.apiConcurrencyLimit ?? null,
+        mediaSpecPaths: Object.keys(mediaSpec?.paths ?? {}).length,
+        platformSpecPaths: Object.keys(platformSpec?.paths ?? {}).length,
+        plan: me?.plan ?? null,
+        concurrencyLimit: me?.concurrencyLimit ?? null,
+        makerCaps: Array.isArray(me?.makerCaps) ? me.makerCaps.length : null,
+        supportedSurfaces: Array.isArray(capabilities?.supported)
+          ? capabilities.supported.length
+          : null,
+        unsupportedSurfaces: Array.isArray(capabilities?.unsupported)
+          ? capabilities.unsupported.length
+          : null,
         visibleModels: Array.isArray(catalog?.models)
           ? catalog.models.length
+          : null,
+        freeForCurrentPlan: Array.isArray(catalog?.models)
+          ? catalog.models.filter((m) => m.freeForCurrentPlan).length
           : null,
         totalCredits: credits?.total ?? null,
       },

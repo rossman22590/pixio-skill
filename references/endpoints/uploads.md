@@ -1,64 +1,47 @@
 # POST /api/v1/uploads
 
-Upload local files or import public media URLs into the authenticated user's Pixio assets.
+Upload local files or import public media URLs into the authenticated user's
+Pixio assets. `POST /api/v1/assets` is an alias.
 
-Use this endpoint when you want a Pixio asset before generating, especially when a model or workflow needs `filePath`, `signedUrl`, `contentType`, `fileSize`, or `mediaType`.
-
-For a simple clean URL to pass into `image_url`, `video_url`, `audio_url`, or workflow `fileUrl`, prefer `/api/v1/images` or `/api/v1/media`.
+Use this when you want a managed Pixio asset: an `id` you can file into a
+folder, a `filePath` for asset-style params, a signed URL, and metadata. For a
+simple clean URL to drop into `image_url`, `video_url`, `audio_url`, or a
+workflow `fileUrl`, prefer `/images` or `/media`.
 
 ## JSON URL Upload
 
 ```bash
-curl -X POST https://beta.pixio.myapps.ai/api/v1/uploads \
-  -H "Authorization: Bearer pxio_live_your_api_key" \
+curl -fsS -X POST "$PIXIO_BASE_URL/uploads" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"url":"https://example.com/reference.png"}'
+  -d '{"urls":["https://example.com/reference-1.png","https://example.com/reference-2.png"]}'
 ```
 
-Multiple URLs:
-
-```bash
-curl -X POST https://beta.pixio.myapps.ai/api/v1/uploads \
-  -H "Authorization: Bearer pxio_live_your_api_key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "urls": [
-      "https://example.com/reference-1.png",
-      "https://example.com/reference-2.png"
-    ]
-  }'
-```
+Single: `{"url":"https://example.com/reference.png"}`.
 
 ## Multipart File Upload
 
 ```bash
-curl -X POST https://beta.pixio.myapps.ai/api/v1/uploads \
-  -H "Authorization: Bearer pxio_live_your_api_key" \
+curl -fsS -X POST "$PIXIO_BASE_URL/uploads" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
   -F "file=@./reference.png"
 ```
 
-Multipart URL import:
-
-```bash
-curl -X POST https://beta.pixio.myapps.ai/api/v1/uploads \
-  -H "Authorization: Bearer pxio_live_your_api_key" \
-  -F "url=https://example.com/reference.png"
-```
-
-Accepted multipart fields:
-
-- `file`
-- `files`
-- `media`
-- `media[]`
-- `asset`
-- `assets`
-- `assets[]`
-- `url`
-- `urls`
-- `urls[]`
+Accepted multipart fields: `file`, `files`, `media`, `media[]`, `asset`,
+`assets`, `assets[]`, `url`, `urls`, `urls[]`.
 
 Limit: up to 8 media items per request.
+
+## File Into A Folder In One Call
+
+```bash
+curl -fsS -X POST "$PIXIO_BASE_URL/uploads?collectionId=$COLLECTION_ID" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
+  -F "file=@./reference.png"
+```
+
+Every upload in the call is filed into that folder. Filing errors are reported
+in the response without discarding the uploads.
 
 ## Response
 
@@ -66,11 +49,12 @@ Limit: up to 8 media items per request.
 {
   "uploads": [
     {
+      "id": "upload-uuid",
       "sourceUrl": "https://example.com/reference.png",
-      "filePath": "users/00000000-0000-0000-0000-000000000000/uploads/api/reference.png",
-      "url": "https://cdn.pixio.ai/uploads/api/reference.png?signature=example",
-      "signedUrl": "https://cdn.pixio.ai/uploads/api/reference.png?signature=example",
-      "signedUrlExpiresAt": "1970-01-01T01:00:00.000Z",
+      "filePath": "users/<account>/uploads/api/reference.png",
+      "url": "https://cdn.pixio.ai/...?signature=example",
+      "signedUrl": "https://cdn.pixio.ai/...?signature=example",
+      "signedUrlExpiresAt": "2026-09-20T11:00:00.000Z",
       "fileName": "reference.png",
       "fileSize": 123456,
       "contentType": "image/png",
@@ -80,10 +64,23 @@ Limit: up to 8 media items per request.
 }
 ```
 
+- `id` is the asset ID; use it with `/assets/{id}`, folder filing, and bulk
+  delete.
+- `filePath` is the durable storage key; use it in asset-style params and when
+  persisting references inside project content.
+- `url` and `signedUrl` are temporary; `signedUrlExpiresAt` says when.
+
+## Errors
+
+- `400`: invalid media, private or local URL, unsupported type, over the size
+  limit for the media kind (see `constraints.maxBytes` on `/params`).
+- `401`: bad key.
+- `502`: upload service or remote fetch failed.
+
 ## Agent Rules
 
-- Use `url` when a model accepts a temporary asset URL.
-- Use `filePath` when a model needs a Pixio asset reference.
-- Only upload image, video, or audio media.
-- Public URL imports must point to direct media files.
-- Localhost, private-network, and non-public URLs are rejected.
+- Use `url` when a model accepts a temporary asset URL now.
+- Use `filePath` when a model needs a Pixio asset reference or when storing a
+  reference in a board, canvas, or storyboard document.
+- Only upload image, video, or audio media; imports must be direct media files.
+- Persist `id` and `filePath`, never a signed URL, for long-lived references.

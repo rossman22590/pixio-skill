@@ -1,17 +1,15 @@
 # GET /api/v1/params
 
-Fetch accepted params for one Pixio model.
+Fetch accepted params for one Pixio model. `GET /models/{pixio/...}` returns
+the identical shape.
 
 ```bash
-curl "https://beta.pixio.myapps.ai/api/v1/params?modelId=pixio/nano-banana/edit" \
-  -H "Authorization: Bearer pxio_live_your_api_key"
+curl -fsS --get "$PIXIO_BASE_URL/params" \
+  -H "Authorization: Bearer $PIXIO_API_KEY" \
+  --data-urlencode "modelId=pixio/nano-banana/edit"
 ```
 
-Optional:
-
-```text
-providerId=pixio
-```
+Optional: `providerId=pixio`.
 
 ## Response
 
@@ -24,7 +22,12 @@ providerId=pixio
     "description": "Model description",
     "type": "image-to-image",
     "credits": 4,
-    "company": "Pixio"
+    "company": "Pixio",
+    "pricing": { "measured": false },
+    "freeForPlans": [],
+    "freeForCurrentPlan": false,
+    "makerCap": null,
+    "outputs": null
   },
   "params": [
     {
@@ -40,7 +43,24 @@ providerId=pixio
       "type": "file",
       "label": "Image",
       "required": true,
-      "defaultValue": null
+      "defaultValue": null,
+      "constraints": {
+        "maxBytes": 26214400,
+        "maxBytesLabel": "25 MB",
+        "accepts": ["image/*"]
+      }
+    },
+    {
+      "name": "audio_url",
+      "type": "file",
+      "label": "Audio",
+      "required": false,
+      "constraints": {
+        "maxBytes": 52428800,
+        "maxBytesLabel": "50 MB",
+        "maxSeconds": 600,
+        "accepts": ["audio/*"]
+      }
     }
   ]
 }
@@ -48,18 +68,24 @@ providerId=pixio
 
 ## Param Fields
 
-- `name`: key to put inside the `params` object.
-- `type`: expected input type, such as `string`, `number`, `boolean`, `select`, or `file`.
-- `label`: human-readable input label.
+- `name`: key to put inside `params`.
+- `type`: `string`, `number`, `boolean`, `select`, `file`, and similar.
+- `label`, `placeholder`: human guidance.
 - `required`: whether generation needs this param.
-- `defaultValue`: default value when available.
-- `placeholder`: prompt or input guidance.
+- `defaultValue`: default when available.
 - `options`: valid values for select-style fields.
+- `constraints` (media inputs): `maxBytes` and `maxBytesLabel` from the upload
+  limits, `maxSeconds` from the duration-limit table where the model bills or
+  caps by duration, and `accepts` (MIME patterns).
+- `model.outputs`: a descriptor for models that return structured results
+  with no file URL (for example text or JSON outputs). When present, read
+  `outputs` on the generation rather than expecting `outputUrl`.
 
 ## Agent Rules
 
 - Fetch params before creating a generation.
-- Respect `required`.
-- Use `options` for select fields.
-- Do not send hidden fields.
-- Do not guess missing required media fields.
+- Respect `required`, `options`, and `constraints`. Reject oversize or
+  over-length media locally instead of paying for a `400`.
+- Preserve declared types; do not stringify numbers or booleans.
+- Do not send hidden or undocumented fields. Internal-only names are stripped.
+- Do not guess missing required media fields; ask for them.

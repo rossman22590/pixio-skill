@@ -1,83 +1,87 @@
 # Media Workflow
 
-Pixio API supports three media paths: clean public URL creation, direct public URL ingestion, and explicit Pixio asset upload.
+Pixio supports four media paths: clean public URL creation, direct public URL
+ingestion, managed asset upload, and resolving stored project references.
+
+## Decision Table
+
+| Need | Route | Returns |
+|---|---|---|
+| A URL to drop into `image_url`/`video_url`/`audio_url` or a workflow `fileUrl` | `POST /images` (images) or `POST /media` (any) | clean public `url` |
+| A reusable asset with metadata, foldering, and later management | `POST /uploads` (alias `POST /assets`), optional `?collectionId=` | `id`, `filePath`, signed `url`, `signedUrlExpiresAt`, `contentType`, `fileSize`, `mediaType` |
+| Use media the user already hosts publicly | pass the URL directly in the declared media param | Pixio imports it before dispatch |
+| Display media stored inside a board, canvas, or storyboard document | `POST /media/resolve` | temporary display URLs keyed by ref |
+| Download a generated file as an attachment | `GET /assets/{id}/download` or `/assets/download?ids=` | one-hour attachment URL |
 
 ## Clean Public URL First
 
-Use these routes for local files or remote media when the next call needs a simple URL without a signed query string:
+Single: `{ "url": "https://pixio-media.example/uploads/reference.jpg" }`.
+Multiple: `{ "url": "<first>", "urls": ["...", "..."] }`.
 
-- `POST /api/v1/images`: image-focused clean URL route.
-- `POST /api/v1/media`: image, video, or audio clean URL route.
-
-Single-item response:
-
-```json
-{
-  "url": "https://pixio-media.example/uploads/reference.jpg"
-}
-```
-
-Multiple-item response:
-
-```json
-{
-  "url": "https://pixio-media.example/uploads/reference-1.jpg",
-  "urls": [
-    "https://pixio-media.example/uploads/reference-1.jpg",
-    "https://pixio-media.example/uploads/reference-2.jpg"
-  ]
-}
-```
-
-Pass the returned `url` into model media params or workflow `fileUrl`.
+Pass `url` into model media params or workflow `fileUrl`. Up to 10 files or
+URLs per request.
 
 ## Public URL In Generation Params
 
-If a model param is a media field and the user has a public media URL, you can pass it directly:
-
 ```json
 {
-  "providerId": "pixio",
   "modelId": "pixio/nano-banana/edit",
-  "params": {
-    "prompt": "make this cinematic",
-    "image_url": "https://example.com/reference.png"
-  }
+  "params": { "prompt": "make this cinematic", "image_url": "https://example.com/reference.png" }
 }
 ```
 
-Pixio imports the URL into Pixio assets before generation starts.
+Pixio imports the URL into assets before generation starts. Temporary imports
+are cleaned up if dispatch fails. The same public-internet guard runs on
+`/generations/estimate`, so quoting with a private URL fails early.
 
-## Explicit Upload First
+## Managed Upload First
 
-Use `/api/v1/uploads` first when:
+Use `/uploads` when you need to:
 
-- you need to reuse the same media in multiple generations;
-- a model expects a Pixio asset path;
-- you want to validate/import media before generating.
-- you need metadata such as `filePath`, `signedUrl`, `fileSize`, `contentType`, or `mediaType`.
+- reuse the same media across generations, workflows, or projects;
+- store a durable reference (`filePath`) inside project content;
+- file media into a folder (`?collectionId=`);
+- validate or import media before paying for a generation;
+- read `fileSize`, `contentType`, `mediaType` first.
 
-Upload response fields:
+Up to 8 items per request. Persist `id` and `filePath`, never a signed URL.
 
-- `filePath`: Pixio storage path for asset-style params.
-- `url`: temporary signed asset URL.
-- `signedUrl`: same temporary signed asset URL.
-- `signedUrlExpiresAt`: expiration timestamp.
-- `mediaType`: `image`, `video`, or `audio`.
+## Project Media References
+
+Project documents keep storage keys, not URLs. When building content or
+operations, write the upload's `filePath` (or the key already present in the
+document). When displaying, call `POST /media/resolve` with every ref in the
+document (up to 100 per call) and use the returned URLs until they expire.
+Never `PATCH` a resolved URL back into content.
 
 ## Limits And Rejections
 
-- `/api/v1/images` and `/api/v1/media`: up to 10 files or URLs per request.
-- `/api/v1/uploads`: up to 8 media URLs/items per request.
-- Public URLs must use HTTP or HTTPS.
-- Private IPs, localhost, and local network URLs are rejected.
-- Remote media must return image, video, or audio content type.
-- Oversized files are rejected.
+- `/images`, `/media`: up to 10 items; `/uploads`: up to 8; `/media/resolve`:
+  up to 100 refs.
+- Per-kind size caps are published as `constraints.maxBytes` on `/params`
+  (check before uploading); duration caps as `constraints.maxSeconds`.
+- Public URLs must be HTTP(S) and resolve on the public internet; private IPs,
+  localhost, and local paths fail with `400 invalid_media_url`.
+- Remote media must return an image, video, or audio content type.
+- For per-second models the server measures the decoded duration; a
+  caller-supplied duration is ignored for billing.
+
+## URL Lifetimes
+
+| URL | Lifetime | Refresh |
+|---|---|---|
+| `/images`, `/media` clean URL | long-lived public | none needed |
+| `/uploads` signed `url` | until `signedUrlExpiresAt` | `GET /assets/{id}` |
+| Generation `outputUrl` | seven days when in Pixio storage | `GET /generations/{id}` |
+| Asset list/detail `url` | until `urlExpiresAt` | `GET /assets/{id}` |
+| Download `url` | one hour | request again |
+| `/media/resolve` URLs | short | resolve again at display time |
 
 ## Agent Rules
 
-- Use exact param names from `/api/v1/params`.
-- Do not put image URLs into text-only params.
-- For arrays such as `image_urls`, preserve array shape.
-- For multiple uploads, map each returned upload to the intended param.
-- Use clean URL routes for workflow `fileUrl` overrides.
+- Use exact param names from `/params`; do not put URLs into text params.
+- Preserve array shape for `image_urls`-style params.
+- Map each returned upload to the intended param by order or `fileName`.
+- Use clean URL routes for workflow `fileUrl` overrides and character
+  `referenceImageUrl`.
+- Check `constraints` before uploading to avoid a paid `400`.

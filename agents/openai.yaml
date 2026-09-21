@@ -1,4 +1,4 @@
 interface:
-  display_name: "Pixio User API"
-  short_description: "Operate the complete Pixio public user API"
+  display_name: "Pixio Public API"
+  short_description: "Operate the complete Pixio public API: generation, pricing, assets, workflows, projects, and the agent"
   default_prompt: "Use $pixio-skill to build a safe, cost-aware Pixio API integration."

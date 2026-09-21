@@ -34,8 +34,13 @@ export class PixioClient {
     return data;
   }
 
-  getSubscription() {
-    return this.request('/subscription');
+  getMe() {
+    return this.request('/me');
+  }
+
+  getPricing(modelId) {
+    const query = modelId ? `?modelId=${encodeURIComponent(modelId)}` : '';
+    return this.request(`/pricing${query}`);
   }
 
   getModel(modelId) {
@@ -49,9 +54,13 @@ export class PixioClient {
     });
   }
 
-  generate(body) {
+  generate(body, { idempotencyKey }) {
+    if (!idempotencyKey) throw new Error('idempotencyKey is required');
+    // Reuse the same key on every retry of this intent. A 200 with
+    // idempotentReplay: true is the original job, not a new one.
     return this.request('/generate', {
       method: 'POST',
+      headers: { 'idempotency-key': idempotencyKey },
       body: JSON.stringify(body),
     });
   }
@@ -83,11 +92,18 @@ Usage:
 
 ```js
 const pixio = new PixioClient({ apiKey: process.env.PIXIO_API_KEY });
+const me = await pixio.getMe();
+console.log(me.plan, me.concurrencyLimit, me.credits.total);
+
 const request = { modelId: 'pixio/example/model', params: { prompt: '...' } };
-console.log(await pixio.estimate(request));
-const queued = await pixio.generate(request);
+const { quote } = await pixio.estimate(request);
+console.log(quote.status, quote.expectedDebit);
+
+const idempotencyKey = `job-${crypto.randomUUID()}`; // persist with the job
+const queued = await pixio.generate(request, { idempotencyKey });
 const result = await pixio.waitForGeneration(queued.contentId);
-console.log(result);
+console.log(result.status, result.outputUrl, result.billing);
 ```
 
-Do not wrap `generate` in generic automatic retry middleware.
+Retry `generate` only with the same `idempotencyKey`; never wrap it in generic
+retry middleware that would mint a new key per attempt.

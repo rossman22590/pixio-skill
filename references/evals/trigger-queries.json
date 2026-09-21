@@ -4,7 +4,7 @@
     "should_trigger": true
   },
   {
-    "query": "Build a Node backend that discovers Pixio models, validates params, estimates credits, generates once, and polls.",
+    "query": "Build a Node backend that discovers Pixio models, validates params, quotes credits, generates once with an idempotency key, and polls.",
     "should_trigger": true
   },
   {
@@ -12,7 +12,7 @@
     "should_trigger": true
   },
   {
-    "query": "List my Pixio assets, rename an upload, create download links, and delete selected items.",
+    "query": "List my Pixio assets by model, file them into a folder, create download links, and delete selected items.",
     "should_trigger": true
   },
   {
@@ -20,15 +20,27 @@
     "should_trigger": true
   },
   {
-    "query": "What does my Pixio subscription allow and how many concurrent API jobs can I run?",
+    "query": "What does my Pixio plan allow, how many concurrent API jobs can I run, and how many free Maker uses are left today?",
     "should_trigger": true
   },
   {
-    "query": "Audit my Pixio credit ledger and correlate generation charges by source ID.",
+    "query": "Why did Pixio estimate 60 credits but bill 300 for my 24-second clip?",
     "should_trigger": true
   },
   {
-    "query": "Optimize this rough video prompt through the Pixio API, then estimate the selected model.",
+    "query": "Get the live Pixio price list for my account and rank the ten cheapest video models for me.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit my Pixio credit ledger and correlate generation charges by generation ID.",
+    "should_trigger": true
+  },
+  {
+    "query": "Optimize this rough prompt with Pixio's Seedance message type and a reference image attachment.",
+    "should_trigger": true
+  },
+  {
+    "query": "Pick a viral template from the Pixio style gallery and generate it from this photo.",
     "should_trigger": true
   },
   {
@@ -36,19 +48,47 @@
     "should_trigger": true
   },
   {
+    "query": "Pixio returned 429 concurrency_limit. Is that my Maker daily cap?",
+    "should_trigger": true
+  },
+  {
+    "query": "Pixio returned 422 content_policy with inputHint image_url. What do I do?",
+    "should_trigger": true
+  },
+  {
     "query": "My Pixio API returned 401 after I revoked the integration key. Is that expected?",
     "should_trigger": true
   },
   {
-    "query": "Run my saved Pixio workflow with a local reference image and collect every output.",
+    "query": "Create a Pixio workflow from this definition JSON, then run it with a TTS narration override.",
     "should_trigger": true
   },
   {
-    "query": "Generate a typed Pixio client from its OpenAPI spec and add polling and signed URL refresh.",
+    "query": "Direct a Pixio storyboard from this brief over the API and resolve the frame images for display.",
     "should_trigger": true
   },
   {
-    "query": "Can the current Pixio user API create Boards, Cam View shots, or export editor projects?",
+    "query": "Add a node to my Pixio board through the API without clobbering edits someone made in the app.",
+    "should_trigger": true
+  },
+  {
+    "query": "Plan a Video Agent project in Pixio from a prompt and generate the first ten segments.",
+    "should_trigger": true
+  },
+  {
+    "query": "Stream the Pixio agent from my backend and capture the generation IDs it creates.",
+    "should_trigger": true
+  },
+  {
+    "query": "Save a locked character in Pixio with a reference image so later prompts reuse it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Generate typed Pixio clients from both OpenAPI specs and add polling and signed URL refresh.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can the current Pixio API render or export a timeline project, or start a LoRA training job?",
     "should_trigger": true
   },
   {
