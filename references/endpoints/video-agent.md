@@ -58,8 +58,10 @@ Body:
 - `regenerate`: also re-run segments that already have a `contentId`.
 
 At most 10 segments dispatch per call. Dispatch is sequential on purpose: each
-segment runs the full plan, credit, and concurrency checks, and the first
-failure (for example `402`) stops the run with everything so far reported.
+segment runs the full plan and credit checks, and the first failure (for
+example insufficient credits) stops the run with everything so far reported.
+The route does not return `429 concurrency_limit` itself; size batches to
+`concurrencyLimit` from `GET /me`.
 
 Response `202`:
 
@@ -80,20 +82,32 @@ Response `202`:
 - `already_generated`: has a `contentId` and `regenerate` was false.
 - `no_prompt`: empty `visualPrompt`.
 - `call_limit`: beyond the 10-per-call cap; call again with `segmentIds`.
-- Any other reason is the dispatch error message for that segment.
+- Any other reason is a short public sentence saying why that segment's
+  generation failed. It is sanitized: it never names the model provider and
+  never carries a raw upstream body. The run stops at that segment.
 
 Segment `contentId`s are written back onto the project so the app's Video
 Agent workspace picks the clips up. Poll each `generationId` at
 `GET /generations/{id}`.
 
-Errors:
+Errors (every body carries `error` and `code`):
 
-- `400 { error: "No segments to generate", skipped }` when nothing qualified.
-- `400 { error: "model_not_available", message }`.
-- `400 { error: "Invalid body", details }`.
-- `404 PROJECT_NOT_FOUND`, `409 UNSUPPORTED_PROJECT_TYPE`.
-- Each segment is billed exactly like `POST /generate`, and each counts
-  against the account concurrency limit.
+- `400 { error: "No segments to generate", code: "invalid_request", skipped }`
+  when nothing qualified.
+- `400 { error: "Invalid body", code: "invalid_request", details }` for a body
+  that is not JSON or fails validation, and `400 { error: "Missing project
+  id", code: "invalid_request" }` for an empty id.
+- `400` with the same shape as the `202` body (empty `dispatched`, the failure
+  in `skipped[].reason`) when segments qualified but the first dispatch
+  failed. Check `dispatched.length` before treating a `400` here as a
+  malformed request.
+- `400 { error: "model_not_available", code: "model_not_available", message }`
+  for an unknown, hidden, disabled, or malformed `modelId`. This route does
+  not return `404 model_not_found` for a model (that is `/generate`).
+- `404 PROJECT_NOT_FOUND`, `400 INVALID_PROJECT_ID`, `409 PROJECT_CONFLICT`,
+  `409 UNSUPPORTED_PROJECT_TYPE`: project-family errors, UPPER_SNAKE codes with
+  `error` equal to the code and the sentence in `message`.
+- Each segment is billed exactly like `POST /generate`.
 
 ## Agent Protocol
 

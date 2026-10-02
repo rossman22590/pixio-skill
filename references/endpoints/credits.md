@@ -50,9 +50,16 @@ curl -fsS "$PIXIO_BASE_URL/credits/ledger?generationId=$CONTENT_ID" \
       "creditedCredits": 0,
       "createdAt": "..."
     }
-  ]
+  ],
+  "hasMore": false
 }
 ```
+
+- `hasMore` is `true` when older entries exist beyond `limit`. To read further
+  back, raise `limit` (up to 200) or narrow with `generationId`; there is no
+  cursor.
+- An invalid `limit` or `generationId` is
+  `400 { error: "Invalid query parameters", code: "invalid_request", details }`.
 
 - `generationId` is the same value as `sourceId`, kept under both names.
   `null` means no link was recorded against the movement; that means

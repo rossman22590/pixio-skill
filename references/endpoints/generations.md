@@ -41,8 +41,13 @@ Response:
 actually debited; credits debit on the transition to `succeeded`, so failed
 runs always have `billedAt: null`.
 
+Each item's `params` and `error` follow the same rules as the detail route
+below: `params` has internal keys removed and `error` is sanitized.
+
 Use history to resume polling after a process restart and to reconcile an
 uncertain `/generate` response before considering resubmission.
+
+An invalid filter is `400 { error, code: "invalid_request", details }`.
 
 ## Poll Or Get Detail
 
@@ -87,7 +92,12 @@ Response:
 }
 ```
 
-- `params` never includes reserved internal parameters.
+- `params` never includes reserved internal parameters; they are withheld
+  from the echo, on this route and in the list.
+- `error` is a short public sentence. It never names the model provider or
+  upstream vendor and never carries a raw upstream response body, so display
+  it as is but do not parse it; branch on `status` (and `code` on `/generate`).
+  It is `null` unless the run failed.
 - `billing.ledger.matchedBy` is `source_id` when the ledger movement carries a
   direct link, `timestamp` when it was matched on billing time and amount (a
   probable match, not proof), or `none`.

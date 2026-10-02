@@ -47,7 +47,7 @@ curl -fsS "$PIXIO_BASE_URL/me" \
 - `makerCaps` is empty on non-Maker plans. Each entry is one daily free-use
   pool. Join `slug` to `makerCap.slug` on `/models` or `/pricing` to know which
   pool covers a model. `nextAllowanceAt` is when the next free use frees up in
-  the rolling window.
+  the rolling window, or `null` when nothing is waiting to free up.
 
 ## Two Different Rejections
 

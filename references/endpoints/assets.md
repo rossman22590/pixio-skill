@@ -76,9 +76,11 @@ built from this list always returns results. Pass `modelId` back to
 
 ## Upload Assets
 
-`POST /assets` is an alias of `POST /uploads` (see `uploads.md`), including
-`?collectionId=` filing. The response is `{ "uploads": [...] }` with each
-upload's `id`.
+`POST /assets` is an alias of `POST /uploads` (see `uploads.md`) for the upload
+itself: the same bodies, and the response is `{ "uploads": [...] }` with each
+upload's `id`. It does **not** honour `?collectionId=`; the one-call folder
+shortcut is on `POST /uploads` only. To file the result after `POST /assets`,
+call `POST /assets/collections/{id}/items` with the returned `id`s.
 
 ## Get One Asset
 

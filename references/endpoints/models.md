@@ -20,6 +20,8 @@ curl -fsS "$PIXIO_BASE_URL/models" \
       "description": "...",
       "type": "image-to-video",
       "credits": 120,
+      "defaultCredits": 120,
+      "fromCredits": null,
       "company": "Example",
       "pricing": {
         "rate": 24,
@@ -47,8 +49,14 @@ curl -fsS "$PIXIO_BASE_URL/models" \
 
 Field meanings:
 
-- `credits`: the list price at the pricing rule's defaults. For a model billed
-  per second of an uploaded file this is almost never the price paid.
+- `credits`: the raw catalog price. It is an exact price only for a flat-priced
+  model; for a per-second model it is a rate, and for an option-priced model a
+  floor. For a model billed per second of an uploaded file this is almost never
+  the price paid.
+- `defaultCredits`: what a request that supplies no params costs. Budget
+  against this rather than `credits`.
+- `fromCredits`: the cheapest option combination, or `null` where options do
+  not drive the price. The same field appears on `GET /pricing`.
 - `pricing`: how the model is priced. `rate` per `rateQuantity` of `rateUnit`;
   `basisInput` is the param the quantity comes from; `measured: true` means
   the server measures that quantity from your file and ignores any value you
@@ -86,9 +94,13 @@ curl -fsS "$PIXIO_BASE_URL/models/pixio/example/model" \
   -H "Authorization: Bearer $PIXIO_API_KEY"
 ```
 
-Returns `{ model, params }`. `params` entries carry `constraints` and the
-model may carry an `outputs` descriptor; see `params.md`.
-`GET /params?modelId=...` returns the same shape.
+Returns `{ model, params, outputs }`. `params` entries carry `constraints`, and
+`outputs` is `{ format: "json" | "file", hasFileUrl }` (a `json` model returns a
+structured result and no output file); see `params.md`. The detail `model`
+object is the short form: it omits `pricing`, `defaultCredits`,
+`fromCredits`, and `inputs` (the inputs are the `params` array).
+`GET /params?modelId=...` returns the same shape. An unknown or hidden ID is
+`404` (`model_not_found`, or `not_found` on the path form for a malformed ID).
 
 ## Selection Rules
 
@@ -98,7 +110,8 @@ model may carry an `outputs` descriptor; see `params.md`.
   ID.
 - Never call provider APIs directly. `providerId` is always `pixio`.
 - Availability and inputs vary by plan; refresh rather than cache indefinitely.
-- A `404` means malformed, hidden, unavailable, or unknown for this account.
+- A `404` means malformed, hidden, unavailable, or unknown for this account
+  (`model_not_found`).
 - For any model with `pricing.rate`, quote with `/generations/estimate` and the
   real file before promising a cost.
 

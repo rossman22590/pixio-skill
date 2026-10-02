@@ -5,6 +5,19 @@ uses: admin-tuned model-family system prompts, screenplay mode, attachments as
 source material, and search or URL grounding. A legacy body still runs the
 original four-type optimizer unchanged.
 
+## Cost
+
+Every `POST` costs **5 credits** per call (`limits.creditsPerCall` on the
+`GET`). The charge is taken only after validation passes (a prompt or
+attachment is present, the `messageType` exists, and every attachment resolves
+and is an allowed size and type), immediately before the model call. Anything
+rejected before that point costs nothing: `400`/`401`, an unknown
+`messageType`, a bad attachment (including an attachment that fails to upload
+or times out), or an optimizer that is not configured. A model failure after
+the charge (`502`) is **not refunded**. An account that cannot cover the call
+gets `402 insufficient_credits` and nothing is charged. Both success bodies
+carry `cost: { credits }` with the amount charged. The `GET` is free.
+
 ## GET /api/v1/prompts/optimize
 
 Discover configuration instead of guessing.
@@ -23,7 +36,7 @@ Discover configuration instead of guessing.
   ],
   "modes": ["standard", "screenplay"],
   "legacyTypes": ["image", "video", "audio", "3d"],
-  "limits": { "maxAttachments": 6, "maxPromptChars": 5000 }
+  "limits": { "maxAttachments": 6, "maxPromptChars": 5000, "creditsPerCall": 5 }
 }
 ```
 
@@ -45,8 +58,15 @@ curl -fsS -X POST "$PIXIO_BASE_URL/prompts/optimize" \
 Returns exactly as before:
 
 ```json
-{ "optimizedPrompt": "...", "improvements": ["..."], "reasoning": "..." }
+{
+  "optimizedPrompt": "...",
+  "improvements": ["..."],
+  "reasoning": "...",
+  "cost": { "credits": 5 }
+}
 ```
+
+The body is otherwise unchanged; `cost` is the one additive field.
 
 ## POST: Full Optimizer
 
@@ -86,23 +106,38 @@ Returns:
   "messageType": "seedance-long",
   "mode": "standard",
   "model": "the LLM used",
-  "attachmentsUsed": 1
+  "attachmentsUsed": 1,
+  "cost": { "credits": 5 }
 }
 ```
 
 ## Errors
 
-- `400`: unknown `messageType`, unresolvable or unsupported attachment, or
-  neither `prompt` nor `attachments`.
-- `401`: bad key.
-- `502`: optimizer backend failure; keep the original prompt.
+Every error body is `{ error, code, ... }`.
+
+- `400 invalid_json`: the body is not valid JSON.
+- `400 invalid_request`: failed validation (with `details`), unknown
+  `messageType`, unresolvable or unsupported attachment, or neither `prompt`
+  nor `attachments`.
+- `401 missing_api_key` / `invalid_api_key`: bad key.
+- `402 insufficient_credits`: fewer than 5 credits. Nothing was charged.
+- `500 optimizer_error`: the optimizer is not configured, or its configuration
+  could not be loaded (`GET` as well as `POST`). Not charged.
+- `502`: `provider_error` on the legacy body, `optimizer_error` on the full
+  optimizer. A model failure comes after the charge and is not refunded; keep
+  the original prompt. A `502` from uploading an attachment happens before the
+  charge and costs nothing.
+- `504 optimizer_error`: the optimizer timed out processing an attachment.
+  Not charged.
+- `503 service_unavailable`: API-key storage unavailable.
 
 ## Rules
 
 - Pick `messageType` by the target model family; a Seedance prompt and a
   Midjourney prompt are shaped very differently.
 - Optimization does not choose a model, validate params, estimate price, or
-  create a generation.
+  create a generation. It does cost 5 credits per call, so do not run it in a
+  tight retry loop; cache the result for a given prompt.
 - Preserve explicit user constraints and media identity requirements.
 - Surface substantial semantic changes for approval when the product's policy
   requires it.

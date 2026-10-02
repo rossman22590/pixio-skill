@@ -6,7 +6,7 @@ description: Integrate, operate, document, or audit the Pixio public REST API (/
 # Pixio Public API
 
 Operate Pixio through the stable public `/api/v1` surface. The deployed
-contracts are the source of truth; this skill mirrors them as of 2026-09-20.
+contracts are the source of truth; this skill mirrors them as of 2026-10-01.
 
 ```text
 Origin:   https://beta.pixio.myapps.ai
@@ -24,12 +24,23 @@ screen in the app.
 
 | Document | Route | Covers |
 |---|---|---|
-| Media API | `GET /openapi.json` (anonymous) | generate, quotes, generations, media, assets, folders, styles, models, pricing, credits, `/me`, optimizer, preferences, workflow runs |
-| Platform API | `GET /platform/openapi.json` (anonymous) | generic and typed project CRUD, operations, prompt-to-project, characters, prompt library, training |
+| Media API | `GET /openapi.json` (anonymous) | generate, quotes, generations, media, assets, folders, styles, models and favorites, pricing, credits, `/me`, optimizer, preferences, workflows (CRUD and runs), `/agent`, `/capabilities` |
+| Platform API | `GET /platform/openapi.json` (anonymous) | generic and typed project CRUD, operations, prompt-to-project, Video Agent segment generation, characters, prompt library, training, workflow CRUD, plus the account and folder reads (`/me`, `/pricing`, `/assets/collections`, `/assets/models`, `/styles`, `/media/resolve`) and preferences |
 | Capabilities | `GET /capabilities` (auth) | supported surfaces, unsupported surfaces, links to both contracts |
 
 `GET /guide` (anonymous, Markdown or `?format=json`) is the agent-readable
 protocol summary. Read it when the deployed API may be newer than this skill.
+
+## Errors
+
+Every error body is `{ error, code, ... }`: `error` is a sentence, `code` is a
+stable machine string (`missing_api_key`, `invalid_json`, `invalid_request`,
+`insufficient_credits`, `model_not_found`, `content_policy`,
+`concurrency_limit`, `provider_error`, ...), with optional `message` and
+`details`. Branch on `code`. A few legacy bodies set `error` equal to the code.
+The project family uses UPPER_SNAKE codes (`PROJECT_NOT_FOUND`) and its `401`
+bodies carry `error` only. Read `references/overview.md` ("Error envelope") for
+the full list.
 
 ## Start Every Integration
 
@@ -84,8 +95,8 @@ and billing.
 - `POST /images`: clean public image URL, no signed query string.
 - `POST /media`: clean public image, video, or audio URL.
 - `POST /uploads` (alias `POST /assets`): a managed Pixio asset with `id`,
-  `filePath`, signed URL, and metadata. Add `?collectionId=` to file it into a
-  folder in the same call.
+  `filePath`, signed URL, and metadata. Add `?collectionId=` to `POST /uploads`
+  (not the `/assets` alias) to file it into a folder in the same call.
 - Public HTTP(S) media URLs may be passed straight into a declared media param;
   Pixio imports them before dispatch. Localhost, private hosts, and local paths
   fail with `400 invalid_media_url`.
@@ -194,9 +205,11 @@ capability is absent from both OpenAPI documents, it is unsupported.
 - Use the returned param schema; preserve types; honour `constraints`.
 - Treat `202` as queued, not completed.
 - Treat `outputUrl`, asset `url`, and resolved media URLs as expiring.
+- Branch on `code`, not on the `error` sentence.
 - Treat `401` as missing, invalid, or revoked credentials; do not retry it.
 - Treat `402` as a credit decision; surface `availableCredits`,
-  `requiredCredits`, and `shortfall`.
+  `requiredCredits`, and `shortfall`. `POST /prompts/optimize` costs 5 credits
+  per call and can return it too.
 - Treat `422 content_policy` as final for that input; do not resubmit
   unchanged. Surface `inputHint`.
 - Treat `429 concurrency_limit` as account-wide backpressure (shared by every

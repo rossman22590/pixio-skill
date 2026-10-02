@@ -17,27 +17,70 @@ Title `Pixio API`. `servers[0].url` is `https://beta.pixio.myapps.ai/api/v1`,
 so paths are relative (`/generate`, `/models`). Security scheme `ApiKey`
 (HTTP bearer).
 
-Covers: guide, generate (with `Idempotency-Key` parameter and 200/202/400/401/
-402/422/429 responses), images, media, media/resolve, uploads, assets and
-downloads, collections, styles, params, generations and estimate, models,
-pricing, credits, ledger, subscription, me, prompts/optimize, preferences,
-workflows and runs.
+Covers (the paths, relative to the server URL):
+
+- discovery: `/guide`, `/openapi.json`, `/capabilities`;
+- generation: `/generate` (with the `Idempotency-Key` parameter and typed
+  200/202/400/401/402/404/422/429/503 responses; every generation-pipeline
+  failure is a `400` with a `code`), `/generations`,
+  `/generations/{id}`, `/generations/estimate`;
+- media: `/images`, `/media`, `/media/resolve`, `/uploads` (with
+  `?collectionId=`), `/assets` (GET with `modelId`, POST, DELETE),
+  `/assets/models`, `/assets/{id}`, `/assets/{id}/download`,
+  `/assets/download`, `/assets/collections` and `/{id}` and `/{id}/items`,
+  `/styles`;
+- models and prices: `/models`, `/models/{id}`, `/models/favorites`
+  (GET/POST/DELETE), `/params`, `/pricing`, `/preferences/models`,
+  `/preferences/models/catalog`;
+- account: `/me`, `/credits`, `/credits/ledger`, `/subscription`;
+- prompting: `/prompts/optimize` (GET and POST);
+- agent: `/agent` (the SSE stream);
+- workflows: `/workflows` (GET, POST), `/workflows/{id}` (GET, PATCH, DELETE),
+  `/workflows/{id}/runs` (POST, GET with `limit`), `/workflows/{id}/runs/{runId}`.
+
+Not in this document: the project family, characters, `/prompt-library`, and
+`/training`. They are in the platform document below.
+
+Components include `ApiError`, the one error envelope
+(`{ error, code, message?, details? }`), referenced by every documented error
+status, plus `InsufficientCreditsError`, `ContentPolicyError`,
+`ConcurrencyLimitError`, `UploadItem`, `WorkflowDefinition`, `Workflow`, and
+`ModelOutputs`. Every authenticated operation lists `401` and `503`.
 
 ## GET /api/v1/platform/openapi.json
 
 Title `Pixio Project Integration API`. `servers[0].url` is the origin
 `https://beta.pixio.myapps.ai`, so paths are absolute (`/api/v1/boards`).
 Security scheme `bearerAuth` (HTTP bearer). It is generated from the public
-operation table, so every project, character, prompt-library, training,
-workflow-CRUD, and preference operation appears with a generated
-`operationId` such as `post_boards_id_operations`.
+operation table, so each operation appears with a generated `operationId` such
+as `post_boards_id_operations`. It covers:
+
+- generic and typed project CRUD (`/projects`, `/boards`, `/canvas`,
+  `/cinema/storyboards`, `/cam-view/scenes`, `/video-agent/projects`,
+  `/editor/projects`), `.../{id}/operations`, and `.../from-prompt`;
+- `POST /video-agent/projects/{id}/generate`;
+- characters, `/prompt-library`, `/prompt-library/{id}`, `/training`,
+  `/training/{id}`;
+- workflow create/read/update/delete: `POST /workflows` and
+  `GET/PATCH/DELETE /workflows/{id}` (the workflow list and runs are in the
+  media document);
+- the account and asset-folder reads that were added later: `/me`, `/pricing`,
+  `/capabilities`, `/assets/models`, `/assets/collections` (all seven
+  operations), `/styles`, `/media/resolve`, `GET /prompts/optimize`;
+- the two read-only preference routes, and `/platform/openapi.json` itself.
+
+Not in this document: generate, estimate, generations, uploads, assets,
+downloads, models, params, credits, ledger, subscription, the optimizer `POST`,
+workflow runs, favorites, and `/agent`. Those are in the media document.
 
 Component schemas worth reading: `Project`, `ProjectWrite`,
 `GenericProjectCreateRequest` (discriminated on `type`), the per-type
 `*CreateRequest` schemas with template enums, `OperationsRequest`,
 `VisualProjectPromptRequest`, `CamViewPromptRequest`,
-`StoryboardPromptRequest`, `VideoAgentPromptRequest`, and `ApiError`
-(`{ error, code?, details? }`).
+`StoryboardPromptRequest`, `VideoAgentPromptRequest`, `Workflow`,
+`WorkflowDefinition`, `VideoAgentGenerateRequest`/`VideoAgentGenerateResult`,
+and `ApiError` (`{ error, code?, message?, details? }`; project-family routes
+use UPPER_SNAKE `code` values and their `401`/`503` bodies carry `error` only).
 
 ## GET /api/v1/capabilities (authenticated)
 
@@ -63,6 +106,9 @@ memory. See `capabilities.md`.
 
 ## Important Limits
 
+- Many success bodies are described in the operation's `description` text
+  rather than as full schemas; where a response is only described in text, the
+  field list in that description is authoritative.
 - Neither document enumerates the live model catalog or model params. Fetch
   `/models`, `/models/{id}`, `/params`, and `/pricing` at runtime.
 - Project `content` documents are typed as open objects in the spec; the

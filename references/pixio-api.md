@@ -15,16 +15,16 @@ Authenticated calls require `Authorization: Bearer $PIXIO_API_KEY`.
 | GET | `/me` | Yes | Identity, `plan`, `credits`, `concurrencyLimit`, `makerCaps[]`. |
 | GET | `/subscription` | Yes | `plan`, `credits`, `apiConcurrencyLimit`. |
 | GET | `/credits` | Yes | Recurring, permanent, and total balance. |
-| GET | `/credits/ledger?limit=&generationId=` | Yes | Movements with `generationId`, `debitedCredits`, `creditedCredits`. |
+| GET | `/credits/ledger?limit=&generationId=` | Yes | `{ entries, hasMore }`: movements with `generationId`, `debitedCredits`, `creditedCredits`. |
 | GET | `/pricing?type=&modelId=` | Yes | Live price list: `listCredits`, `yourCredits`, `pricing`, plans, packs. |
 
 ## Models And Prompting
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/models` | Visible models with `credits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `inputs`. |
+| GET | `/models` | Visible models with `credits`, `defaultCredits`, `fromCredits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `inputs`. |
 | GET | `/models?modelId=pixio/...` | One list-format model as `{ model }`. |
-| GET | `/models/pixio/...` | `{ model, params }` with `constraints` and `outputs`. |
+| GET | `/models/pixio/...` | `{ model, params, outputs }`; `params` carry `constraints`, `outputs` is `{ format: "json" \| "file", hasFileUrl }`. |
 | GET | `/params?modelId=pixio/...` | Same detail shape. |
 | GET | `/models/favorites` | `{ data: [{ modelId, name, type, createdAt }] }`. |
 | POST | `/models/favorites` | `{ modelId }` → `201 { modelId, favorited: true }`. |
@@ -32,17 +32,17 @@ Authenticated calls require `Authorization: Bearer $PIXIO_API_KEY`.
 | GET | `/preferences/models` | Read-only quick-action defaults with public IDs. |
 | GET | `/preferences/models/catalog` | Every action key with eligible models. |
 | GET | `/prompts/optimize` | `messageTypes`, `modes`, `legacyTypes`, `limits`. |
-| POST | `/prompts/optimize` | Legacy `{ prompt, type?, context? }` or full optimizer body. |
+| POST | `/prompts/optimize` | Legacy `{ prompt, type?, context? }` or full optimizer body. Costs 5 credits per call; success bodies carry `cost: { credits }`; `402` when short. |
 | GET | `/styles?kind=&category=&search=` | Styles (`append`) and viral templates (`replace` + `recipe`). |
-| GET | `/prompt-library?type=&query=&limit=` | Prompts mined from generation history. |
-| GET | `/prompt-library/{id}` | One prompt with its saved `params`. |
+| GET | `/prompt-library?type=&query=&limit=` | `{ data, hasMore }`: prompts mined from generation history, `modelId` a public `pixio/...` ID. |
+| GET | `/prompt-library/{id}` | One prompt with its saved `params` (internal keys removed). |
 
 ## Generation
 
 | Method | Path | Purpose |
 |---|---|---|
 | POST | `/generations/estimate` | `{ modelId, params, durationSeconds? }` → `quote`, `pricing`, `baseCost`, `estimatedCost`. |
-| POST | `/generate` | `{ modelId, params }` + `Idempotency-Key` → `202 { contentId }` or `200` replay. |
+| POST | `/generate` | `{ modelId, params }` + `Idempotency-Key` → `202 { contentId, providerId, modelId }` or `200` replay (also with `providerId`, `modelId`). |
 | GET | `/generations?status=&type=&page=&limit=` | History with `creditsCost` and `billedAt`. |
 | GET | `/generations/{id}` | Status, output, `billing`, `media`. |
 | DELETE | `/generations/{id}` | Delete record and stored output. Not cancellation. |
@@ -83,7 +83,7 @@ Generation statuses: `pending`, `processing`, `succeeded`, `failed`.
 | PATCH | `/workflows/{id}` | Update `name`, `description`, or `definition`. |
 | DELETE | `/workflows/{id}` | `{ deleted: true, id }`; runs cascade. |
 | POST | `/workflows/{id}/runs` | `{ prompt?, negativePrompt?, overrides? }` → `202 { runId }`. |
-| GET | `/workflows/{id}/runs?limit=` | Recent runs (1–50, default 20). |
+| GET | `/workflows/{id}/runs?limit=` | `{ workflowId, hasMore, runs }`: recent runs (`limit` clamped to 1–50, default 20; never an error). |
 | GET | `/workflows/{id}/runs/{runId}` | Run status, `steps[]`, `outputs[]`. |
 
 Workflow run statuses: `queued`, `running`, `succeeded`, `failed`.
@@ -112,7 +112,7 @@ Project types: `boards`, `canvas`, `cinema-storyboards`, `cam-view-scenes`,
 | GET | `/characters` | `{ data: Character[], updatedAt }`. |
 | POST | `/characters` | `{ name, description?, referenceImageUrl? }` → `201`; replaces by name. |
 | GET/PATCH/DELETE | `/characters/{name}` | Read, partial update, delete. |
-| GET | `/training` | Up to 200 training jobs (snake_case fields). |
+| GET | `/training` | `{ data, hasMore }`: up to 200 training jobs (snake_case fields). |
 | GET | `/training/{id}` | One job. |
 
 ## Standard Status Policy
@@ -123,15 +123,19 @@ Project types: `boards`, `canvas`, `cinema-storyboards`, `cam-view-scenes`,
 | 200 + `idempotentReplay` | `/generate` replayed an earlier job | Resume polling the returned `contentId`. |
 | 202 | Generation, workflow run, or segment dispatch queued | Persist ID and poll. |
 | 302 | `?redirect=true` download | Follow to the file. |
-| 400 | Invalid body, params, query, media, cursor, or idempotency key | Fix request; do not blind retry. |
+| 400 | Invalid JSON (`invalid_json`), body, params, query, media, cursor, or idempotency key (`invalid_request` and friends); every `/generate` pipeline failure (`provider_error`, `model_unavailable`, `plan_restricted`, `maker_in_flight`, `generation_failed`, `server_error`); video-agent generate `model_not_available` | Branch on `code`. Fix request; do not blind retry (`maker_in_flight`: wait for the running Maker job). |
 | 401 | Missing, invalid, or revoked key | Replace credentials; do not retry. |
-| 402 | Insufficient credits (generate, Songcraft download) | Ask user or choose a cheaper path. |
+| 402 | Insufficient credits (generate, prompt optimizer, Songcraft download) | Ask user or choose a cheaper path. |
 | 404 | Resource, model, project, character, or prompt unavailable | Re-discover or correct ID. |
 | 409 | Project version conflict, unsupported project type, or folder name clash | Reload and reapply, or rename. |
-| 413 | Project payload over 5 MB | Shrink content. |
+| 413 | Project payload over 5 MB, or an `/agent` history over 1,000,000 characters (`request_too_large`) | Shrink content or trim older messages. |
 | 422 | Content policy, invalid workflow definition, rename of generated asset, canvas operation unsupported | Change the input or operation. |
 | 429 | Account API concurrency reached | Poll the blocking job; honour `Retry-After`. |
 | 500/502/503 | Server, provider, upload, or key-storage failure | Back off; reconcile before paid resubmit. |
+
+Every error body is `{ error, code, ... }`; branch on `code`. See
+`overview.md`, "Error envelope", for the code list and the project-family
+exceptions.
 
 ## Boundary
 

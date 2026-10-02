@@ -2,7 +2,7 @@
 
 Agent Skill for integrating with the complete Pixio public REST API (`/api/v1`)
 from backends, workers, scripts, automations, CLIs, desktop apps, mobile
-backends, and agents. Mirrors the deployed contracts as of 2026-09-20.
+backends, and agents. Mirrors the deployed contracts as of 2026-10-01.
 
 It covers:
 
@@ -55,6 +55,30 @@ API and resolve its frame images for display.
 
 The skill entrypoint is `SKILL.md`. Endpoint contracts, guides, examples,
 smoke checks, and evaluation prompts live under `references/` and `scripts/`.
+
+## Changelog
+
+- **2026-10-01**: every error body now carries a machine `code` beside `error`
+  (documented in the new "Error envelope" section of
+  `references/overview.md`); malformed JSON is `400 invalid_json`;
+  `/generate` pipeline failures stay `400` and now carry a `code`
+  (`invalid_request`, `provider_error`, `model_unavailable`,
+  `plan_restricted`, `maker_in_flight`, `generation_failed`, `server_error`), so clients that
+  branch on status are unaffected, and its idempotent replay also returns
+  `providerId`/`modelId`; provider names
+  and raw upstream bodies no longer appear in error text, generation, workflow
+  run, or video-agent `error`/`reason` fields, and generation `params` echoes
+  omit internal keys; workflow-run `429` matches `/generate`; workflow run
+  lists return `hasMore` and clamp `limit` to 1-50 (never an error), and
+  `/credits/ledger`, `/prompt-library`, and `/training` also return `hasMore`;
+  `/prompts/optimize` charges 5 credits per call, only once validation has
+  passed, and returns `cost`; `/agent` rejects histories over 1,000,000 characters
+  with `413 request_too_large`; an unknown model on
+  `/video-agent/projects/{id}/generate` stays `400 model_not_available`; the model
+  detail routes return `outputs` and the list returns `defaultCredits` and
+  `fromCredits`. The OpenAPI documents gained a shared `ApiError` schema and
+  the `/agent`, `/models/favorites`, workflow CRUD, `/assets/models`,
+  `/capabilities`, and Video Agent generate operations.
 
 ## Safety
 

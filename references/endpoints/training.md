@@ -5,7 +5,8 @@ job is not available over the API; do that in the app.
 
 ## GET /api/v1/training
 
-Up to 200 jobs, newest first.
+Up to 200 jobs, newest first. `hasMore` is `true` when more than 200 exist
+(older jobs are not reachable over the API).
 
 ```json
 {
@@ -25,7 +26,8 @@ Up to 200 jobs, newest first.
       "completed_at": "...",
       "model_type": "flux"
     }
-  ]
+  ],
+  "hasMore": false
 }
 ```
 
@@ -33,8 +35,11 @@ Fields are snake_case on this surface (they mirror the training table).
 
 ## GET /api/v1/training/{id}
 
-One job in the same shape. `404 { code: "TRAINING_NOT_FOUND" }` when absent or
-not yours. `500 { code: "TRAINING_LOAD_FAILED" }` on a read failure.
+One job in the same shape (a bare object, no `data` wrapper). `404 { code:
+"TRAINING_NOT_FOUND" }` when absent or not yours. `500 { code:
+"TRAINING_LOAD_FAILED" }` on a read failure; the list route's failure is
+`TRAINING_LIST_FAILED`. Codes on this route family are UPPER_SNAKE. On the
+`/{id}` route a `401`/`503` auth failure carries `error` only (no `code`).
 
 ## Agent Rules
 

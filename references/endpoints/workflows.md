@@ -9,6 +9,11 @@ All routes require `Authorization: Bearer $PIXIO_API_KEY`.
 
 Run statuses: `queued`, `running`, `succeeded`, `failed`.
 
+Errors use the shared `{ error, code, ... }` envelope (see `../overview.md`,
+"Error envelope"). Workflow-specific codes: `not_found` (404),
+`invalid_workflow_definition` (422), `invalid_workflow_override` (400),
+`workflow_dispatch_failed` (502), `concurrency_limit` (429).
+
 ## GET /api/v1/workflows
 
 Workflows owned by the account, newest updated first, each with its latest run.
@@ -93,7 +98,9 @@ Definition shape (the fields an API author needs):
   source's output.
 
 Returns `201 { id, name, description, definition, createdAt, updatedAt }`.
-`400 { error: "Invalid body", details }` when the definition fails validation.
+`400 { error: "Invalid body", code: "invalid_request", details }` when the
+body or definition fails validation (a body that is not JSON fails the same
+way).
 
 The safest way to author a definition is to build one in the app editor,
 `GET /workflows/{id}`, and use it as a template.
@@ -102,18 +109,21 @@ The safest way to author a definition is to build one in the app editor,
 
 Returns `{ id, name, description, definition, createdAt, updatedAt }`. Read
 this before writing run overrides; `definition.nodes[].id` are the override
-keys. `422 { error: "invalid_workflow_definition" }` when the saved definition
-no longer validates; repair it with `PATCH` or in the app.
+keys. `404 not_found` when the workflow is not yours.
+`422 { error: "invalid_workflow_definition", code: "invalid_workflow_definition", message }`
+when the saved definition no longer validates; repair it with `PATCH` or in the
+app.
 
 ## PATCH /api/v1/workflows/{id}
 
 Send any of `name`, `description` (nullable), `definition`. At least one is
-required. Returns the updated workflow. `404` when not yours.
+required; otherwise `400 { error: "Invalid body", code: "invalid_request",
+details }`. Returns the updated workflow. `404 not_found` when not yours.
 
 ## DELETE /api/v1/workflows/{id}
 
-Returns `{ deleted: true, id }`. Run history cascades away with it. Require
-explicit user intent.
+Returns `{ deleted: true, id }`. Run history cascades away with it. `404
+not_found` when not yours. Require explicit user intent.
 
 ## POST /api/v1/workflows/{id}/runs
 
@@ -150,26 +160,56 @@ Accepted `202`:
 
 Errors:
 
-- `400`: invalid JSON, `{ error: "invalid_workflow_override", ... }` for an
-  unknown node ID or bad media URL.
-- `404`: workflow not found for this account.
-- `422 invalid_workflow_definition`: repair the workflow first.
-- `429`: account API concurrency limit reached (shared with `/generate`).
-- `502`: run row queued but orchestration failed to start; check
+- `400 invalid_json`: the body is not valid JSON.
+- `400 invalid_request`: the body failed validation. `error` is the first
+  issue's sentence and `details` carries the full report.
+- `400 invalid_workflow_override`:
+  `{ error: "invalid_workflow_override", code, message }` for an unknown node
+  ID or bad media URL.
+- `404 not_found`: workflow not found for this account.
+- `422 invalid_workflow_definition`: repair the workflow first
+  (`error` equals the code, sentence in `message`).
+- `429 concurrency_limit`: account API concurrency limit reached (shared with
+  `/generate`). The body matches `/generate`'s 429, with `Retry-After: 10`:
+
+  ```json
+  {
+    "error": "This account has reached its API concurrency limit of 1. Wait for a workflow run to finish before starting another.",
+    "code": "concurrency_limit",
+    "message": "...",
+    "concurrencyLimit": 1,
+    "retryAfter": 10,
+    "runId": "blocking-run-uuid",
+    "status": "running"
+  }
+  ```
+
+  `runId` and `status` identify the blocking run (omitted when none could be
+  read); poll it, then retry.
+- `502 workflow_dispatch_failed`: run row queued but orchestration failed to
+  start; the body adds `runId`, `workflowId`, and `status: "queued"`. Check
   `GET /workflows/{id}/runs` before resubmitting.
 
 ## GET /api/v1/workflows/{id}/runs?limit=20
 
-`limit` 1–50, default 20.
+`limit` is an integer 1–50, default 20. An out-of-range value is clamped to
+1–50 and a non-numeric one falls back to 20; a bad `limit` never returns an
+error. Runs are newest first; `hasMore` is true when older runs exist
+beyond `limit`. `404 not_found` when the workflow is not yours.
 
 ```json
 {
   "workflowId": "workflow-uuid",
+  "hasMore": false,
   "runs": [
     { "id": "run-uuid", "status": "running", "error": null, "createdAt": "...", "startedAt": "...", "finishedAt": null }
   ]
 }
 ```
+
+A run's `error` (here and on the run route, including each step's `error`) is
+a sanitized sentence: it never names the model provider and never carries a raw
+upstream response body.
 
 ## GET /api/v1/workflows/{id}/runs/{runId}
 
@@ -210,7 +250,7 @@ Errors:
 - Use `/images` or `/media` for local files, then pass the clean URL as
   `fileUrl`.
 - Save `runId` and poll; return `outputs[]` first, then failed step errors.
-- Runs share the account concurrency limit; a `429` here blocks `/generate`
-  too.
+- Runs share the account concurrency limit; a `429 concurrency_limit` here
+  blocks `/generate` too. Poll the `runId` it returns, honour `Retry-After`.
 - Creating or editing a definition is a mutation the user should intend;
   prefer `PATCH` over delete-and-recreate so run history survives.

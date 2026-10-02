@@ -8,7 +8,7 @@ ingestion, managed asset upload, and resolving stored project references.
 | Need | Route | Returns |
 |---|---|---|
 | A URL to drop into `image_url`/`video_url`/`audio_url` or a workflow `fileUrl` | `POST /images` (images) or `POST /media` (any) | clean public `url` |
-| A reusable asset with metadata, foldering, and later management | `POST /uploads` (alias `POST /assets`), optional `?collectionId=` | `id`, `filePath`, signed `url`, `signedUrlExpiresAt`, `contentType`, `fileSize`, `mediaType` |
+| A reusable asset with metadata, foldering, and later management | `POST /uploads` with optional `?collectionId=` (alias `POST /assets` uploads the same way but ignores `collectionId`) | `id`, `filePath`, signed `url`, `signedUrlExpiresAt`, `contentType`, `fileSize`, `mediaType` |
 | Use media the user already hosts publicly | pass the URL directly in the declared media param | Pixio imports it before dispatch |
 | Display media stored inside a board, canvas, or storyboard document | `POST /media/resolve` | temporary display URLs keyed by ref |
 | Download a generated file as an attachment | `GET /assets/{id}/download` or `/assets/download?ids=` | one-hour attachment URL |

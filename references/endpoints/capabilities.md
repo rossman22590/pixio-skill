@@ -30,12 +30,12 @@ curl -fsS "$PIXIO_BASE_URL/capabilities" \
     "Model discovery and the full prompt optimizer (model-family prompts, screenplay mode, attachments, grounding)",
     "Account identity, credits, plan, API limits, and Maker daily caps",
     "The live price list, priced for the calling account, with plan and credit-pack rates",
-    "Listing and running workflows already saved in Pixio",
+    "Creating, editing, deleting, listing, and running workflows",
     "Boards and spatial canvas project CRUD and operations",
     "Canvas design CRUD and operations",
     "Cinema storyboard CRUD and prompt-to-storyboard direction",
     "Cam View scene CRUD and prompt-to-keyed-scene direction",
-    "Video Agent project persistence",
+    "Video Agent project persistence and per-segment clip generation",
     "Timeline project CRUD and validated editor operations",
     "Locked character CRUD, prompt history, and model-training status"
   ],
@@ -49,11 +49,11 @@ curl -fsS "$PIXIO_BASE_URL/capabilities" \
 }
 ```
 
-The `supported` list understates two things the routes actually provide:
-workflow creation and editing (`POST /workflows`, `PATCH /workflows/{id}`) and
-Video Agent per-segment dispatch (`POST /video-agent/projects/{id}/generate`).
-Treat the OpenAPI documents as authoritative for route existence and this list
-as the product-level summary.
+The `supported` list is a product-level summary. It does not name every route
+(for example `POST /agent` and `/models/favorites` appear only in the media
+OpenAPI document), and its `unsupported` list still carries the older wording
+about the internal chat route; `POST /agent` is the public path to the same
+agent. Treat the OpenAPI documents as authoritative for route existence.
 
 ## Agent Rules
 

@@ -23,11 +23,9 @@ Optional: `providerId=pixio`.
     "type": "image-to-image",
     "credits": 4,
     "company": "Pixio",
-    "pricing": { "measured": false },
     "freeForPlans": [],
     "freeForCurrentPlan": false,
-    "makerCap": null,
-    "outputs": null
+    "makerCap": null
   },
   "params": [
     {
@@ -62,9 +60,14 @@ Optional: `providerId=pixio`.
         "accepts": ["audio/*"]
       }
     }
-  ]
+  ],
+  "outputs": { "format": "file", "hasFileUrl": true }
 }
 ```
+
+The response has three top-level keys: `model`, `params`, and `outputs`. The
+`model` object here is the short form (no `pricing`, `defaultCredits`, or
+`fromCredits`); get those from `GET /models` or `GET /pricing`.
 
 ## Param Fields
 
@@ -77,9 +80,12 @@ Optional: `providerId=pixio`.
 - `constraints` (media inputs): `maxBytes` and `maxBytesLabel` from the upload
   limits, `maxSeconds` from the duration-limit table where the model bills or
   caps by duration, and `accepts` (MIME patterns).
-- `model.outputs`: a descriptor for models that return structured results
-  with no file URL (for example text or JSON outputs). When present, read
-  `outputs` on the generation rather than expecting `outputUrl`.
+- Top-level `outputs` (always present): `{ format: "json" | "file",
+  hasFileUrl: boolean }`. `format: "file"` is the normal media model.
+  `format: "json"` marks a model whose result is a structured payload with no
+  output file (transcription models); for those `hasFileUrl` is `false`, so
+  read the structured result on the generation (`outputs`) instead of
+  expecting `outputUrl`.
 
 ## Agent Rules
 
@@ -89,3 +95,6 @@ Optional: `providerId=pixio`.
 - Preserve declared types; do not stringify numbers or booleans.
 - Do not send hidden or undocumented fields. Internal-only names are stripped.
 - Do not guess missing required media fields; ask for them.
+- A missing `modelId` is `400 { error: "Missing modelId", code:
+  "invalid_request", message }`; an unknown or hidden model is
+  `404 model_not_found`.

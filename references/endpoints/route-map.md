@@ -142,8 +142,7 @@ public and must not be used by third-party clients:
 - `/api/internal/**`: server-only orchestration.
 - `/api/admin/**`: operator-only actions.
 - `/api/*/webhook`: inbound provider and billing callbacks.
-- Provider routes (`/api/fal/**`, `/api/luma/**`, `/api/useapi/**`,
-  `/api/elevenlabs/**`, `/api/argil/**`, `/api/piapi/**`, and similar).
+- Provider proxy routes under `/api/<provider>/**` are internal and not part of the public API.
 - `/api/cam-view/**`: app-side Cam View pairing and sensor support.
 
 ## Maintenance Rule

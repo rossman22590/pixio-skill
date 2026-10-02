@@ -45,11 +45,17 @@ per logical submission.
   "contentId": "generation-id",
   "status": "processing",
   "idempotentReplay": true,
-  "createdAt": "2026-09-20T10:00:00.000Z"
+  "createdAt": "2026-09-20T10:00:00.000Z",
+  "providerId": "pixio",
+  "modelId": "pixio/example/model"
 }
 ```
 
-- Empty or oversized key: `400 { "error": "invalid_idempotency_key", "message" }`.
+- `providerId` and `modelId` are included whenever the model can still be
+  resolved for the account (best effort: a model hidden since the original
+  call does not turn a retry into an error, it just omits the two fields).
+- Empty or oversized key:
+  `400 { "error": "invalid_idempotency_key", "code": "invalid_idempotency_key", "message" }`.
 - Keys are scoped to the account; a key can never reach another account's job.
 - Without a key, identical requests are treated as distinct jobs on purpose.
 
@@ -86,7 +92,7 @@ before provider dispatch. Private hosts, localhost, non-media responses, and
 unsupported or oversized media fail with:
 
 ```json
-{ "error": "invalid_media_url", "message": "..." }
+{ "error": "invalid_media_url", "code": "invalid_media_url", "message": "..." }
 ```
 
 Temporary imports are cleaned up if dispatch fails. Per-second models measure
@@ -95,14 +101,29 @@ duration value never affects billing.
 
 ## Failure Semantics
 
-| Status | Body | Meaning |
-|---:|---|---|
-| 400 | `{ error }` or `{ error: "invalid_media_url", message }` or `{ error: "invalid_idempotency_key", message }` | Invalid params, media, or header. |
-| 401 | `{ error }` | Missing, invalid, or revoked key. |
-| 402 | `{ error: "Insufficient credits", availableCredits, requiredCredits, shortfall }` | Credit decision. |
-| 404 | `{ error }` | Model malformed, hidden, unavailable, or unknown for this account. |
-| 422 | `{ code: "content_policy", message, inputHint?, inputsSubmitted? }` | Rejected by a content check. Will not succeed unchanged. `inputHint` names the input when identified; otherwise `inputsSubmitted` lists the search space. The matched content is never returned. |
-| 429 | `{ error, code: "concurrency_limit", message, generationId?, status?, concurrencyLimit, retryAfter }` + `Retry-After: 10` | Per-account limit on API generations running at once, shared by every key and every generate route. Not a Maker daily allowance. |
+Every error body is `{ error, code, ... }`; branch on `code` (see
+`../overview.md`, "Error envelope"). Every failure raised by the generation
+pipeline is a `400` (there is no `403`, `500`, or `502` from it); the `code`
+says which kind.
+
+| Status | `code` | Body | Meaning |
+|---:|---|---|---|
+| 400 | `invalid_json` | `{ error, code }` | The body is not valid JSON. |
+| 400 | `invalid_request` | `{ error, code, details }` for a failed schema check; `{ error, code }` with the sentence, returned unchanged, for a pre-dispatch rule (input limit, media duration, a param the model rejects) | Correct the request; do not resend it unchanged. |
+| 400 | `provider_error` | `{ error, code }` | The model provider rejected the request. The message is sanitized: it never names the provider or returns a raw upstream body. Change the input before retrying. |
+| 400 | `model_unavailable` | `{ error: "Model is unavailable on the Pixio API.", code }` | The model resolved but cannot run on the API. Pick another model. |
+| 400 | `plan_restricted` | `{ error: "This model is not available on your current plan.", code }` | Choose another model or upgrade. |
+| 400 | `maker_in_flight` | `{ error: "Please wait until your current Maker generation finishes before starting another.", code }` | A Maker generation is still running; wait for it to finish, then retry. No `Retry-After`. |
+| 400 | `generation_failed` | `{ error: "Generation request failed", code }` | The generation could not be started. Reconcile, then retry with the same `Idempotency-Key`. |
+| 400 | `server_error` | `{ error: "Pixio Server Error. Please try again later.", code }` | A Pixio-side outage, not a problem with the request. Retry later with the same `Idempotency-Key`. A generation that fails this way after dispatch reports the same sentence in `error`. |
+| 400 | `invalid_media_url` | `{ error: "invalid_media_url", code, message }` | A media URL could not be imported. |
+| 400 | `invalid_idempotency_key` | `{ error: "invalid_idempotency_key", code, message }` | Empty or oversized `Idempotency-Key`. |
+| 401 | `missing_api_key`, `invalid_api_key` | `{ error, code }` | Missing, invalid, or revoked key. |
+| 402 | `insufficient_credits` | `{ error: "Insufficient credits", code, availableCredits, requiredCredits, shortfall }` | Credit decision. |
+| 404 | `model_not_found` | `{ error, code }` | The model id did not resolve: unknown, hidden, disabled, or not on the account's plan. |
+| 422 | `content_policy` | `{ error, code, message, inputHint, inputsSubmitted }` | Rejected by a content check. Will not succeed unchanged. `error` repeats `message`. `inputHint` names the input when identified (otherwise `null`); `inputsSubmitted` lists the search space. The matched content is never returned. |
+| 429 | `concurrency_limit` | `{ error, code, message, generationId?, status?, concurrencyLimit, retryAfter }` + `Retry-After: 10` | Per-account limit on API generations running at once, shared by every key and every generate route. Not a Maker daily allowance. |
+| 503 | `service_unavailable` | `{ error, code }` | API-key storage unavailable; back off. |
 
 ## Concurrency Rule
 

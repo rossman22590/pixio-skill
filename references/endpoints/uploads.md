@@ -40,8 +40,12 @@ curl -fsS -X POST "$PIXIO_BASE_URL/uploads?collectionId=$COLLECTION_ID" \
   -F "file=@./reference.png"
 ```
 
-Every upload in the call is filed into that folder. Filing errors are reported
-in the response without discarding the uploads.
+Every upload in the call is filed into that folder. The response then carries a
+`collection` object, `{ id, added, skipped, error? }`: `skipped` lists upload
+ids that could not be filed, and `error` is set when the folder itself could
+not be used (unknown, not yours). Filing errors never discard the uploads, so
+the call is still `201`. `?collectionId=` is honoured on `POST /uploads` only,
+not on its alias `POST /assets`.
 
 ## Response
 
@@ -72,10 +76,12 @@ in the response without discarding the uploads.
 
 ## Errors
 
-- `400`: invalid media, private or local URL, unsupported type, over the size
-  limit for the media kind (see `constraints.maxBytes` on `/params`).
-- `401`: bad key.
-- `502`: upload service or remote fetch failed.
+- `400 invalid_media_url`: invalid media, private or local URL, unsupported
+  type, over the size limit for the media kind (see `constraints.maxBytes` on
+  `/params`). The body is `{ error: "invalid_media_url", code, message }`
+  (`error` equals the code; the sentence is in `message`).
+- `401 missing_api_key` / `invalid_api_key`: bad key.
+- `503 service_unavailable`: API-key storage unavailable.
 
 ## Agent Rules
 

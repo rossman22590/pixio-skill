@@ -106,10 +106,11 @@ An incomplete request is priced from the model's defaults and labelled
 
 | Status | Body | Meaning |
 |---:|---|---|
-| 400 | `{ error: "invalid_request", message }` | The params or media cannot be billed as sent (for example a clip over the model limit). `/generate` would reject the same request. |
-| 401 | `{ error }` | Bad key. |
-| 404 | `{ error }` | Model not found or not visible to this account. |
-| 500 | `{ error }` | Quote engine failure; do not assume a price. |
+| 400 | `{ error: "invalid_request", code: "invalid_request", message }` | The params or media cannot be billed as sent (for example a clip over the model limit). `/generate` would reject the same request. |
+| 400 | `{ error, code: "invalid_json" }` or `{ error, code: "invalid_request", details }` | The body is not JSON, or failed schema validation. |
+| 401 | `{ error, code }` | Bad key (`missing_api_key` / `invalid_api_key`). |
+| 404 | `{ error, code: "model_not_found" }` | Model not found or not visible to this account. |
+| 500 | `{ error, code: "internal_error" }` | Quote engine failure; do not assume a price. |
 
 ## Rules
 

@@ -16,16 +16,53 @@
 | 502 | Provider, upload, optimizer, or orchestration failure | Maybe | Reconcile state before paid retry. |
 | 503 | API-key storage unavailable | Later | Back off; do not rotate a valid key. |
 
-Always parse the JSON body. Preserve `error`, `code`, `message`, `details`,
-`generationId`, `status`, `concurrencyLimit`, `retryAfter`,
-`availableCredits`, `requiredCredits`, `shortfall`, `inputHint`, and
-`inputsSubmitted` when present.
+Always parse the JSON body, and branch on `code`: every error body is
+`{ error, code, ... }` (see `../overview.md`, "Error envelope", for the full
+code list and the project-family exceptions). Preserve `error`, `code`,
+`message`, `details`, `generationId`, `runId`, `status`, `concurrencyLimit`,
+`retryAfter`, `availableCredits`, `requiredCredits`, `shortfall`, `inputHint`,
+`inputsSubmitted`, `limitChars`, and `receivedChars` when present.
+
+Status-specific codes worth handling explicitly:
+
+| Status | Codes |
+|---:|---|
+| 400 | `invalid_json`, `invalid_request`, `invalid_idempotency_key`, `invalid_media_url`, `invalid_workflow_override`; on `/generate` also `provider_error`, `model_unavailable`, `plan_restricted`, `maker_in_flight`, `generation_failed`, `server_error`; on video-agent generate `model_not_available` |
+| 401 | `missing_api_key`, `invalid_api_key` |
+| 402 | `insufficient_credits` |
+| 404 | `not_found`, `model_not_found` |
+| 413 | `request_too_large` (`/agent` history over 1,000,000 characters) |
+| 422 | `content_policy`, `invalid_workflow_definition` |
+| 429 | `concurrency_limit` |
+| 500 | `internal_error` |
+| 502 | `provider_error` (`/media`, `/images`, `/prompts/optimize`), `workflow_dispatch_failed`, `optimizer_error` |
+| 503 | `service_unavailable` |
+
+Every failure from the `/generate` pipeline is a `400`; tell them apart by
+`code`. `invalid_request` is a validation sentence (fix the input).
+`provider_error` means the model provider rejected the request (the message
+is sanitized and never names the provider); change the input before
+retrying. `model_unavailable` and `plan_restricted` will not succeed
+unchanged: pick another model. `maker_in_flight` clears on its own: wait for
+the running Maker generation to finish, then retry (there is no
+`Retry-After`). `generation_failed` is the generic fallback: reconcile with
+the same `Idempotency-Key` before a paid retry. `server_error` ("Pixio Server Error. Please try again later.")
+means the failure was on Pixio's side, not in the request: wait and retry later.
+
+A `400 invalid_json` means the body never parsed: fix serialization, do not
+retry. A `502 provider_error` from `/images` or `/media` means the upload
+service or the remote fetch failed on a well-formed request; before
+2026-10-01 a malformed JSON body, an unparseable multipart upload, or too many
+items also surfaced as `502` there (and malformed JSON as `500` on
+`/generate`), so treat any legacy retry-on-502 logic for those routes with
+that in mind.
 
 ## Idempotency Keys
 
 `POST /generate` accepts `Idempotency-Key` (at most 255 chars). A repeat with
 the same key within 24 hours returns `200 { contentId, status,
-idempotentReplay: true, createdAt }` for the original job.
+idempotentReplay: true, createdAt, providerId?, modelId? }` for the original
+job (`providerId`/`modelId` while the model can still be resolved).
 
 Rules:
 
@@ -43,13 +80,15 @@ key. Reconcile those through their history routes.
 ## Per-Account Concurrency
 
 `GET /me` → `concurrencyLimit` is the number of API generations that may run at
-once across the account: every key, every generate route (`/generate`,
-workflow runs, video-agent generate, agent-driven generations). 1 on most
-plans, 10 on Maker.
+once across the account: every key, shared by `/generate` and workflow runs,
+which both reject with `429 concurrency_limit` at the limit. Video-agent
+segment dispatch does not return that `429` itself, so size its batches to the
+limit. 1 on most plans, 10 on Maker.
 
 On `429 concurrency_limit`:
 
-1. Persist `generationId` and `status` from the body when present.
+1. Persist `generationId` (or `runId` for a workflow run) and `status` from the
+   body when present.
 2. Wait at least `retryAfter` seconds (also in the `Retry-After` header).
 3. Poll the blocking generation to a terminal state.
 4. Retry the local task once capacity exists.
@@ -64,8 +103,11 @@ This is not a Maker daily-cap rejection. A cap running out shows up as
 ## Content Policy 422
 
 ```json
-{ "code": "content_policy", "message": "...", "inputHint": "image_url", "inputsSubmitted": ["prompt", "image_url"] }
+{ "error": "...", "code": "content_policy", "message": "...", "inputHint": "image_url", "inputsSubmitted": ["prompt", "image_url"] }
 ```
+
+`error` repeats `message`, so the 422 has an `error` key like every other body.
+`inputHint` is `null` when the check did not identify an input.
 
 The request will not succeed unchanged. The matched content is never returned.
 Tell the user which input (`inputHint`) or which inputs (`inputsSubmitted`) to

@@ -76,9 +76,19 @@ Multiple items:
 
 ## Errors
 
-- `400`: no file or URL was provided.
-- `401`: missing or invalid API key.
-- `502`: upload service or remote URL fetch failed.
+Every error body is `{ error, code }`; branch on `code`.
+
+- `400 invalid_request`: no file or URL was provided, more than 10 files or
+  URLs were sent, or the multipart body could not be parsed. The caller must
+  change the request.
+- `400 invalid_json`: the JSON body is not valid JSON (`error`: "Request body
+  must be valid JSON or multipart/form-data.").
+- `401 missing_api_key` / `invalid_api_key`: missing or invalid API key.
+- `502 provider_error`: the upload service or the remote URL fetch failed. The
+  request itself was well formed; retrying may succeed. (Before 2026-10-01 a
+  malformed JSON body, an unparseable multipart body, or too many items also
+  surfaced here as `502`.)
+- `503 service_unavailable`: API-key storage unavailable.
 
 ## Agent Rules
 
