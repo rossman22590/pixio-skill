@@ -25,7 +25,11 @@ Body:
 }
 ```
 
-- `modelId` is required and must come from `/models` or `/pricing`.
+- `modelId` is required and must come from `/models` or `/pricing`. Every id
+  `GET /models` lists always runs the model it lists. A loose or partial id
+  that matches more than one model is `404 model_not_found` ("Ambiguous Pixio
+  API model: <id>. Use the id listed by GET /api/v1/models."). The `modelId`
+  in the response is the canonical listed id, whatever spelling was sent.
 - `providerId` is optional; when supplied, use `pixio`.
 - `params` defaults to `{}` and must follow the selected model's live schema.
 - Internal-only parameter names are silently stripped whatever the caller
@@ -95,6 +99,18 @@ unsupported or oversized media fail with:
 { "error": "invalid_media_url", "code": "invalid_media_url", "message": "..." }
 ```
 
+Any Pixio storage path or Pixio storage URL anywhere in `params` must belong
+to the calling account. A reference to another account's file, including that
+account's signed storage link (for example a public gallery output), is
+refused before anything is dispatched or billed:
+
+```json
+{ "error": "invalid_media_url", "code": "invalid_media_url", "message": "One or more media inputs reference a file that does not belong to this account." }
+```
+
+To use such a file, download it and upload it through `POST /media` first.
+Public third-party HTTPS URLs are unaffected.
+
 Temporary imports are cleaned up if dispatch fails. Per-second models measure
 the decoded duration of the imported file server-side; a caller-supplied
 duration value never affects billing.
@@ -116,11 +132,11 @@ says which kind.
 | 400 | `maker_in_flight` | `{ error: "Please wait until your current Maker generation finishes before starting another.", code }` | A Maker generation is still running; wait for it to finish, then retry. No `Retry-After`. |
 | 400 | `generation_failed` | `{ error: "Generation request failed", code }` | The generation could not be started. Reconcile, then retry with the same `Idempotency-Key`. |
 | 400 | `server_error` | `{ error: "Pixio Server Error. Please try again later.", code }` | A Pixio-side outage, not a problem with the request. Retry later with the same `Idempotency-Key`. A generation that fails this way after dispatch reports the same sentence in `error`. |
-| 400 | `invalid_media_url` | `{ error: "invalid_media_url", code, message }` | A media URL could not be imported. |
+| 400 | `invalid_media_url` | `{ error: "invalid_media_url", code, message }` | A media URL could not be imported, or a storage path or storage URL in `params` belongs to another account. |
 | 400 | `invalid_idempotency_key` | `{ error: "invalid_idempotency_key", code, message }` | Empty or oversized `Idempotency-Key`. |
 | 401 | `missing_api_key`, `invalid_api_key` | `{ error, code }` | Missing, invalid, or revoked key. |
 | 402 | `insufficient_credits` | `{ error: "Insufficient credits", code, availableCredits, requiredCredits, shortfall }` | Credit decision. |
-| 404 | `model_not_found` | `{ error, code }` | The model id did not resolve: unknown, hidden, disabled, or not on the account's plan. |
+| 404 | `model_not_found` | `{ error, code }` | The model id did not resolve: unknown, hidden, disabled, or not on the account's plan, or a loose id matched more than one model ("Ambiguous Pixio API model: ..."). |
 | 422 | `content_policy` | `{ error, code, message, inputHint, inputsSubmitted }` | Rejected by a content check. Will not succeed unchanged. `error` repeats `message`. `inputHint` names the input when identified (otherwise `null`); `inputsSubmitted` lists the search space. The matched content is never returned. |
 | 429 | `concurrency_limit` | `{ error, code, message, generationId?, status?, concurrencyLimit, retryAfter }` + `Retry-After: 10` | Per-account limit on API generations running at once, shared by every key and every generate route. Not a Maker daily allowance. |
 | 503 | `service_unavailable` | `{ error, code }` | API-key storage unavailable; back off. |

@@ -6,7 +6,7 @@ description: Integrate, operate, document, or audit the Pixio public REST API (/
 # Pixio Public API
 
 Operate Pixio through the stable public `/api/v1` surface. The deployed
-contracts are the source of truth; this skill mirrors them as of 2026-10-01.
+contracts are the source of truth; this skill mirrors them as of 2026-10-02.
 
 ```text
 Origin:   https://beta.pixio.myapps.ai

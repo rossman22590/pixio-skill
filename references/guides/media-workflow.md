@@ -63,6 +63,18 @@ Never `PATCH` a resolved URL back into content.
 - Public URLs must be HTTP(S) and resolve on the public internet; private IPs,
   localhost, and local paths fail with `400 invalid_media_url`.
 - Remote media must return an image, video, or audio content type.
+- `/images` and `/media` accept only image, video, or audio (uploads and
+  URLs alike), capped at images 10MB, video 250MB, audio 30MB. A refused file
+  is `400 invalid_request`; a refused URL (private address, redirect, wrong
+  type, too large) is `400 invalid_media_url`. Link directly to the file:
+  redirects are not followed.
+- Pixio storage paths and Pixio storage URLs in generation, estimate, Video
+  Agent, and workflow-run params (saved workflow nodes included) must belong
+  to the calling account, else `400 invalid_media_url` ("One or more media
+  inputs reference a file that does not belong to this account."). That
+  includes another account's signed storage link, such as a public gallery
+  output: download it and upload it through `POST /media` first. Public
+  third-party HTTPS URLs are unaffected.
 - For per-second models the server measures the decoded duration; a
   caller-supplied duration is ignored for billing.
 

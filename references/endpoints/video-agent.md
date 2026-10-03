@@ -102,8 +102,18 @@ Errors (every body carries `error` and `code`):
   failed. Check `dispatched.length` before treating a `400` here as a
   malformed request.
 - `400 { error: "model_not_available", code: "model_not_available", message }`
-  for an unknown, hidden, disabled, or malformed `modelId`. This route does
-  not return `404 model_not_found` for a model (that is `/generate`).
+  for an unknown, hidden, disabled, or malformed `modelId`, or a loose id that
+  matches more than one model (`message`: "Ambiguous Pixio API model: <id>.
+  Use the id listed by GET /api/v1/models."). This route does not return
+  `404 model_not_found` for a model (that is `/generate`).
+- `400 { error: "invalid_media_url", code: "invalid_media_url", message }`
+  when any segment's params (base `params` included) carry a Pixio storage
+  path or storage URL that belongs to another account, including its signed
+  storage links such as a public gallery output (`message`: "One or more media
+  inputs reference a file that does not belong to this account."). The whole
+  request is refused before any segment is dispatched or billed. Download the
+  file and upload it through `POST /media` first; public third-party HTTPS
+  URLs are unaffected.
 - `404 PROJECT_NOT_FOUND`, `400 INVALID_PROJECT_ID`, `409 PROJECT_CONFLICT`,
   `409 UNSUPPORTED_PROJECT_TYPE`: project-family errors, UPPER_SNAKE codes with
   `error` equal to the code and the sentence in `message`.

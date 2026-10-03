@@ -106,6 +106,9 @@ GET /me
 - `/media/resolve` turns durable storage keys held in project content into
   temporary display URLs.
 - Signed asset, generation, and resolved URLs expire; refresh by fetching again.
+- A Pixio storage path or storage URL in generation or workflow params must
+  belong to the calling account. To use another account's file (for example
+  a public gallery output), download it and upload it through `POST /media`.
 
 ## Error Envelope
 
@@ -149,11 +152,11 @@ Every error body is JSON with the same two fields:
 | `server_error` | 400 | `/generate` only: "Pixio Server Error. Please try again later." Pixio-side outage; retry later. Stored generation, run, and training errors use the same sentence. |
 | `model_not_available` | 400 | `/video-agent/projects/{id}/generate`: unknown, hidden, or disabled model. |
 | `invalid_idempotency_key` | 400 | Empty or oversized `Idempotency-Key`. |
-| `invalid_media_url` | 400 | A media URL could not be imported. |
+| `invalid_media_url` | 400 | A media URL could not be imported; a `/media` or `/images` URL was refused (private or internal address, redirect, non-media content, over the size cap, failed download); or a Pixio storage path or storage URL in params belongs to another account ("One or more media inputs reference a file that does not belong to this account.") on `/generate`, `/generations/estimate`, `/video-agent/projects/{id}/generate`, or a workflow run (saved nodes included). |
 | `invalid_workflow_override` | 400 | A workflow run override or its media was rejected. |
 | `insufficient_credits` | 402 | Not enough credits (`/generate`, `/prompts/optimize`). |
 | `not_found` | 404 | Generation, workflow, run, or similar not owned or absent. |
-| `model_not_found` | 404 | The model id did not resolve: unknown, hidden, disabled, or not on the plan. |
+| `model_not_found` | 404 | The model id did not resolve: unknown, hidden, disabled, or not on the plan, or a loose id matched more than one model ("Ambiguous Pixio API model: ..."). |
 | `request_too_large` | 413 | `/agent` history over 1,000,000 characters. |
 | `invalid_workflow_definition` | 422 | A saved workflow no longer validates. |
 | `content_policy` | 422 | Rejected by a content check; will not succeed unchanged. |

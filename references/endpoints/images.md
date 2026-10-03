@@ -25,7 +25,11 @@ Accepted multipart file fields:
 - `media`
 - `asset`
 
-Limit: up to 10 files per request.
+Limit: up to 10 files per request. Each file must be an image, video, or audio
+file (type from its declared content type or extension) within the per-kind
+cap: images 10MB, video 250MB, audio 30MB. Any other file type, an empty file,
+or an oversized file is `400 invalid_request`, and nothing in the request is
+uploaded.
 
 ## JSON URL Mirror
 
@@ -47,7 +51,12 @@ Multiple URLs:
 }
 ```
 
-Limit: up to 10 URLs per request.
+Limit: up to 10 URLs per request. Each URL must be public internet media:
+the host must resolve to a public address (private, loopback, and internal
+addresses are refused), redirects are not followed (link directly to the
+file), the response must be image, video, or audio, and it must fit the same
+per-kind caps (images 10MB, video 250MB, audio 30MB). A refused URL is `400
+invalid_media_url`.
 
 ## Response
 
@@ -76,13 +85,20 @@ Multiple items:
 Every error body is `{ error, code }`; branch on `code`.
 
 - `400 invalid_request`: no file or URL was provided, more than 10 files or
-  URLs were sent, or the multipart body could not be parsed. The caller must
+  URLs were sent, the multipart body could not be parsed, or an uploaded file
+  is not image, video, or audio, is empty, or is over its cap. The caller must
   change the request.
+- `400 invalid_media_url`: a URL was refused or could not be downloaded
+  (private or internal address, redirect, non-media content, over the cap, or
+  a failed download). Body: `{ "error": "invalid_media_url", "code":
+  "invalid_media_url", "message": "..." }`; the message never repeats the URL.
+  (Before 2026-10-02 any file type was accepted and a failed URL download
+  surfaced as `502`.)
 - `400 invalid_json`: the JSON body is not valid JSON (`error`: "Request body
   must be valid JSON or multipart/form-data.").
 - `401 missing_api_key` / `invalid_api_key`: missing or invalid API key.
-- `502 provider_error`: the upload service or the remote URL fetch failed. The
-  request itself was well formed; retrying may succeed. (Before 2026-10-01 a
+- `502 provider_error`: the upload service failed. The request itself was well
+  formed; retrying may succeed. (Before 2026-10-01 a
   malformed JSON body, an unparseable multipart body, or too many items also
   surfaced here as `502`.)
 - `503 service_unavailable`: API-key storage unavailable.

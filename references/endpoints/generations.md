@@ -92,6 +92,8 @@ Response:
 }
 ```
 
+- `modelId` is the canonical id `GET /models` lists for that model and can be
+  passed back to `/generate` unchanged.
 - `params` never includes reserved internal parameters; they are withheld
   from the echo, on this route and in the list.
 - `error` is a short public sentence. It never names the model provider or

@@ -108,8 +108,9 @@ An incomplete request is priced from the model's defaults and labelled
 |---:|---|---|
 | 400 | `{ error: "invalid_request", code: "invalid_request", message }` | The params or media cannot be billed as sent (for example a clip over the model limit). `/generate` would reject the same request. |
 | 400 | `{ error, code: "invalid_json" }` or `{ error, code: "invalid_request", details }` | The body is not JSON, or failed schema validation. |
+| 400 | `{ error: "invalid_media_url", code: "invalid_media_url", message }` | A Pixio storage path or storage URL in `params` belongs to another account (including its signed storage links, such as a public gallery output). `message`: "One or more media inputs reference a file that does not belong to this account." Download the file and upload it through `POST /media` first. Public third-party HTTPS URLs are unaffected. |
 | 401 | `{ error, code }` | Bad key (`missing_api_key` / `invalid_api_key`). |
-| 404 | `{ error, code: "model_not_found" }` | Model not found or not visible to this account. |
+| 404 | `{ error, code: "model_not_found" }` | Model not found or not visible to this account, or a loose id matched more than one model ("Ambiguous Pixio API model: ..."); send the id `GET /models` lists. |
 | 500 | `{ error, code: "internal_error" }` | Quote engine failure; do not assume a price. |
 
 ## Rules

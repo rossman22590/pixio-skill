@@ -112,6 +112,16 @@ object is the short form: it omits `pricing`, `defaultCredits`,
 - Availability and inputs vary by plan; refresh rather than cache indefinitely.
 - A `404` means malformed, hidden, unavailable, or unknown for this account
   (`model_not_found`).
+- Every `id` this route lists always runs the model it lists. Send it
+  verbatim: a loose or partial id that matches more than one model is `404
+  model_not_found` with "Ambiguous Pixio API model: <id>. Use the id listed by
+  GET /api/v1/models." The `modelId` returned on generations, assets, and the
+  prompt library is the same canonical listed id and can be passed back to
+  `/generate`.
+- Since 2026-10-02, four short ids that previously ran a different model than
+  the one listed now run the listed model: `pixio/edit`, `pixio/remix`,
+  `pixio/reframe`, and `pixio/image-to-3d`. Re-check output and cost if you
+  depended on their old behavior.
 - For any model with `pricing.rate`, quote with `/generations/estimate` and the
   real file before promising a cost.
 

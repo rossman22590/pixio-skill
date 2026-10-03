@@ -2,7 +2,7 @@
 
 Agent Skill for integrating with the complete Pixio public REST API (`/api/v1`)
 from backends, workers, scripts, automations, CLIs, desktop apps, mobile
-backends, and agents. Mirrors the deployed contracts as of 2026-10-01.
+backends, and agents. Mirrors the deployed contracts as of 2026-10-02.
 
 It covers:
 
@@ -79,6 +79,23 @@ smoke checks, and evaluation prompts live under `references/` and `scripts/`.
   `fromCredits`. The OpenAPI documents gained a shared `ApiError` schema and
   the `/agent`, `/models/favorites`, workflow CRUD, `/assets/models`,
   `/capabilities`, and Video Agent generate operations.
+- **2026-10-02**: `/media` and `/images` accept only image, video, or audio
+  (images 10MB, video 250MB, audio 30MB); a bad upload is `400
+  invalid_request`, and a URL that is private or internal, redirects, is not
+  media, or is too large is `400 invalid_media_url` (previously any file type
+  was accepted and a failed URL download was `502`). `/prompts/optimize`
+  attachment URLs must be public internet addresses, redirects are not
+  followed, and a refused attachment is an uncharged `400`. Pixio storage paths
+  and URLs in `/generate`, `/generations/estimate`, Video Agent generate, and
+  workflow-run params (saved nodes included) must belong to the calling
+  account, else `400 invalid_media_url`; re-upload another account's file
+  (such as a public gallery output) through `/media` first. Saved workflows
+  silently drop internal-only params on create and `PATCH`. Every id
+  `GET /models` lists now always runs the listed model, an ambiguous loose id
+  is `404 model_not_found`, and `modelId` on generations, assets, and the
+  prompt library is the canonical listed id. `pixio/edit`, `pixio/remix`,
+  `pixio/reframe`, and `pixio/image-to-3d` previously ran a different model
+  than listed and now run the listed one.
 
 ## Safety
 

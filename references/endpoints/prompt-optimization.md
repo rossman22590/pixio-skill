@@ -94,7 +94,10 @@ curl -fsS -X POST "$PIXIO_BASE_URL/prompts/optimize" \
   treatment).
 - `attachments`: up to 6 public URLs or storage keys you own (images, audio,
   video, PDF, Markdown, text). Resolved with the same ownership rules as
-  `/media/resolve`; the model looks at them as source material.
+  `/media/resolve`; the model looks at them as source material. A URL must
+  be a public internet address that points directly at the file: redirects
+  are not followed, and a private or internal address is refused with `400`
+  (`Attachment URL is not allowed: <file name>`) before anything is charged.
 - `googleSearch`, `urlContext`: let the optimizer ground itself in live
   information.
 
@@ -117,8 +120,10 @@ Every error body is `{ error, code, ... }`.
 
 - `400 invalid_json`: the body is not valid JSON.
 - `400 invalid_request`: failed validation (with `details`), unknown
-  `messageType`, unresolvable or unsupported attachment, or neither `prompt`
-  nor `attachments`.
+  `messageType`, unresolvable or unsupported attachment, an attachment URL
+  that is not a public internet address or that redirects ("Attachment URL is
+  not allowed: ..." / "Attachment could not be fetched: ..."), or neither
+  `prompt` nor `attachments`. Not charged.
 - `401 missing_api_key` / `invalid_api_key`: bad key.
 - `402 insufficient_credits`: fewer than 5 credits. Nothing was charged.
 - `500 optimizer_error`: the optimizer is not configured, or its configuration

@@ -94,6 +94,9 @@ Definition shape (the fields an API author needs):
   `modelId`, `modelType`, `params`, `label`, `content`, `collapsed`, `locked`.
   Runtime fields (`status`, `outputUrl`, `runtimeParams`, credits) are set by
   runs; do not author them.
+- Internal-only params are silently dropped from every node's `params` when
+  the workflow is saved (here and on `PATCH`), the same as run-time
+  overrides. The save still succeeds; the returned `definition` omits them.
 - `edge.targetHandle` names the input on the target node that receives the
   source's output.
 
@@ -119,6 +122,7 @@ app.
 Send any of `name`, `description` (nullable), `definition`. At least one is
 required; otherwise `400 { error: "Invalid body", code: "invalid_request",
 details }`. Returns the updated workflow. `404 not_found` when not yours.
+Internal-only params in a new `definition` are silently dropped, as on create.
 
 ## DELETE /api/v1/workflows/{id}
 
@@ -166,6 +170,14 @@ Errors:
 - `400 invalid_workflow_override`:
   `{ error: "invalid_workflow_override", code, message }` for an unknown node
   ID or bad media URL.
+- `400 invalid_media_url`:
+  `{ error: "invalid_media_url", code, message: "One or more media inputs reference a file that does not belong to this account." }`
+  when the run body or the saved workflow's nodes (`fileUrl`, `params`,
+  locked outputs) carry a Pixio storage path or storage URL that belongs to
+  another account, including its signed storage links such as a public
+  gallery output. Nothing is queued or billed. Download the file and upload
+  it through `POST /media`, then point the node or override at the returned
+  URL. Public third-party HTTPS URLs are unaffected.
 - `404 not_found`: workflow not found for this account.
 - `422 invalid_workflow_definition`: repair the workflow first
   (`error` equals the code, sentence in `message`).
