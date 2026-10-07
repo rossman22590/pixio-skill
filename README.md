@@ -2,7 +2,7 @@
 
 Agent Skill for integrating with the complete Pixio public REST API (`/api/v1`)
 from backends, workers, scripts, automations, CLIs, desktop apps, mobile
-backends, and agents. Mirrors the deployed contracts as of 2026-10-02.
+backends, and agents. Mirrors the deployed contracts as of 2026-10-07.
 
 It covers:
 
