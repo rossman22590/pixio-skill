@@ -1,6 +1,6 @@
 ---
 name: pixio-skill
-description: Integrate, operate, document, or audit the Pixio public REST API (/api/v1) from an agent, backend, worker, script, automation, CLI, desktop app, mobile backend, or generated client. Use for Pixio API keys and revocation, OpenAPI discovery (media spec, platform spec, /capabilities), account identity (/me), live per-account pricing, model discovery/params/constraints/favorites/preferences, the full prompt optimizer, credit quotes measured the way they bill, idempotent generation, polling, billing reports and ledger reconciliation, uploads and asset folders, clean media URLs, resolving stored project media references, the style gallery, saved-workflow CRUD and runs, project authoring over the API (Boards, Canvas, Cinema storyboards, Cam View scenes, Video Agent projects, timeline editor projects, prompt-to-project direction, validated operations), the streaming Pixio agent (/agent), locked characters, prompt history, training status, concurrency 429s, Maker daily caps, content-policy 422s, and every other Pixio API error. Also use to decide whether a Pixio app feature is public-API-supported. Never use app-internal, admin, provider, webhook, or browser-session routes for third-party integrations.
+description: Call, integrate, or audit the Pixio public REST API (/api/v1) with an API key from an agent, backend, script, CLI, desktop app, or generated client. Use for generating images, video, and audio (quote, idempotent generate, poll), choosing models by real per-account price, Maker daily caps and free-plan limits, uploads and assets, workflows, project authoring (Boards, Canvas, Cinema, Cam View, Video Agent, Editor), the streaming /agent, credits and billing reconciliation, and any Pixio API error (402, 422, 429). Also use to decide whether a Pixio feature is available on the public API. Never use app-internal, admin, provider, webhook, or browser-session routes.
 ---
 
 # Pixio Public API
@@ -13,6 +13,32 @@ Origin:   https://beta.pixio.myapps.ai
 Base URL: https://beta.pixio.myapps.ai/api/v1
 Auth:     Authorization: Bearer $PIXIO_API_KEY
 ```
+
+## Start Here
+
+| Task | Do this |
+|---|---|
+| Generate one image, video, or audio | `node scripts/pixio-run.mjs --model <id> --params '<json>'` to quote, then add `--max-credits <n>` to run it. See "Cost-Aware Generation Protocol". |
+| Pick a model | `references/examples/choose-model.md` (cheapest for this account via `GET /pricing`). |
+| Check the key and account | `node scripts/pixio-smoke.mjs`, or `GET /me`. |
+| Resume a job | `node scripts/pixio-wait.mjs <contentId>`. |
+| Build a client or integration | "Start Every Integration" below, then `references/guides/integration-patterns.md`. |
+| Handle an error | Branch on `code`; `references/guides/errors-and-concurrency.md`. |
+| Projects, workflows, `/agent` | The protocol sections below. |
+
+## Keep This Skill Current
+
+At the start of a session (at most once a day), run
+`node scripts/pixio-skill-update.mjs`. It compares this copy with
+https://github.com/rossman22590/pixio-skill.
+
+- Exit `0`: up to date, continue.
+- Exit `10`: a newer version exists. Tell the user, and run
+  `node scripts/pixio-skill-update.mjs --apply` when this skill is a clean git
+  clone (it only fast-forwards; it never overwrites local edits). Otherwise
+  give the user the printed manual step.
+- Exit `1`: GitHub unreachable. Continue with this copy, and read
+  `GET /guide` for anything the deployed API added since.
 
 Keys grant full account access (no scopes) and revoke immediately. Never put a
 key in browser code, a mobile binary, public source, URLs, screenshots,
@@ -108,6 +134,10 @@ Read `references/guides/media-workflow.md` before implementing file handling.
 
 ## Cost-Aware Generation Protocol
 
+`scripts/pixio-run.mjs` does steps 1, 4, 5, 6, 7 and 8 in one call: it quotes,
+refuses anything over `--max-credits` (or spends nothing without it), sends
+one `Idempotency-Key`, polls, and prints what was charged and why.
+
 1. `GET /me` for `concurrencyLimit`, `credits.total`, and `makerCaps`.
 2. `GET /pricing?modelId=...` to compare `listCredits` vs `yourCredits` and
    learn the billing `pricing.rate` and unit.
@@ -199,7 +229,13 @@ capability is absent from both OpenAPI documents, it is unsupported.
   Maker caps, ledger reconciliation.
 - `references/endpoints/route-map.md`: every route and every boundary.
 - One file under `references/endpoints/` per endpoint family.
-- One file under `references/examples/` per end-to-end recipe.
+- One file under `references/examples/` per end-to-end recipe;
+  `examples/choose-model.md` ranks models by what this account pays.
+- `references/evals/behavior-scenarios.json`: what a correct agent must and
+  must not do in common situations (quote first, budgets, retries, caps).
+- `scripts/`: `pixio-run.mjs` (quote, budget, generate, poll),
+  `pixio-wait.mjs` (poll), `pixio-smoke.mjs` (read-only checks),
+  `pixio-skill-update.mjs` (check GitHub for a newer skill).
 
 ## Non-Negotiable Agent Rules
 

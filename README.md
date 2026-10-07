@@ -56,8 +56,25 @@ API and resolve its frame images for display.
 The skill entrypoint is `SKILL.md`. Endpoint contracts, guides, examples,
 smoke checks, and evaluation prompts live under `references/` and `scripts/`.
 
+## Updating
+
+Agents check for a newer version at the start of a session with
+`node scripts/pixio-skill-update.mjs` (compares `skill-version.json` with this
+repo on GitHub). `--apply` fast-forwards a clean git clone; it never overwrites
+local edits. Bump `skill-version.json` on every sync so installed copies see it.
+
 ## Changelog
 
+- **2026-10-07**: `POST /generate` returns `creditsCharged`, `freeAllowance`
+  and `notCoveredBy`; `/models` and `/pricing` add `freeExcept` (settings that
+  are never free); quotes add `notCoveredBy` and show the Maker allowance only
+  to Maker plans that include the model; new `422 price_unavailable`;
+  idempotent replay reports the stored job's model; estimates measure external
+  media from a safe-downloaded copy. New: `scripts/pixio-run.mjs` (quote,
+  budget, idempotent generate, poll), `scripts/pixio-skill-update.mjs` (check
+  GitHub for updates), `examples/choose-model.md`, and
+  `evals/behavior-scenarios.json`; SKILL.md gains a Start Here table and a
+  shorter description.
 - **2026-10-01**: every error body now carries a machine `code` beside `error`
   (documented in the new "Error envelope" section of
   `references/overview.md`); malformed JSON is `400 invalid_json`;

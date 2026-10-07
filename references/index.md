@@ -86,6 +86,10 @@ Agent and account memory:
 
 - `scripts/pixio-smoke.mjs`: read-only connectivity check (`/me`, both specs, `/capabilities`, `/models`, `/credits`).
 - `scripts/pixio-wait.mjs`: poll one existing generation without dispatching work.
+- `scripts/pixio-run.mjs`: quote, budget check, one idempotent generate, poll. Quote only unless `--max-credits` is given.
+- `scripts/pixio-skill-update.mjs`: check GitHub for a newer skill; `--apply` fast-forwards a clean git clone.
+- `examples/choose-model.md`: cheapest suitable model for this account from `GET /pricing`.
+- `evals/behavior-scenarios.json`: behaviour checks for agents using this skill.
 
 ## Skill Evaluation
 

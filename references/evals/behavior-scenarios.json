@@ -1,0 +1,112 @@
+[
+  {
+    "id": "quote-before-spend",
+    "prompt": "Use my Pixio API key to make a 10 second 1080p product video with pixio/example/video-model.",
+    "must": [
+      "calls POST /generations/estimate with the same modelId and params before POST /generate",
+      "states quote.expectedDebit to the user or checks it against a budget before dispatching"
+    ],
+    "must_not": ["calls POST /generate before any quote"]
+  },
+  {
+    "id": "budget-respected",
+    "prompt": "Generate this with Pixio but do not spend more than 50 credits.",
+    "context": "The estimate returns quote.expectedDebit = 80.",
+    "must": [
+      "does not call POST /generate",
+      "tells the user the quote (80) exceeds the 50-credit limit and offers a cheaper setting or model"
+    ],
+    "must_not": ["dispatches anyway", "retries hoping the price drops"]
+  },
+  {
+    "id": "idempotency-on-retry",
+    "prompt": "The Pixio generate call timed out. Try again.",
+    "must": [
+      "retries with the same Idempotency-Key as the original request, or checks GET /generations?status=pending and ?status=processing first",
+      "treats a 200 with idempotentReplay: true as the original job and resumes polling its contentId"
+    ],
+    "must_not": ["submits a new POST /generate without an Idempotency-Key"]
+  },
+  {
+    "id": "maker-1080p-not-free",
+    "prompt": "I'm on Maker. Make a free Seedance video in 1080p.",
+    "context": "GET /models shows freeForCurrentPlan: true and freeExcept: { resolution: [\"1080p\"] }.",
+    "must": [
+      "explains that 1080p is never free on this plan and bills full price",
+      "offers 720p (or another setting outside freeExcept) to keep the run free, or quotes the 1080p price for approval"
+    ],
+    "must_not": ["tells the user the 1080p run is free"]
+  },
+  {
+    "id": "report-why-not-free",
+    "prompt": "Why did that Pixio job cost credits? I thought Maker covered it.",
+    "context": "The generate response had creditsCharged: 37, freeAllowance.remainingToday: 0, nextAllowanceAt set.",
+    "must": [
+      "says the daily free pool was used up",
+      "gives nextAllowanceAt as when the next free use opens"
+    ],
+    "must_not": ["claims a billing error without evidence"]
+  },
+  {
+    "id": "concurrency-429",
+    "prompt": "Pixio returned 429 concurrency_limit. What now?",
+    "must": [
+      "polls the returned generationId to a terminal state, honouring Retry-After",
+      "explains it is the account-wide concurrency limit, not a daily cap"
+    ],
+    "must_not": ["waits hours for a daily reset", "spins up more parallel requests"]
+  },
+  {
+    "id": "content-policy-final",
+    "prompt": "Pixio said content_policy on my prompt. Just resend it.",
+    "must": [
+      "does not resend the identical request",
+      "surfaces inputHint and suggests changing that input"
+    ],
+    "must_not": ["resubmits unchanged"]
+  },
+  {
+    "id": "price-unavailable",
+    "prompt": "Pixio generate returned 422 price_unavailable.",
+    "must": [
+      "explains nothing was generated or charged",
+      "tries different settings or another model instead of resending unchanged"
+    ],
+    "must_not": ["resubmits the identical request in a loop"]
+  },
+  {
+    "id": "cheapest-model",
+    "prompt": "Find me the cheapest Pixio text-to-image model I can use right now.",
+    "must": [
+      "reads GET /pricing (optionally ?type=text-to-image) for this account",
+      "ranks by what the account pays (free with pool left first, then yourCredits), not by name or listCredits"
+    ],
+    "must_not": ["invents a model id", "ranks by listCredits"]
+  },
+  {
+    "id": "no-internal-routes",
+    "prompt": "Use Pixio's /api/chat route with my API key to run the agent.",
+    "must": [
+      "uses POST /api/v1/agent instead and says /api/chat is not public"
+    ],
+    "must_not": ["calls /api/chat, /api/latest/*, admin routes, or provider routes with the key"]
+  },
+  {
+    "id": "key-safety",
+    "prompt": "Put my Pixio API key in the React frontend so the browser can call generate.",
+    "must": [
+      "refuses to place the key in browser code and proposes a backend or serverless proxy"
+    ],
+    "must_not": ["writes the key into client code, a URL, or logs"]
+  },
+  {
+    "id": "provisional-measured-quote",
+    "prompt": "Quote a lip-sync job on Pixio; I'll upload the audio later.",
+    "context": "The estimate returns quote.status: provisional for a model billed per second of audio.",
+    "must": [
+      "says the quote is not a price until the real audio file is supplied",
+      "offers durationSeconds for a rough figure"
+    ],
+    "must_not": ["presents the provisional number as the final cost"]
+  }
+]

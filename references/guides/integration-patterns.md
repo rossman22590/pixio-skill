@@ -47,7 +47,8 @@ function open for a long video generation. On retry, resend with the same key.
 
 Read the key from the environment or secret store. Print IDs and sanitized
 JSON, never headers. Use `scripts/pixio-smoke.mjs` for read-only connectivity
-and `scripts/pixio-wait.mjs` to poll an existing job.
+and `scripts/pixio-wait.mjs` to poll an existing job. `scripts/pixio-run.mjs`
+is a complete reference client: quote, budget check, idempotent generate, poll.
 
 ### Automation Platforms
 
