@@ -10,7 +10,7 @@
 | 404 | Unknown or unavailable model, asset, generation, project, character, prompt, training job | No | Re-discover and correct the ID. |
 | 409 | `PROJECT_CONFLICT`, `UNSUPPORTED_PROJECT_TYPE`, folder sibling-name clash | Conditional | Reload and reapply; use the right typed route; rename. |
 | 413 | `PROJECT_TOO_LARGE` (5 MB) | No | Shrink content; store media as keys, not data URIs. |
-| 422 | `content_policy`, `invalid_workflow_definition`, rename of generated asset, `CANVAS_*` | No | Change the input or operation. Never resubmit unchanged. |
+| 422 | `content_policy`, `invalid_workflow_definition`, `price_unavailable`, rename of generated asset, `CANVAS_*` | No | Change the input or operation. Never resubmit unchanged. |
 | 429 | `concurrency_limit` | Later | Poll `generationId`; honour `Retry-After`; retry when a job finishes. |
 | 500 | Pixio server failure | Maybe | Back off; preserve IDs and request; reconcile before paid retry. |
 | 502 | Provider, upload, optimizer, or orchestration failure | Maybe | Reconcile state before paid retry. |
@@ -32,7 +32,7 @@ Status-specific codes worth handling explicitly:
 | 402 | `insufficient_credits` |
 | 404 | `not_found`, `model_not_found` |
 | 413 | `request_too_large` (`/agent` history over 1,000,000 characters) |
-| 422 | `content_policy`, `invalid_workflow_definition` |
+| 422 | `content_policy`, `invalid_workflow_definition`, `price_unavailable` (`/generate`) |
 | 429 | `concurrency_limit` |
 | 500 | `internal_error` |
 | 502 | `provider_error` (`/media`, `/images`, `/prompts/optimize`), `workflow_dispatch_failed`, `optimizer_error` |

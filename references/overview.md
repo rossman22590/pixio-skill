@@ -159,6 +159,7 @@ Every error body is JSON with the same two fields:
 | `model_not_found` | 404 | The model id did not resolve: unknown, hidden, disabled, or not on the plan, or a loose id matched more than one model ("Ambiguous Pixio API model: ..."). |
 | `request_too_large` | 413 | `/agent` history over 1,000,000 characters. |
 | `invalid_workflow_definition` | 422 | A saved workflow no longer validates. |
+| `price_unavailable` | 422 | `/generate` only: the price for these settings could not be worked out, so nothing was generated or charged. Change the settings. |
 | `content_policy` | 422 | Rejected by a content check; will not succeed unchanged. |
 | `concurrency_limit` | 429 | Account concurrency reached (`Retry-After: 10`). |
 | `internal_error` | 500 | Pixio failed; back off. |

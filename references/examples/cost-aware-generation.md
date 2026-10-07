@@ -48,11 +48,13 @@ per-second model include the real media URL so the quote is `measured`.
 QUOTE=$(curl -fsS -X POST "$PIXIO_BASE_URL/generations/estimate" \
   -H "$AUTH" -H "Content-Type: application/json" -d "$REQUEST")
 
-printf '%s\n' "$QUOTE" | jq '{status: .quote.status, reason: .quote.provisionalReason, expectedDebit: .quote.expectedDebit, listCost: .quote.listCost, allowance: .quote.allowance}'
+printf '%s\n' "$QUOTE" | jq '{status: .quote.status, reason: .quote.provisionalReason, expectedDebit: .quote.expectedDebit, listCost: .quote.listCost, allowance: .quote.allowance, notCoveredBy: .quote.notCoveredBy}'
 ```
 
 Apply the approval threshold to `expectedDebit`. Stop on a `provisional`
-quote for a per-second model until the file is supplied.
+quote for a per-second model until the file is supplied. If `notCoveredBy` is
+set, the plan includes the model but this setting is never free; offer the
+user a setting outside `freeExcept` before spending credits.
 
 ## 5. Submit Once, Idempotently
 
@@ -66,6 +68,7 @@ RESPONSE=$(curl -sS -X POST "$PIXIO_BASE_URL/generate" \
 
 CONTENT_ID=$(printf '%s' "$RESPONSE" | jq -er '.contentId')
 printf 'queued %s (replay=%s)\n' "$CONTENT_ID" "$(printf '%s' "$RESPONSE" | jq -r '.idempotentReplay // false')"
+printf '%s\n' "$RESPONSE" | jq '{creditsCharged, freeLeftToday: .freeAllowance.remainingToday, notCoveredBy: .notCoveredBy.message}'
 ```
 
 Persist `CONTENT_ID` and `IDEMPOTENCY_KEY` before polling. If the request

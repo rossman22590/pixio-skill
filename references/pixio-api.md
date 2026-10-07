@@ -22,7 +22,7 @@ Authenticated calls require `Authorization: Bearer $PIXIO_API_KEY`.
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/models` | Visible models with `credits`, `defaultCredits`, `fromCredits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `inputs`. |
+| GET | `/models` | Visible models with `credits`, `defaultCredits`, `fromCredits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `freeExcept`, `inputs`. |
 | GET | `/models?modelId=pixio/...` | One list-format model as `{ model }`. |
 | GET | `/models/pixio/...` | `{ model, params, outputs }`; `params` carry `constraints`, `outputs` is `{ format: "json" \| "file", hasFileUrl }`. |
 | GET | `/params?modelId=pixio/...` | Same detail shape. |
@@ -42,7 +42,7 @@ Authenticated calls require `Authorization: Bearer $PIXIO_API_KEY`.
 | Method | Path | Purpose |
 |---|---|---|
 | POST | `/generations/estimate` | `{ modelId, params, durationSeconds? }` → `quote`, `pricing`, `baseCost`, `estimatedCost`. |
-| POST | `/generate` | `{ modelId, params }` + `Idempotency-Key` → `202 { contentId, providerId, modelId }` or `200` replay (also with `providerId`, `modelId`). |
+| POST | `/generate` | `{ modelId, params }` + `Idempotency-Key` → `202 { contentId, providerId, modelId, creditsCharged, freeAllowance, notCoveredBy }` or `200` replay (with the stored job's `providerId`, `modelId`). |
 | GET | `/generations?status=&type=&page=&limit=` | History with `creditsCost` and `billedAt`. |
 | GET | `/generations/{id}` | Status, output, `billing`, `media`. |
 | DELETE | `/generations/{id}` | Delete record and stored output. Not cancellation. |

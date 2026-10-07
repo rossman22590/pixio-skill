@@ -116,7 +116,9 @@ Read `references/guides/media-workflow.md` before implementing file handling.
    `quote.expectedDebit`. A `provisional` quote is not a price.
 5. Ask for approval when policy or `expectedDebit` requires it.
 6. `POST /generate` once with `Idempotency-Key: <stable unique id>`.
-7. Persist `contentId` before polling or returning control.
+7. Persist `contentId` before polling or returning control. Report
+   `creditsCharged` to the user; when it is non-zero on a plan-covered model,
+   say why (`notCoveredBy`, or `freeAllowance.remainingToday == 0`).
 8. Poll with bounded backoff; stop on `succeeded` or `failed`.
 9. After a timeout, retry with the same `Idempotency-Key`; a `200` with
    `idempotentReplay: true` is the original job. Without a key, inspect

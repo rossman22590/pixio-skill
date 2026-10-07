@@ -41,6 +41,7 @@ curl -fsS "$PIXIO_BASE_URL/models" \
         "dailyLimit": 5,
         "rollingWindowSeconds": 86400
       },
+      "freeExcept": null,
       "inputs": []
     }
   ]
@@ -67,6 +68,12 @@ Field meanings:
   pool has uses left.
 - `makerCap`: the daily free-use pool, or `null`. Join `slug` to
   `GET /me` → `makerCaps` for `remainingToday`.
+- `freeExcept`: settings that are never free even when `freeForCurrentPlan`
+  is true and the pool has uses left, e.g. `{ "resolution": ["1080p"] }`. A
+  request using a listed value bills full price and does not use a free slot;
+  an omitted setting counts as its default. `null` when nothing is excluded or
+  the caller's plan pays for the model anyway. To keep a run free, pick a value
+  not listed here.
 
 Your plan's included models in one line:
 

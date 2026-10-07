@@ -55,9 +55,12 @@ per logical submission.
 }
 ```
 
-- `providerId` and `modelId` are included whenever the model can still be
-  resolved for the account (best effort: a model hidden since the original
-  call does not turn a retry into an error, it just omits the two fields).
+- `providerId` and `modelId` describe the stored original job, the same id
+  `GET /generations` shows, even when the retry sent a different `modelId`.
+  They are included whenever that model can still be resolved (best effort: a
+  model hidden since the original call does not turn a retry into an error, it
+  just omits the two fields). A replay carries no billing fields; read
+  `creditsCost` on `GET /generations/{id}`.
 - Empty or oversized key:
   `400 { "error": "invalid_idempotency_key", "code": "invalid_idempotency_key", "message" }`.
 - Keys are scoped to the account; a key can never reach another account's job.
@@ -75,11 +78,40 @@ HTTP `202`:
   "message": "Generation started successfully!",
   "contentId": "generation-id",
   "providerId": "pixio",
-  "modelId": "pixio/example/model"
+  "modelId": "pixio/example/model",
+  "creditsCharged": 0,
+  "freeAllowance": {
+    "slug": "maker-video",
+    "label": "Video daily",
+    "dailyLimit": 8,
+    "remainingToday": 5,
+    "nextAllowanceAt": null
+  },
+  "notCoveredBy": null
 }
 ```
 
 Persist `contentId` immediately and poll `/generations/{contentId}`.
+
+Billing fields (additive; older clients can ignore them):
+
+- `creditsCharged`: credits this job debits when it succeeds. `0` means the
+  plan or a daily free pool covered it. `null` if it could not be read; the job
+  still started.
+- `freeAllowance`: the model's daily free pool after this job (`dailyLimit`,
+  `remainingToday`, `nextAllowanceAt`), or `null` when the account's plan has
+  no pool for this model. `nextAllowanceAt` is when the oldest use in the
+  rolling window ages out, or `null` when a free use is available now.
+- `notCoveredBy`: set when the plan includes the model but a setting is never
+  free (see `freeExcept` on `/models`), so the job bills full price even with
+  free uses left. Example:
+  `{ "settings": { "resolution": "1080p" }, "message": "resolution=1080p is not covered by the free allowance, so this bills full price." }`.
+  A job billed this way does not use a free slot.
+
+When a covered model stops being free, the response says so: `creditsCharged`
+becomes non-zero with either `freeAllowance.remainingToday == 0` (pool spent)
+or `notCoveredBy` set (setting excluded). Report that to the user instead of
+assuming the run was free.
 
 ## Preflight
 
@@ -137,6 +169,7 @@ says which kind.
 | 401 | `missing_api_key`, `invalid_api_key` | `{ error, code }` | Missing, invalid, or revoked key. |
 | 402 | `insufficient_credits` | `{ error: "Insufficient credits", code, availableCredits, requiredCredits, shortfall }` | Credit decision. |
 | 404 | `model_not_found` | `{ error, code }` | The model id did not resolve: unknown, hidden, disabled, or not on the account's plan, or a loose id matched more than one model ("Ambiguous Pixio API model: ..."). |
+| 422 | `price_unavailable` | `{ error, code }` | The model's price could not be worked out for these settings, so nothing was generated or charged. Try different settings; do not resend unchanged. |
 | 422 | `content_policy` | `{ error, code, message, inputHint, inputsSubmitted }` | Rejected by a content check. Will not succeed unchanged. `error` repeats `message`. `inputHint` names the input when identified (otherwise `null`); `inputsSubmitted` lists the search space. The matched content is never returned. |
 | 429 | `concurrency_limit` | `{ error, code, message, generationId?, status?, concurrencyLimit, retryAfter }` + `Retry-After: 10` | Per-account limit on API generations running at once, shared by every key and every generate route. Not a Maker daily allowance. |
 | 503 | `service_unavailable` | `{ error, code }` | API-key storage unavailable; back off. |

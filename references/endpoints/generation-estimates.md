@@ -32,7 +32,10 @@ Body (same shape as `/generate`, plus one optional hint):
   uploaded yet. It is ignored when the request carries media: the server
   measures the file, and the measurement is what bills.
 - Every HTTP(S) URL in `params` is checked against the same public-internet
-  guard `/generate` uses before anything probes it.
+  guard `/generate` uses before anything probes it. External media is copied
+  into the account's storage through the same pinned download `/generate`
+  uses, measured from that copy, and the copy is deleted afterwards; a refused
+  URL is `400 invalid_media_url`.
 
 ## Response
 
@@ -56,16 +59,16 @@ Body (same shape as `/generate`, plus one optional hint):
     },
     "billedUnits": 25,
     "listCost": 300,
-    "planDiscount": { "percent": 0, "credits": 0 },
+    "planDiscount": { "productId": "maker", "applied": false, "costAfterDiscount": 300 },
     "allowance": {
+      "applied": false,
       "slug": "maker-avatars",
       "label": "Avatars",
       "dailyLimit": 5,
-      "remainingToday": 2,
+      "remainingToday": 0,
       "nextAllowanceAt": "2026-09-21T08:00:00.000Z"
     },
-    "expectedDebit": 300,
-    "provisionalReason": null
+    "expectedDebit": 300
   },
   "baseCost": 300,
   "estimatedCost": 300,
@@ -92,8 +95,14 @@ Field meanings:
 - `billedUnits`: the rounded quantity that was priced.
 - `listCost`: price before plan discount.
 - `planDiscount`: discount applied for this plan.
-- `allowance`: the Maker daily pool covering this model, or `null`.
+- `allowance`: the Maker daily pool covering this model, or `null`. Only a
+  Maker plan that includes the model sees it. `applied: true` means a free use
+  covers this run.
 - `expectedDebit`: what will actually be charged if the run succeeds now.
+- `notCoveredBy`: present when the plan includes the model but a setting is
+  never free (`freeExcept` on `/models`), so `expectedDebit` is full price even
+  with uses left: `{ settings: { resolution: "1080p" }, message }`.
+- `provisionalReason`: present only on a `provisional` quote.
 - `baseCost` and `estimatedCost` are retained for older callers and equal
   `quote.listCost` and `quote.expectedDebit`.
 - `pricing`: the same basis object `/models` and `/pricing` publish.
