@@ -100,7 +100,8 @@ Field meanings:
   covers this run.
 - `expectedDebit`: what will actually be charged if the run succeeds now.
 - `notCoveredBy`: present when the plan includes the model but a setting is
-  never free (`freeExcept` on `/models`), so `expectedDebit` is full price even
+  never free (`freeExcept` on `/models`) or a value is over `freeUpTo`, so
+  `expectedDebit` is full price even
   with uses left: `{ settings: { resolution: "1080p" }, message }`.
 - `provisionalReason`: present only on a `provisional` quote.
 - `baseCost` and `estimatedCost` are retained for older callers and equal

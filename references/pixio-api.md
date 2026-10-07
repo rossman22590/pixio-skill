@@ -22,7 +22,7 @@ Authenticated calls require `Authorization: Bearer $PIXIO_API_KEY`.
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/models` | Visible models with `credits`, `defaultCredits`, `fromCredits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `freeExcept`, `inputs`. |
+| GET | `/models` | Visible models with `credits`, `defaultCredits`, `fromCredits`, `pricing`, `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `freeExcept`, `freeUpTo`, `inputs`. |
 | GET | `/models?modelId=pixio/...` | One list-format model as `{ model }`. |
 | GET | `/models/pixio/...` | `{ model, params, outputs }`; `params` carry `constraints`, `outputs` is `{ format: "json" \| "file", hasFileUrl }`. |
 | GET | `/params?modelId=pixio/...` | Same detail shape. |

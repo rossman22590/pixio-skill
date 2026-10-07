@@ -48,7 +48,8 @@ with the catalog and with today's free-pool usage. Read it; never cache it.
       "freeForPlans": ["maker"],
       "freeForCurrentPlan": true,
       "makerCap": { "slug": "maker-avatars", "label": "Avatars", "dailyLimit": 5, "rollingWindowSeconds": 86400 },
-      "freeExcept": null
+      "freeExcept": null,
+      "freeUpTo": null
     }
   ],
   "notes": ["yourCredits assumes today's free pool still has room. ..."]
@@ -72,7 +73,7 @@ Field meanings per model:
   `yourRate` credits per `rateQuantity` of `rateUnit`, so the single credit
   figure is only the default-quantity price. `measured: true` means the server
   measures the quantity from the file you upload.
-- `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `freeExcept`: same tier
+- `freeForPlans`, `freeForCurrentPlan`, `makerCap`, `freeExcept`, `freeUpTo`: same tier
   fields as `/models`. `yourCredits` is priced at the defaults, so a model whose
   default setting is in `freeExcept` shows its full price there.
 

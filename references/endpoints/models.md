@@ -42,6 +42,7 @@ curl -fsS "$PIXIO_BASE_URL/models" \
         "rollingWindowSeconds": 86400
       },
       "freeExcept": null,
+      "freeUpTo": null,
       "inputs": []
     }
   ]
@@ -74,6 +75,11 @@ Field meanings:
   an omitted setting counts as its default. `null` when nothing is excluded or
   the caller's plan pays for the model anyway. To keep a run free, pick a value
   not listed here.
+- `freeUpTo`: numeric limits on the free allowance, e.g.
+  `{ "audio_duration_seconds": 30 }`. A request above the limit bills full
+  price and does not use a free slot. The value is measured server-side from
+  your file, so trim long media yourself to stay free. `null` when there is no
+  limit or the caller's plan pays for the model anyway.
 
 Your plan's included models in one line:
 

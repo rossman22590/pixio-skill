@@ -103,8 +103,9 @@ Billing fields (additive; older clients can ignore them):
   no pool for this model. `nextAllowanceAt` is when the oldest use in the
   rolling window ages out, or `null` when a free use is available now.
 - `notCoveredBy`: set when the plan includes the model but a setting is never
-  free (see `freeExcept` on `/models`), so the job bills full price even with
-  free uses left. Example:
+  free (see `freeExcept` on `/models`) or a value is over the free limit
+  (`freeUpTo`, e.g. audio longer than 30 seconds), so the job bills full price
+  even with free uses left. Example:
   `{ "settings": { "resolution": "1080p" }, "message": "resolution=1080p is not covered by the free allowance, so this bills full price." }`.
   A job billed this way does not use a free slot.
 

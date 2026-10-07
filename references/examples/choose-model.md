@@ -21,6 +21,7 @@ curl -fsS "$PIXIO_BASE_URL/pricing?type=$TYPE" -H "$AUTH" | jq '
           yourCredits,
           freeNow,
           freeExcept,
+          freeUpTo,
           perUnit: (if .pricing.rate then "\(.yourRate) per \(.pricing.rateQuantity) \(.pricing.rateUnit)" else null end),
           pricedFromParams
         } ]
@@ -32,7 +33,8 @@ How to read the result:
 
 - `freeNow: true` first: the plan includes the model and its daily pool has a
   use left (or it has no pool). It costs nothing now, unless the request uses a
-  setting listed in `freeExcept` (for example `{ "resolution": ["1080p"] }`).
+  setting listed in `freeExcept` (for example `{ "resolution": ["1080p"] }`),
+  and keep measured values under `freeUpTo` (for example 30 seconds of audio).
   Choose a setting outside that list to keep the run free.
 - Then by `yourCredits`, the price at the model's default settings for this
   account. It already includes plan discounts.
