@@ -23,6 +23,10 @@ fields, the looks and styles, and the credit prices.
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film |
+| POST | `/director/videos/package` | End card, logo, music bed, voiceover, other frame shapes, cutdowns |
+| GET / POST | `/director/brands` | List / save brands (free) |
+| GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
+| GET | `/director/brands/{id}/logo` | The brand's logo image |
 | POST | `/director/images/text` · `/images/edit` · `/images/reference` | Images |
 | POST | `/director/music/generate` | A song from a description and lyrics |
 | POST | `/director/music/plan` | Writer: sections, vocals and (with `idea`) a treatment |
@@ -41,6 +45,8 @@ fields, the looks and styles, and the credit prices.
 - A media field takes a multipart file, a URL string, or a path from your own
   Pixio assets. Lists also accept `<field>_urls` (for example `images_urls`).
 - `song_job` and `job_id` take a **finished Director job id** from this API.
+- `brand_id` takes a brand id from `POST /director/brands`. Only your own
+  brands work.
 - Fields not listed for the endpoint in `/director/catalog` are ignored, so
   check spelling against the catalog. `styles` takes
   `[{ "style": "<key>", "strength": 0.7 }]` on `videos/text` and `videos/image`.
@@ -61,12 +67,43 @@ Prompts written in the studio's official format (`integrated_multimodal_descript
   you send your own prompts. Redos, face fix, and music videos or films made
   from an `idea` are not checked.
 - Free preflight: add `?check=true` (or `?dry_run=true`) to any of those five
-  URLs. You get `200 { object: "director.preflight", credits.quoted,
+  URLs (`videos/package` takes `?dry_run=true`). You get `200 { object: "director.preflight", credits.quoted,
   promptCheck, … }` plus a note when the real request would be refused.
   Nothing starts.
 
 Agents should run `?check=true` first for official-format prompts, fix every
 `ERROR`, then start the job.
+
+## Commercials: brands and packaging
+
+1. Save a brand once (free): `POST /director/brands` with `name` (required),
+   `tagline`, `cta`, `product_name`, `description`, `audience`, `voice`,
+   `look`, `banned_words`, end-card and sound defaults (`end_card_s`,
+   `end_card_style`, `logo_corner`, `logo_scale`, `text_color`,
+   `accent_color`, `background_color`, `music_db`, `voiceover_db`, `duck_db`,
+   `lufs`), and the files `logo` (PNG with transparency) and `font`
+   (.ttf/.otf). At most 50 brands per account.
+2. Package a finished video: `POST /director/videos/package` with `job_id` (or
+   an uploaded `video` up to 7 min) and any of `brand_id`, `tagline`, `cta`,
+   `logo`, `music`, `voiceover`, `font`, `formats` (`["9:16","1:1","4:5"]`),
+   `reframe` (`crop` follows faces, `fit` blurs the sides) and `cutdowns` (up
+   to 3 lengths, 5–120 s). The main video keeps its exact length; the other
+   shapes and cutdowns come back in `deliverables`. `?dry_run=true` is free.
+3. Or ask for it at render time: `videos/film` and `videos/music` take
+   `brand_id`, a `package` object (the same fields) and `logo`; films also
+   take `music_bed`, `voiceover`, `film_type: "commercial"` (an ad structure
+   for the writer: a 2 s hook, the product as the answer, hero product shots,
+   a calm last shot under the end card), `product_pictures` (which of your
+   `images` show the product, e.g. `[1]`) and `variants` (2–4 versions in
+   all).
+
+Packaging is priced like finishing: 1 credit per second of video it writes
+(the main video and each extra shape, plus each cutdown in every shape),
+10 credits minimum.
+
+With `variants`, each extra version is its own job, listed in
+`versionJobIds` and billed like the first. Every version's credits are held
+when you start, so a `402` means nothing started.
 
 ## Example: song → music video
 
@@ -107,6 +144,9 @@ Every start call returns `202` with a `Location` header and:
   "qa": [{ "part": 1, "ok": true, "lipSync": 0.912, "borders": 0, "blendedFrames": 0 }],
   "result": null,
   "error": null,
+  "deliverables": [],
+  "versionJobIds": [],
+  "versionOf": null,
   "sourceJobId": null,
   "createdAt": "2026-11-13T20:00:00Z",
   "completedAt": null
@@ -121,6 +161,9 @@ Every start call returns `202` with a `Location` header and:
   signed URL valid 6 hours; `assetPath` is the durable copy in your assets.
 - `music/plan` and `prompts/write` run in the background for a few minutes;
   their output is in `result`.
+- With packaging, `deliverables[]` lists the other shapes and cutdowns:
+  `{ index, name, aspect, cutdownSeconds, width, height, durationSeconds,
+  url, assetPath }`, each copied into your assets.
 
 ## Billing
 
@@ -140,9 +183,9 @@ Every body carries `error` and `code`.
 | 400 | `invalid_request` / `invalid_json` | Bad body; see `details` |
 | 400 | `invalid_media_url` | A media URL or path could not be used, or belongs to another account |
 | 402 | `insufficient_credits` | Not enough credits for the quote |
-| 404 | `not_found` | Job (or referenced job) not found |
+| 404 | `not_found` | Job, referenced job or brand not found |
 | 422 | `prompt_check_failed` | Official-format prompt has checker errors; report in `promptCheck`; nothing charged |
-| 409 | `conflict` | Referenced job has not finished, or the file is not ready |
+| 409 | `conflict` | Referenced job has not finished, the file is not ready, or 50 brands already saved |
 | 429 | `concurrency_limit` | 8 Director jobs already running; honour `Retry-After` |
 | 502 | `studio_error` | The studio rejected the job; nothing was charged |
 | 503 | `service_unavailable` | The studio is busy; nothing was charged, retry later |
@@ -159,4 +202,7 @@ limit.
    the same id — never resubmit.
 4. Use `parts[]` to review sections as they land; re-shoot one with
    `.../{id}/redo` instead of re-running the whole video.
-5. Chain post-processing (`upscale`, `finish`, `facefix`) with `job_id`.
+5. Chain post-processing (`upscale`, `finish`, `facefix`, `package`) with
+   `job_id`.
+6. For ads, save the brand once and pass `brand_id`; quote `variants` as
+   versions × the single price before starting.
