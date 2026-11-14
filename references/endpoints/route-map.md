@@ -109,6 +109,15 @@ integrations must not cross this boundary.
 | GET/PATCH/DELETE | `/api/v1/video-agent/projects/{id}` | Yes | PATCH/DELETE | |
 | POST | `/api/v1/video-agent/projects/from-prompt` | Yes | Yes, LLM | Outline. |
 | POST | `/api/v1/video-agent/projects/{id}/generate` | Yes | Yes, paid | Max 10 segments per call. |
+| GET | `/api/v1/director/catalog` | Yes | No | Fields, looks, styles, prices. |
+| POST | `/api/v1/director/videos/{text,image,reference,music,film,upscale,finish,facefix}` | Yes | Yes, paid | Async job; credits reserved, settled once. Max 8 at once. |
+| POST | `/api/v1/director/videos/{music,film}/{id}/redo` | Yes | Yes, paid | New job for one section or clip. |
+| POST | `/api/v1/director/images/{text,edit,reference}`, `/api/v1/director/music/generate` | Yes | Yes, paid | Async job. |
+| POST | `/api/v1/director/music/plan`, `/api/v1/director/prompts/write` | Yes | Yes, paid | Writer; output in `result`. |
+| POST | `/api/v1/director/prompts/check` | Yes | No | Free, synchronous. |
+| GET | `/api/v1/director/jobs`, `/api/v1/director/jobs/{id}` | Yes | No | Read syncs the job. |
+| DELETE | `/api/v1/director/jobs/{id}` | Yes | Cancel | Finished parts still charged. |
+| GET | `/api/v1/director/jobs/{id}/parts/{n}`, `.../{video,image,audio}` | Yes | No | Stream / 302 to file. |
 | GET/POST | `/api/v1/editor/projects` | Yes | POST | Timeline projects. |
 | GET/PATCH/DELETE | `/api/v1/editor/projects/{id}` | Yes | PATCH/DELETE | |
 | POST | `/api/v1/editor/projects/{id}/operations` | Yes | Yes | `timeline.*`, `overlay.*`, `audio.*`, `video.*`, `composition.*`; optional `fps`. |
