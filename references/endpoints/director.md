@@ -45,6 +45,29 @@ fields, the looks and styles, and the credit prices.
   check spelling against the catalog. `styles` takes
   `[{ "style": "<key>", "strength": 0.7 }]` on `videos/text` and `videos/image`.
 
+## Prompt checking
+
+Prompts written in the studio's official format (`integrated_multimodal_description:`,
+`[Shot N]` blocks, `<Picture N>` tags) are checked before rendering.
+
+- Checker **errors** refuse the request: `422 prompt_check_failed` with the
+  full report in `promptCheck` (`issues[]` of `{ level, message, clip }` and
+  `counts`). Nothing is reserved or charged. Examples: a missing
+  `<Picture N>`, shot times out of order, a missing section.
+- Warnings and tips never block. Plain prompts ("a lighthouse at dusk")
+  always render.
+- `strict_prompt=false` renders anyway (the old behaviour).
+- Applies to `videos/text|image|reference`, and to `videos/music|film` when
+  you send your own prompts. Redos, face fix, and music videos or films made
+  from an `idea` are not checked.
+- Free preflight: add `?check=true` (or `?dry_run=true`) to any of those five
+  URLs. You get `200 { object: "director.preflight", credits.quoted,
+  promptCheck, … }` plus a note when the real request would be refused.
+  Nothing starts.
+
+Agents should run `?check=true` first for official-format prompts, fix every
+`ERROR`, then start the job.
+
 ## Example: song → music video
 
 ```bash
@@ -118,6 +141,7 @@ Every body carries `error` and `code`.
 | 400 | `invalid_media_url` | A media URL or path could not be used, or belongs to another account |
 | 402 | `insufficient_credits` | Not enough credits for the quote |
 | 404 | `not_found` | Job (or referenced job) not found |
+| 422 | `prompt_check_failed` | Official-format prompt has checker errors; report in `promptCheck`; nothing charged |
 | 409 | `conflict` | Referenced job has not finished, or the file is not ready |
 | 429 | `concurrency_limit` | 8 Director jobs already running; honour `Retry-After` |
 | 502 | `studio_error` | The studio rejected the job; nothing was charged |
