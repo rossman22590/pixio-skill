@@ -116,6 +116,7 @@ integrations must not cross this boundary.
 | POST | `/api/v1/director/music/plan`, `/api/v1/director/prompts/write` | Yes | Yes, paid | Writer; output in `result`. |
 | POST | `/api/v1/director/prompts/check` | Yes | No | Free, synchronous. |
 | GET | `/api/v1/director/jobs`, `/api/v1/director/jobs/{id}` | Yes | No | Read syncs the job. |
+| GET | `/api/v1/director/queue` | Yes | No | Your active jobs with `queue.ahead` / ETA. |
 | DELETE | `/api/v1/director/jobs/{id}` | Yes | Cancel | Finished parts still charged. |
 | GET | `/api/v1/director/jobs/{id}/parts/{n}`, `.../{video,image,audio}` | Yes | No | Stream / 302 to file. |
 | GET/POST | `/api/v1/editor/projects` | Yes | POST | Timeline projects. |

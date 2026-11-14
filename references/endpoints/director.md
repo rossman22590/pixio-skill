@@ -29,6 +29,7 @@ fields, the looks and styles, and the credit prices.
 | POST | `/director/prompts/write` | Writer: ready-to-shoot clip prompts from a `story` |
 | POST | `/director/prompts/check` | Check prompts against the house rules (free, synchronous) |
 | GET | `/director/jobs` | Your jobs, newest first; `?limit=&before=&endpoint=` |
+| GET | `/director/queue` | Your waiting/rendering jobs, oldest first, each with its place in line |
 | GET / DELETE | `/director/jobs/{id}` | Get (syncs on read) / cancel |
 | GET | `/director/jobs/{id}/parts/{n}` | Stream one clip or section; Range supported |
 | GET | `/director/jobs/{id}/video` · `/image` · `/audio` | 302 to the finished file |
@@ -76,6 +77,7 @@ Every start call returns `202` with a `Location` header and:
   "stage": "3 of 12 parts done",
   "progress": 0.25,
   "etaSeconds": 840,
+  "queue": { "ahead": 0, "estimatedCompletionAt": "2026-11-13T20:14:00Z" },
   "credits": { "quoted": 1644, "charged": 0 },
   "output": null,
   "parts": [{ "index": 1, "label": "Section 1", "url": "https://..." }],
@@ -89,6 +91,9 @@ Every start call returns `202` with a `Location` header and:
 ```
 
 - `status`: `queued` → `running` → `done` | `failed` | `cancelled`.
+- `queue` is set only while waiting or rendering: `ahead` is how many jobs
+  wait in front of yours (0 once it renders), `estimatedCompletionAt` when it
+  should finish. Only your own jobs are ever shown.
 - When done, `output` is `{ type, url, assetPath, generationId }`. `url` is a
   signed URL valid 6 hours; `assetPath` is the durable copy in your assets.
 - `music/plan` and `prompts/write` run in the background for a few minutes;
