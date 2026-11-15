@@ -183,6 +183,11 @@ when you start, so a `402` means nothing started.
   warns about speech words right after a line.
 - End cards: `tagline_size` (3–20, default 6.8) and `cta_size` (2–12, default
   4.5), as a % of the frame's short side.
+- Explainers: `film_type: "explainer"` with an `idea` makes a narrated
+  vertical-video explainer (AI narration read by a studio voice or your
+  `voiceover_sample`, one shot per sentence, word-by-word captions, no end
+  card). Priced like a film plus the narration writing (`adReview`) and
+  packaging.
 - Voices: films take `voice_lock: true` (each character keeps the voice heard
   in clip 1 for the whole film, no samples needed; about one clip longer).
   Typed narration has 54 voices in 8 languages (`GET /director/voiceover/voices`
