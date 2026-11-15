@@ -167,6 +167,15 @@ With `variants`, each extra version is its own job, listed in
 `versionJobIds` and billed like the first. Every version's credits are held
 when you start, so a `402` means nothing started.
 
+## Draft, then final
+
+A film with `speed: "draft"` costs less per clip. To render the same film at
+full quality, send the same `clips` (and the same `images`) again with
+`speed: "quality"`. If you want the studio to write the clips, call
+`prompts/write` first and shoot both passes from its `clips`: a film made from
+an `idea` writes a fresh script (and designs its own pictures) every time, so
+its final would not match its draft.
+
 ## Example: song → music video
 
 ```bash
