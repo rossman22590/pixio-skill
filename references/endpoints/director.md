@@ -183,6 +183,11 @@ when you start, so a `402` means nothing started.
   warns about speech words right after a line.
 - End cards: `tagline_size` (3–20, default 6.8) and `cta_size` (2–12, default
   4.5), as a % of the frame's short side.
+- Voices: films take `voice_lock: true` (each character keeps the voice heard
+  in clip 1 for the whole film, no samples needed; about one clip longer).
+  Typed narration has 54 voices in 8 languages (`GET /director/voiceover/voices`
+  lists them with their language), or send a `voiceover_sample` (5–15 s of the
+  narrator) to have the script read in that voice. Same price.
 - Music bed under dialogue: packaging `duck_under_dialogue: true` dips the bed
   wherever the characters speak (`dialogue_duck_db`, default -12). Same price.
 - Films with `visual_qa` and `<d>` lines get a speech check: `qaIssues` can
