@@ -127,6 +127,15 @@ Agents should run `?check=true` first for official-format prompts, fix every
    `film_type: "commercial"`, `brand_id`, `product_pictures` (1-based, in
    `references`), `voiceover: true` (leave room for one) and `end_card_s`.
    With `mode: "reference"` and a 6–15 s `duration` it writes a one-shot ad.
+5. Package a single shot: `videos/text`, `videos/image` and
+   `videos/reference` take `brand_id` and a `package` object (image and
+   reference also `logo` and `packshot` files). When the clip is done the
+   studio packages it as its own job: the shot's `packageJobId` is a
+   `videos/package` job to poll for the packaged video and `deliverables`.
+   Its credits are held with the shot's at the start (a `402` means nothing
+   started) and given back if the clip stops or the packaging never starts
+   (`packageSkipped` says why). `?check=true` quotes `credits.clip` and
+   `credits.packaging`.
 
 Packaging is priced like finishing, by the seconds of video it writes (the
 main video and each extra shape, plus each cutdown in every shape), with a
