@@ -139,6 +139,15 @@ Agents should run `?check=true` first for official-format prompts, fix every
    `idea` on `videos/film`, or on `prompts/write`), the studio adds a
    self-review pass against the ad rules (about 20–40 s more). It costs
    `adReview` credits once per write; the catalog has the price.
+   `ad_style` picks the format: `problem_solution`, `product_hero`,
+   `slice_of_life`, `demo`, `cinematic_story`, `comedy`, `sensory`,
+   `montage`, `before_after`, `aspirational`, `reveal`, or `auto` (default:
+   the writer picks, so ads differ; each of `variants` gets its own).
+6. Caption looks (packaging, same price): `caption_style` (`subtitle` or
+   `pop` word chunks), `caption_words`, `caption_position`, `caption_font`,
+   `caption_size`, `caption_color`, `caption_stroke_color`,
+   `caption_stroke_width`, `caption_shadow`, `caption_highlight_color`
+   (karaoke highlight), `caption_uppercase`, `caption_animation`.
 5. Package a single shot: `videos/text`, `videos/image` and
    `videos/reference` take `brand_id` and a `package` object (image and
    reference also `logo` and `packshot` files). When the clip is done the
