@@ -34,6 +34,8 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/music/{id}/redo` | Re-shoot one `section` of a finished music video |
 | POST | `/director/videos/film` | Film from `clips` prompts or an `idea` |
 | POST | `/director/videos/film/{id}/redo` | Re-shoot one `clip` of a finished film |
+| POST | `/director/videos/film/{id}/final` | Render a finished draft at full quality (same clips, pictures, seeds) |
+| GET | `/director/jobs/{id}/pictures/{n}` | One reference picture a film or music video used |
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film |
@@ -167,14 +169,33 @@ With `variants`, each extra version is its own job, listed in
 `versionJobIds` and billed like the first. Every version's credits are held
 when you start, so a `402` means nothing started.
 
+## Face fixes, short songs, dialogue and end cards
+
+- Face fixes report `faceFixReport`: per re-rendered section, likeness before
+  and after and whether the change is `visible` (under 0.05 is not). Face fix
+  handles one face per shot, so two-person shots change little.
+- A song from `music/generate` ends when its structure is complete and can
+  come back shorter than `duration`; the job then has `durationShort`
+  (`requestedSeconds`, `actualSeconds`). Add sections or tags to the lyrics.
+- Dialogue: put who-speaks and silence directions before the line or at the
+  start of the shot, and only camera or action after `</d>`; the prompt check
+  warns about speech words right after a line.
+- End cards: `tagline_size` (3–20, default 6.8) and `cta_size` (2–12, default
+  4.5), as a % of the frame's short side.
+
 ## Draft, then final
 
-A film with `speed: "draft"` costs less per clip. To render the same film at
-full quality, send the same `clips` (and the same `images`) again with
-`speed: "quality"`. If you want the studio to write the clips, call
-`prompts/write` first and shoot both passes from its `clips`: a film made from
-an `idea` writes a fresh script (and designs its own pictures) every time, so
-its final would not match its draft.
+A film with `speed: "draft"` costs less per clip.
+`POST /director/videos/film/{id}/final` renders that finished film again at
+full quality as a new job, with the same written clips, the same pictures
+(yours and the ones the studio designed) and the same seeds; packaging and
+finishing carry over. It costs a final render of every clip (plus packaging
+and visual QA when the draft had them), never the writing. Optional:
+`upscale`.
+
+Films and music videos list the pictures they used in `pictures` (`number`,
+`tag`, `designed`, `what`, `url`); each is served at
+`GET /director/jobs/{id}/pictures/{n}`.
 
 ## Example: song → music video
 
