@@ -74,6 +74,21 @@ Prompts written in the studio's official format (`integrated_multimodal_descript
 Agents should run `?check=true` first for official-format prompts, fix every
 `ERROR`, then start the job.
 
+## Fights, prompt repair and section balance
+
+- Shots the checker reads as a fight get the studio's Fight Flow look
+  automatically (each blow sets up the next, fewer frozen poses).
+  `fight_flow=false` turns it off; `true` forces it. Text, image, reference,
+  film and music video.
+- `fix_prompt`: `off` (default), `safe` or `ai`. Repairs your own prompts
+  before rendering: camera words outside the trained vocabulary become the
+  nearest trained move, grain words and "no crowd" lines go. `safe` is
+  instant; `ai` also fixes what the checker still flags. Same price.
+- `balance_sections` on `videos/music` and `music/plan`: a last section
+  under 6 s shares time with the one before it (33 s: 15 + 9 + 9). On by
+  default when the AI writes the sections; send the same value to both.
+- `images/reference` takes 1–4 pictures.
+
 ## Commercials: brands and packaging
 
 1. Save a brand once (free): `POST /director/brands` with `name` (required),
