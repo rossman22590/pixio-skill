@@ -113,6 +113,7 @@ integrations must not cross this boundary.
 | GET | `/api/v1/director/catalog` | Yes | No | Fields, looks, styles, prices. |
 | GET | `/api/v1/director/voiceover/voices` | Yes | No | Voices for a packaging `voiceover_text`; free. |
 | POST | `/api/v1/director/videos/film/{id}/final` | Yes | Yes, paid | Final render of a finished draft film (same clips, pictures, seeds). |
+| POST | `/api/v1/director/videos/music/{id}/final` | Yes | Yes, paid | Final render of a finished draft music video. |
 | GET | `/api/v1/director/jobs/{id}/pictures/{n}` | Yes | No | One reference picture a film or music video used. |
 | POST | `/api/v1/director/videos/{text,image,reference,music,film,upscale,finish,facefix,package}` | Yes | Yes, paid | Async job; credits reserved, settled once. Max 8 at once. |
 | POST | `/api/v1/director/videos/{music,film}/{id}/redo` | Yes | Yes, paid | New job for one section or clip. |

@@ -35,6 +35,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/film` | Film from `clips` prompts or an `idea` |
 | POST | `/director/videos/film/{id}/redo` | Re-shoot one `clip` of a finished film |
 | POST | `/director/videos/film/{id}/final` | Render a finished draft at full quality (same clips, pictures, seeds) |
+| POST | `/director/videos/music/{id}/final` | Render a finished draft music video at full quality |
 | GET | `/director/jobs/{id}/pictures/{n}` | One reference picture a film or music video used |
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
@@ -198,6 +199,16 @@ full quality as a new job, with the same written clips, the same pictures
 finishing carry over. It costs a final render of every clip (plus packaging
 and visual QA when the draft had them), never the writing. Optional:
 `upscale`.
+
+Music videos have a draft too: `speed: "draft"` renders every section at a
+smaller frame for less (`musicSectionDraft` in the catalog).
+`POST /director/videos/music/{id}/final` renders that finished music video
+again at full quality with the same song, sections, pictures and seeds,
+priced as a full render of every section (plus packaging and visual QA when
+the draft had them), never the writing or the sets.
+
+Single shots are billed as at least 8 seconds. A face fix is charged only
+for the sections it visibly changed (`faceFixReport`).
 
 Films and music videos list the pictures they used in `pictures` (`number`,
 `tag`, `designed`, `what`, `url`); each is served at
