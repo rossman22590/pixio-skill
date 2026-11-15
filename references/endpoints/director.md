@@ -182,6 +182,12 @@ when you start, so a `402` means nothing started.
   warns about speech words right after a line.
 - End cards: `tagline_size` (3–20, default 6.8) and `cta_size` (2–12, default
   4.5), as a % of the frame's short side.
+- Music bed under dialogue: packaging `duck_under_dialogue: true` dips the bed
+  wherever the characters speak (`dialogue_duck_db`, default -12). Same price.
+- Films with `visual_qa` and `<d>` lines get a speech check: `qaIssues` can
+  report `speech_extra_words`, `speech_missing`, `speech_cut_off` and
+  `speech_unscripted`. `face_fix: "auto"` skips sections whose drifted shots all
+  show two or more people, so they are not billed.
 
 ## Draft, then final
 
