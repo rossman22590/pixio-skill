@@ -44,6 +44,14 @@ catalog lists them per endpoint as `maxLength`.
 | GET / POST | `/director/brands` | List / save brands (free) |
 | GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
 | GET | `/director/brands/{id}/logo` | The brand's logo image |
+| GET / POST | `/director/series` | List / save TV series (free) |
+| GET / POST / DELETE | `/director/series/{id}` | Read / change / delete a series |
+| POST | `/director/series/{id}/cast` | Add or change one cast member (picture, voice) |
+| DELETE | `/director/series/{id}/cast/{name}` | Remove a member, or `?part=picture` / `voice` |
+| GET | `/director/series/{id}/cast/{name}/{part}` | A member's `picture` or `voice` |
+| GET | `/director/series/{id}/picture?n=` | One of the series' pictures |
+| POST | `/director/series/{id}/episodes` | Make an episode (a film job) |
+| GET | `/director/series/{id}/episodes` | Episodes with recaps, threads, changes, `jobId` |
 | POST | `/director/images/text` · `/images/edit` · `/images/reference` | Images |
 | POST | `/director/music/generate` | A song from a description and lyrics |
 | POST | `/director/music/plan` | Writer: sections, vocals and (with `idea`) a treatment |
@@ -203,6 +211,31 @@ when you start, so a `402` means nothing started.
   report `speech_extra_words`, `speech_missing`, `speech_cut_off` and
   `speech_unscripted`. `face_fix: "auto"` skips sections whose drifted shots all
   show two or more people, so they are not billed.
+
+## TV series
+
+1. Save the show once (free): `POST /director/series` with `name`,
+   `premise` (its world and tone), `style` (the look of every episode),
+   `aspect` (16:9, 9:16 or 1:1), a `theme` file (plays under the opening for
+   `theme_s`, default 10 s) and `title_card` (on by default: "NAME / Episode
+   N: Title"). Cast: `cast` = a JSON list of `{name, what, kind}` (person,
+   place or thing), then each member's `picture` and `voice` (5–15 s) with
+   `POST /director/series/{id}/cast`; or the simple way, `pictures` (1–9) +
+   `references` (what each shows; the name is the text before the first
+   comma) and `voice_samples` (0–3) + `voices`. Without pictures or voices,
+   episode 1's become the show's. Limits: cast `name` 60, `what` 400,
+   `voice_what` 200; 50 series per account.
+2. Make episodes: `POST /director/series/{id}/episodes` with `idea` (10–4000;
+   name the cast members in it), `duration` (30–420, multiple of 15, default
+   60), `speed`, `number`, `previously` (your own recap, ≤3000), `voice_lock`
+   (`auto` default: on only when someone has no voice yet), `face_fix:
+   "auto"`, `visual_qa`, an extra `package`. It is a normal film job; poll
+   `GET /director/jobs/{id}`. When it is done, its recap (what happened, open
+   threads, lasting changes) is saved for the next episode and the show
+   learns new faces and voices from it: `GET /director/series/{id}/episodes`.
+3. Price: an AI-written film plus the recap (`episodeRecap`) and packaging
+   (title card and theme). `?dry_run=true` is free. Episode redo and final
+   work like a film's.
 
 ## Draft, then final
 
