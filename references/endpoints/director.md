@@ -111,9 +111,9 @@ Agents should run `?check=true` first for official-format prompts, fix every
    `images` show the product, e.g. `[1]`) and `variants` (2–4 versions in
    all).
 
-Packaging is priced like finishing: 1 credit per second of video it writes
-(the main video and each extra shape, plus each cutdown in every shape),
-10 credits minimum.
+Packaging is priced like finishing, by the seconds of video it writes (the
+main video and each extra shape, plus each cutdown in every shape), with a
+minimum; `GET /director/catalog` has the current rates.
 
 With `variants`, each extra version is its own job, listed in
 `versionJobIds` and billed like the first. Every version's credits are held
