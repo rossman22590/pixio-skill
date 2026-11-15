@@ -87,7 +87,6 @@ Agents should run `?check=true` first for official-format prompts, fix every
 - `balance_sections` on `videos/music` and `music/plan`: a last section
   under 6 s shares time with the one before it (33 s: 15 + 9 + 9). On by
   default when the AI writes the sections; send the same value to both.
-- `images/reference` takes 1–4 pictures.
 
 ## Commercials: brands and packaging
 
