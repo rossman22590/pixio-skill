@@ -12,6 +12,14 @@ for agents, limits and prices.
 Start with `GET /director/catalog`: it lists every endpoint with its accepted
 fields, the looks and styles, and the credit prices.
 
+Text limits (characters): `prompt` 8000 on shots, images and redos; `idea`
+4000 and `style` 500 on music videos, films and `music/plan`; `story` 4000 on
+`prompts/write`; `prompt` 4000 and `lyrics` 6000 on `music/generate`;
+packaging `tagline` 120, `cta` 60, `legal` 300 and `voiceover_text` 1500 (also
+inside a `package` object). Longer text gets `400 invalid_request` naming the
+field (`details.field`, `maxLength`, `length`) before anything is held. The
+catalog lists them per endpoint as `maxLength`.
+
 ## Endpoints
 
 | Method | Path | Does |
