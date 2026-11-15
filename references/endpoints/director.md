@@ -125,7 +125,10 @@ Agents should run `?check=true` first for official-format prompts, fix every
    speech, SRT/WebVTT text, or a list of `{text, start, end}`), a typed
    `voiceover_text` (up to 1500 characters) read by a studio voice
    (`voiceover_voice`, from `GET /director/voiceover/voices`; an uploaded
-   `voiceover` wins) and a `packshot` image (the product on the end card).
+   `voiceover` wins), a `packshot` image (the product on the end card), an
+   opening `title_card` (up to 160 characters, 3 lines, the first big;
+   `title_card_s` 1–10, default 4) and `music_until_s` (the music bed plays
+   only under the opening, then fades).
 3. Or ask for it at render time: `videos/film` and `videos/music` take
    `brand_id`, a `package` object (the same fields) and `logo`; films also
    take `music_bed`, `voiceover`, `film_type: "commercial"` (an ad structure
