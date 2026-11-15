@@ -135,6 +135,10 @@ Agents should run `?check=true` first for official-format prompts, fix every
    `film_type: "commercial"`, `brand_id`, `product_pictures` (1-based, in
    `references`), `voiceover: true` (leave room for one) and `end_card_s`.
    With `mode: "reference"` and a 6–15 s `duration` it writes a one-shot ad.
+   When the AI writes the commercial (`film_type: "commercial"` with an
+   `idea` on `videos/film`, or on `prompts/write`), the studio adds a
+   self-review pass against the ad rules (about 20–40 s more). It costs
+   `adReview` credits once per write; the catalog has the price.
 5. Package a single shot: `videos/text`, `videos/image` and
    `videos/reference` take `brand_id` and a `package` object (image and
    reference also `logo` and `packshot` files). When the clip is done the
