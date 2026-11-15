@@ -220,7 +220,8 @@ the draft had them), never the writing or the sets.
 Extra work you ask for is priced in proportion: `steps` above the default
 (shots and music videos 8, sung-word music videos 12, images 6, songs 30),
 `vsa: false` on a shot (about 1.8x), `finish` on a film or music video and
-`visual_qa: "local"` (`visualQaLocal` per part). `?check=true` shows the total.
+`visual_qa: "local"` (`visualQaLocal` per part). `?check=true` shows the total. `music/plan`
+without an `idea` (the song analysis alone) costs `songAnalysis`.
 
 Single shots are billed as at least 8 seconds. A face fix is charged only
 for the sections it visibly changed (`faceFixReport`).
