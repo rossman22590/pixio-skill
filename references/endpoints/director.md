@@ -192,7 +192,8 @@ when you start, so a `402` means nothing started.
   in clip 1 for the whole film, no samples needed; about one clip longer).
   Typed narration has 54 voices in 8 languages (`GET /director/voiceover/voices`
   lists them with their language), or send a `voiceover_sample` (5–15 s of the
-  narrator) to have the script read in that voice. Same price.
+  narrator) to have the script read in that voice; `voice_clone` picks how:
+  `natural` (default, best match), `fast` or `classic`. Same price.
 - Music bed under dialogue: packaging `duck_under_dialogue: true` dips the bed
   wherever the characters speak (`dialogue_duck_db`, default -12). Same price.
 - Films with `visual_qa` and `<d>` lines get a speech check: `qaIssues` can
