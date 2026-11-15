@@ -5,6 +5,10 @@ to a song, films from 30 s to 7 min, single shots, images, songs, upscale and
 finishing. Every call is billed in Pixio credits and returns Pixio ids and
 Pixio URLs.
 
+New to it? `GET /montage` (public, no key) explains Montage, the product
+behind the Director API: what it makes, how a production runs, a quickstart
+for agents, limits and prices.
+
 Start with `GET /director/catalog`: it lists every endpoint with its accepted
 fields, the looks and styles, and the credit prices.
 
@@ -12,7 +16,9 @@ fields, the looks and styles, and the credit prices.
 
 | Method | Path | Does |
 | --- | --- | --- |
+| GET | `/montage` | What Montage is, for agents: makes, quickstart, limits, prices (public) |
 | GET | `/director/catalog` | Endpoints, fields, looks, styles, prices |
+| GET | `/director/voiceover/voices` | Voices for a packaging `voiceover_text` (free) |
 | POST | `/director/videos/text` | One 5–15 s shot from a prompt |
 | POST | `/director/videos/image` | Animate one picture (`image`) |
 | POST | `/director/videos/reference` | Shot from up to 9 `images`, 3 `videos`, 3 `audios` |
@@ -23,14 +29,14 @@ fields, the looks and styles, and the credit prices.
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film |
-| POST | `/director/videos/package` | End card, logo, music bed, voiceover, other frame shapes, cutdowns |
+| POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
 | GET / POST | `/director/brands` | List / save brands (free) |
 | GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
 | GET | `/director/brands/{id}/logo` | The brand's logo image |
 | POST | `/director/images/text` · `/images/edit` · `/images/reference` | Images |
 | POST | `/director/music/generate` | A song from a description and lyrics |
 | POST | `/director/music/plan` | Writer: sections, vocals and (with `idea`) a treatment |
-| POST | `/director/prompts/write` | Writer: ready-to-shoot clip prompts from a `story` |
+| POST | `/director/prompts/write` | Writer: ready-to-shoot clip prompts from a `story` (films, commercials, single shots) |
 | POST | `/director/prompts/check` | Check prompts against the house rules (free, synchronous) |
 | GET | `/director/jobs` | Your jobs, newest first; `?limit=&before=&endpoint=` |
 | GET | `/director/queue` | Your waiting/rendering jobs, oldest first, each with its place in line |
@@ -103,17 +109,29 @@ Agents should run `?check=true` first for official-format prompts, fix every
    `reframe` (`crop` follows faces, `fit` blurs the sides) and `cutdowns` (up
    to 3 lengths, 5–120 s). The main video keeps its exact length; the other
    shapes and cutdowns come back in `deliverables`. `?dry_run=true` is free.
+   Also: `legal` (fine print on the end card, or the whole video with
+   `legal_always`), `captions` (`"auto"` from the voiceover or the video's
+   speech, SRT/WebVTT text, or a list of `{text, start, end}`), a typed
+   `voiceover_text` (up to 1500 characters) read by a studio voice
+   (`voiceover_voice`, from `GET /director/voiceover/voices`; an uploaded
+   `voiceover` wins) and a `packshot` image (the product on the end card).
 3. Or ask for it at render time: `videos/film` and `videos/music` take
    `brand_id`, a `package` object (the same fields) and `logo`; films also
    take `music_bed`, `voiceover`, `film_type: "commercial"` (an ad structure
    for the writer: a 2 s hook, the product as the answer, hero product shots,
    a calm last shot under the end card), `product_pictures` (which of your
    `images` show the product, e.g. `[1]`) and `variants` (2–4 versions in
-   all).
+   all). On films, `package.packshot_picture` puts one of your `images` (its
+   number) on the end card.
+4. Have the writer plan it: `POST /director/prompts/write` takes
+   `film_type: "commercial"`, `brand_id`, `product_pictures` (1-based, in
+   `references`), `voiceover: true` (leave room for one) and `end_card_s`.
+   With `mode: "reference"` and a 6–15 s `duration` it writes a one-shot ad.
 
 Packaging is priced like finishing, by the seconds of video it writes (the
 main video and each extra shape, plus each cutdown in every shape), with a
-minimum; `GET /director/catalog` has the current rates.
+minimum; `GET /director/catalog` has the current rates. Captions, fine print,
+the packshot and a typed voiceover do not change the price.
 
 With `variants`, each extra version is its own job, listed in
 `versionJobIds` and billed like the first. Every version's credits are held

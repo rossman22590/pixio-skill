@@ -109,7 +109,9 @@ integrations must not cross this boundary.
 | GET/PATCH/DELETE | `/api/v1/video-agent/projects/{id}` | Yes | PATCH/DELETE | |
 | POST | `/api/v1/video-agent/projects/from-prompt` | Yes | Yes, LLM | Outline. |
 | POST | `/api/v1/video-agent/projects/{id}/generate` | Yes | Yes, paid | Max 10 segments per call. |
+| GET | `/api/v1/montage` | No | No | What Montage (the Director API) is: makes, quickstart, limits, prices. |
 | GET | `/api/v1/director/catalog` | Yes | No | Fields, looks, styles, prices. |
+| GET | `/api/v1/director/voiceover/voices` | Yes | No | Voices for a packaging `voiceover_text`; free. |
 | POST | `/api/v1/director/videos/{text,image,reference,music,film,upscale,finish,facefix,package}` | Yes | Yes, paid | Async job; credits reserved, settled once. Max 8 at once. |
 | POST | `/api/v1/director/videos/{music,film}/{id}/redo` | Yes | Yes, paid | New job for one section or clip. |
 | POST | `/api/v1/director/images/{text,edit,reference}`, `/api/v1/director/music/generate` | Yes | Yes, paid | Async job. |

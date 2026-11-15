@@ -108,7 +108,7 @@ the full list.
 | Cinema | CRUD at `/cinema/storyboards`, `POST /cinema/storyboards/from-prompt` |
 | Cam View | CRUD at `/cam-view/scenes`, `POST /cam-view/scenes/from-prompt` |
 | Video Agent | CRUD at `/video-agent/projects`, `POST .../from-prompt`, `POST /video-agent/projects/{id}/generate` |
-| Director | `GET /director/catalog`, `POST /director/videos/*` (shots, music videos, films, redo, upscale, finish, facefix, package), `/director/brands`, `/director/images/*`, `/director/music/*`, `/director/prompts/*`, `GET/DELETE /director/jobs/{id}`, `GET /director/queue` |
+| Director | `GET /montage` (what it is, public), `GET /director/catalog`, `GET /director/voiceover/voices`, `POST /director/videos/*` (shots, music videos, films, redo, upscale, finish, facefix, package), `/director/brands`, `/director/images/*`, `/director/music/*`, `/director/prompts/*`, `GET/DELETE /director/jobs/{id}`, `GET /director/queue` |
 | Editor | CRUD at `/editor/projects`, `POST /editor/projects/{id}/operations` |
 | Agent | `POST /agent` (SSE stream of the Pixio chat agent) |
 | Characters | `GET/POST /characters`, `GET/PATCH/DELETE /characters/{name}` |
