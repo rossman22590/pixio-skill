@@ -250,7 +250,8 @@ explainer plus its score. Tuning: `doc_chapters` (1–8), `narration_pace`
 (default true) has a second writer pass fix wrong or overstated claims
 before the narration is read; `interview_label` (default `dramatized`, up to
 40 characters, `""` for none) follows an interviewee's role on their name
-card, since interviewees are invented. Both free. Upscale takes
+card, since interviewees are invented. The fact-check is `factCheck`
+credits (send `false` to skip it); the label is free. Upscale takes
 `detail` (0–1, default 0.6). Any packaging takes `lower_thirds`: name cards
 `{t, text, sub}` or chapter cards `{kind: "chapter", label, text, t, d}`.
 
@@ -421,6 +422,12 @@ Every start call returns `202` with a `Location` header and:
   early is charged only for finished sections/clips plus any writing; a job
   that fails before rendering anything costs nothing.
 - Cancelling (`DELETE`) still charges finished parts.
+- Designed pictures: when the studio writes from an `idea` (films,
+  commercials, explainers, documentaries, episodes, and music videos with
+  `make_references`) it designs pictures of places, props and faces at
+  `setPicture` credits each. The hold covers the most it makes
+  (`filmDesignedPictures` for a film or episode, `designedSets` for a music
+  video); only the pictures made are charged, also when a job stops.
 
 ## Errors
 
