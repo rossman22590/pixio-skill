@@ -270,6 +270,12 @@ filter, look, score, end card, formats, cutdowns…). The sound is crossfaded
 at each join and the source is never changed. The result is a new job,
 priced like packaging on the edited length. `?dry_run=true` is a free quote.
 
+### Duets
+
+A music video with an `idea` takes `singers` (`{"male": 1, "female": 2}`,
+1-based picture numbers): who sings each line is measured from the vocal,
+and each line's performance shots and lip-sync go to its singer. Free.
+
 ### Remake a video
 
 `POST /director/videos/remake` with a `video` (2 s to 7 min; file, URL or
