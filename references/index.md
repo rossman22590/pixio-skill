@@ -53,7 +53,7 @@ Workflows and projects:
 - `endpoints/workflows.md`: workflow CRUD, definition schema, runs, overrides.
 - `endpoints/projects.md`: generic and typed project CRUD, operations, from-prompt, error codes.
 - `endpoints/video-agent.md`: Video Agent planning and per-segment generation.
-- `endpoints/director.md`: Director studio — music videos, films, shots, images, songs, commercials (brands, packaging, versions); jobs, parts, billing.
+- `endpoints/director.md`: Director studio — music videos, films, shots, images, songs, commercials (brands, packaging, versions), TV series and season plans, edit by shots; jobs, parts, billing.
 
 Agent and account memory:
 

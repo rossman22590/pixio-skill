@@ -39,7 +39,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/jobs/{id}/pictures/{n}` | One reference picture a film or music video used |
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
-| POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film |
+| POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film (`people: "all"` for group shots) |
 | POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
 | GET / POST | `/director/brands` | List / save brands (free) |
 | GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
@@ -56,6 +56,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/series/{id}/picture?n=` | One of the series' pictures |
 | POST | `/director/series/{id}/episodes` | Make an episode (a film job) |
 | GET | `/director/series/{id}/episodes` | Episodes with recaps, threads, changes, `jobId` |
+| POST | `/director/series/{id}/season` | Plan a season's arc (writer job) |
 | POST | `/director/images/text` · `/images/edit` · `/images/reference` | Images |
 | POST | `/director/music/generate` | A song from a description and lyrics |
 | POST | `/director/music/plan` | Writer: sections, vocals and (with `idea`) a treatment |
@@ -65,6 +66,9 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/queue` | Your waiting/rendering jobs, oldest first, each with its place in line |
 | GET / DELETE | `/director/jobs/{id}` | Get (syncs on read) / cancel |
 | GET | `/director/jobs/{id}/parts/{n}` | Stream one clip or section; Range supported |
+| GET | `/director/jobs/{id}/shots` | A finished video's shots with thumbnails (free) |
+| GET | `/director/jobs/{id}/shots/{n}` | One shot's thumbnail, JPEG, 1-based (free) |
+| POST | `/director/jobs/{id}/edit` | Cut a finished video by its shots into a new job |
 | GET | `/director/jobs/{id}/video` · `/image` · `/audio` | 302 to the finished file |
 
 ## Inputs
@@ -188,8 +192,13 @@ when you start, so a `402` means nothing started.
 ## Face fixes, short songs, dialogue and end cards
 
 - Face fixes report `faceFixReport`: per re-rendered section, likeness before
-  and after and whether the change is `visible` (under 0.05 is not). Face fix
-  handles one face per shot, so two-person shots change little.
+  and after and whether the change is `visible` (under 0.05 is not). By
+  default (`people: "largest"`) face fix handles the largest face in each
+  section. `people: "all"` (needs `job_id`) is for group shots: one pass for
+  every person the section names, each matched to their own picture. Its
+  hold is `faceFix` per section times the passes, from the studio's own
+  estimate, rounded up to a tenth (a section with two people is about 2x);
+  each section is charged once if anyone in it visibly changed.
 - A song from `music/generate` ends when its structure is complete and can
   come back shorter than `duration`; the job then has `durationShort`
   (`requestedSeconds`, `actualSeconds`). Add sections or tags to the lyrics.
@@ -237,9 +246,27 @@ made for it. `doc_style`: `dramatic` (default), `observational` or
 `investigative`; `interviews`: `auto`, `few` or `none`. Priced like an
 explainer plus its score. Tuning: `doc_chapters` (1–8), `narration_pace`
 (1.5–2.6 words/s), `max_speedup` (1.0–1.3) and an exact `interviews` count
-(0–6); `captions: "off"` in `package` drops the subtitles. Upscale takes
+(0–6); `captions: "off"` in `package` drops the subtitles. `fact_check`
+(default true) has a second writer pass fix wrong or overstated claims
+before the narration is read; `interview_label` (default `dramatized`, up to
+40 characters, `""` for none) follows an interviewee's role on their name
+card, since interviewees are invented. Both free. Upscale takes
 `detail` (0–1, default 0.6). Any packaging takes `lower_thirds`: name cards
 `{t, text, sub}` or chapter cards `{kind: "chapter", label, text, t, d}`.
+
+## Edit by shots
+
+`GET /director/jobs/{id}/shots` (free) lists the hard cuts of a finished
+video: `{ object: "list", jobId, fps, data: [{ shot, startSeconds,
+endSeconds, seconds, thumbnailUrl }] }`; each thumbnail is at
+`GET …/shots/{n}` (JPEG, 1-based). `409 conflict` until the job is done.
+
+`POST /director/jobs/{id}/edit` with `shots` (required, in play order:
+`[1, 2, {"shot": 4, "trim_start": 0.3, "trim_end": 0.5}, 3]`) keeps, drops,
+reorders, repeats and trims them; add any packaging field (captions,
+filter, look, score, end card, formats, cutdowns…). The sound is crossfaded
+at each join and the source is never changed. The result is a new job,
+priced like packaging on the edited length. `?dry_run=true` is a free quote.
 
 ## Looks, filters, score and laughs
 
@@ -274,14 +301,24 @@ Series take `laugh_track` for every episode, and `theme_auto=true` or a
    episode 1's become the show's. Limits: cast `name` 60, `what` 400,
    `voice_what` 200; 50 series per account.
 2. Make episodes: `POST /director/series/{id}/episodes` with `idea` (10–4000;
-   name the cast members in it), `duration` (30–420, multiple of 15, default
+   name the cast members in it; leave it out for an episode planned in a
+   season), `duration` (30–420, multiple of 15, default
    60), `speed`, `number`, `previously` (your own recap, ≤3000), `voice_lock`
    (`auto` default: on only when someone has no voice yet), `face_fix:
    "auto"`, `visual_qa`, an extra `package`. It is a normal film job; poll
    `GET /director/jobs/{id}`. When it is done, its recap (what happened, open
    threads, lasting changes) is saved for the next episode and the show
    learns new faces and voices from it: `GET /director/series/{id}/episodes`.
-3. Price: an AI-written film plus the recap (`episodeRecap`) and packaging
+3. Plan a season (optional): `POST /director/series/{id}/season` with an
+   `idea` (10–3000: the big story and where it ends), `episodes` (2–20,
+   default 6) and optional `first` (the first planned episode's number,
+   1–999; default the next one). It plans an arc: one line per episode,
+   threads across them and the new characters it brings in, saved on the
+   show (a new plan replaces the old one). A writer job, `writerRound`
+   credits, charged when done and given back if it fails; the plan is in
+   the job's `result` and on the series. A planned episode needs no `idea`
+   on `POST …/episodes`.
+4. Price: an AI-written film plus the recap (`episodeRecap`) and packaging
    (title card and theme). `?dry_run=true` is free. Episode redo and final
    work like a film's.
 
@@ -309,7 +346,8 @@ Extra work you ask for is priced in proportion: `steps` above the default
 without an `idea` (the song analysis alone) costs `songAnalysis`.
 
 Single shots are billed as at least 8 seconds. A face fix is charged only
-for the sections it visibly changed (`faceFixReport`).
+for the sections it visibly changed (`faceFixReport`); with `people: "all"`
+each such section is charged once for all its passes.
 
 Films and music videos list the pictures they used in `pictures` (`number`,
 `tag`, `designed`, `what`, `url`); each is served at
@@ -413,6 +451,6 @@ limit.
 4. Use `parts[]` to review sections as they land; re-shoot one with
    `.../{id}/redo` instead of re-running the whole video.
 5. Chain post-processing (`upscale`, `finish`, `facefix`, `package`) with
-   `job_id`.
+   `job_id`; to cut a finished video, read `…/shots` and `POST …/edit`.
 6. For ads, save the brand once and pass `brand_id`; quote `variants` as
    versions × the single price before starting.
