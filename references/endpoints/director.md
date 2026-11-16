@@ -216,6 +216,18 @@ when you start, so a `402` means nothing started.
   `speech_unscripted`. `face_fix: "auto"` skips sections whose drifted shots all
   show two or more people, so they are not billed.
 
+## Storyboards
+
+`storyboard: true` on `/director/videos/film` with an `idea`: after writing,
+one still per shot; the job stays `running` with `storyboard.waiting: true`.
+`GET /director/jobs/{id}/storyboard` (shots, stills, `sheetUrl`),
+`GET …/storyboard/sheet.jpg`, `GET …/storyboard/{clip}/{shot}` (PNG),
+`POST …/storyboard/redo` (`clip`, `shot`, optional `note` that rewrites the
+shot) and `POST …/storyboard/approve` to render. Stills cost `setPicture`
+each (up to 4 a clip held, real count charged); a redo `setPicture`, plus
+`storyboardNote` with a note. Never approved: the writing and stills are
+still charged. Not with `variants`.
+
 ## Documentaries
 
 `film_type: "documentary"` with an `idea` on `/director/videos/film`: a
@@ -223,7 +235,10 @@ script in chapters with short on-camera interviews, a deep narrator, one
 shot per line, title card, chapter and name cards, subtitles and a score
 made for it. `doc_style`: `dramatic` (default), `observational` or
 `investigative`; `interviews`: `auto`, `few` or `none`. Priced like an
-explainer plus its score. Any packaging takes `lower_thirds`: name cards
+explainer plus its score. Tuning: `doc_chapters` (1–8), `narration_pace`
+(1.5–2.6 words/s), `max_speedup` (1.0–1.3) and an exact `interviews` count
+(0–6); `captions: "off"` in `package` drops the subtitles. Upscale takes
+`detail` (0–1, default 0.6). Any packaging takes `lower_thirds`: name cards
 `{t, text, sub}` or chapter cards `{kind: "chapter", label, text, t, d}`.
 
 ## Looks, filters, score and laughs
