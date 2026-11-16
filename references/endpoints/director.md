@@ -44,6 +44,10 @@ catalog lists them per endpoint as `maxLength`.
 | GET / POST | `/director/brands` | List / save brands (free) |
 | GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
 | GET | `/director/brands/{id}/logo` | The brand's logo image |
+| GET | `/director/filters` | Colour filters for packaging (free) |
+| POST | `/director/looks` | Measure a reference's look (`picture`, `video` or `job_id`); use the id as `look_id` (free) |
+| GET | `/director/looks/{id}` | One of your looks |
+| GET | `/director/jobs/{id}/filter_preview` | One frame with a filter or look, JPEG (free) |
 | GET / POST | `/director/series` | List / save TV series (free) |
 | GET / POST / DELETE | `/director/series/{id}` | Read / change / delete a series |
 | POST | `/director/series/{id}/cast` | Add or change one cast member (picture, voice) |
@@ -211,6 +215,25 @@ when you start, so a `402` means nothing started.
   report `speech_extra_words`, `speech_missing`, `speech_cut_off` and
   `speech_unscripted`. `face_fix: "auto"` skips sections whose drifted shots all
   show two or more people, so they are not billed.
+
+## Looks, filters, score and laughs
+
+Packaging (and any `package` object) also takes:
+
+- `filter` (sepia, black_and_white, noir, vintage, faded, warm, cool, vivid,
+  cinematic, dreamy — `GET /director/filters`), `filter_strength` (0–1) and
+  `vignette` (0–1). Logo, captions and end card keep their colours.
+- `look_id` from `POST /director/looks` (a `picture`, `video` or `job_id`;
+  free) to copy a reference's colours, or `look_from_job` with one of your
+  finished jobs. Preview first: `GET /director/jobs/{id}/filter_preview?filter=all`.
+- `score`: `"auto"` or a description; the music model makes an instrumental
+  of the video's length, ducked under speech. Charged per started 5 minutes
+  (`score` in the catalog). An uploaded music bed wins.
+- `laugh_track`: `light` or `full` (with `laugh_db`) adds studio-audience
+  laughs after the punchlines (`laughTrack`).
+
+Series take `laugh_track` for every episode, and `theme_auto=true` or a
+`theme_brief` to have the theme made once (charged `score` when saved).
 
 ## TV series
 
