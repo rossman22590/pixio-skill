@@ -216,6 +216,16 @@ when you start, so a `402` means nothing started.
   `speech_unscripted`. `face_fix: "auto"` skips sections whose drifted shots all
   show two or more people, so they are not billed.
 
+## Documentaries
+
+`film_type: "documentary"` with an `idea` on `/director/videos/film`: a
+script in chapters with short on-camera interviews, a deep narrator, one
+shot per line, title card, chapter and name cards, subtitles and a score
+made for it. `doc_style`: `dramatic` (default), `observational` or
+`investigative`; `interviews`: `auto`, `few` or `none`. Priced like an
+explainer plus its score. Any packaging takes `lower_thirds`: name cards
+`{t, text, sub}` or chapter cards `{kind: "chapter", label, text, t, d}`.
+
 ## Looks, filters, score and laughs
 
 Packaging (and any `package` object) also takes:
