@@ -69,6 +69,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/jobs/{id}/shots` | A finished video's shots with thumbnails (free) |
 | GET | `/director/jobs/{id}/shots/{n}` | One shot's thumbnail, JPEG, 1-based (free) |
 | POST | `/director/jobs/{id}/edit` | Cut a finished video by its shots into a new job |
+| POST | `/director/videos/remake` | Remake a video (2 s–7 min) shot for shot as a new film, with your changes |
 | GET | `/director/jobs/{id}/video` · `/image` · `/audio` | 302 to the finished file |
 
 ## Inputs
@@ -261,6 +262,21 @@ credits (send `false` to skip it); the label is free. Upscale takes
 video: `{ object: "list", jobId, fps, data: [{ shot, startSeconds,
 endSeconds, seconds, thumbnailUrl }] }`; each thumbnail is at
 `GET …/shots/{n}` (JPEG, 1-based). `409 conflict` until the job is done.
+
+### Remake a video
+
+`POST /director/videos/remake` with a `video` (2 s to 7 min; file, URL or
+asset path) remakes it shot for shot: the speech is transcribed, the AI
+watches every shot and writes it again as a film at the same cut times
+(clip k = the source's 15 s window k), with your `changes` ("the man is
+<Picture 1>", "set it at night", "make it 3D animation") and up to 9
+`images`. `sound`: `original` (default, kept in sync) or `new`; `motion`:
+`loose` (default) or `medium`. The film is the source rounded up to 15 s
+(30 s at least). It works like a film afterwards: `storyboard`, `speed`,
+`upscale`, `visual_qa`, `package`, retakes and draft → final. Priced like a
+film written from an idea (clips, writing, up to `filmDesignedPictures`
+designed pictures held) plus `remakeWatchPerClip` per 15 s for watching the
+source; a 1-minute remake holds 900 credits. `?dry_run=true` is free.
 
 `POST /director/jobs/{id}/edit` with `shots` (required, in play order:
 `[1, 2, {"shot": 4, "trim_start": 0.3, "trim_end": 0.5}, 3]`) keeps, drops,

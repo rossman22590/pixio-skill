@@ -130,6 +130,7 @@ integrations must not cross this boundary.
 | GET | `/api/v1/director/jobs/{id}/shots`, `.../shots/{n}` | Yes | No | A finished video's shots; one shot's thumbnail (JPEG). Free. |
 | POST | `/api/v1/director/jobs/{id}/edit` | Yes | Yes, paid | Cut a finished video by its `shots` into a new job; priced like packaging on the edited length. `?dry_run=true` free. |
 | POST | `/api/v1/director/series/{id}/season` | Yes | Yes, paid | Plan a season's arc; writer job, plan in `result`. |
+| POST | `/api/v1/director/videos/remake` | Yes | Yes, paid | Remake a video shot for shot as a new film with your `changes`; priced like a film from an idea plus watching. `?dry_run=true` free. |
 | GET/POST | `/api/v1/editor/projects` | Yes | POST | Timeline projects. |
 | GET/PATCH/DELETE | `/api/v1/editor/projects/{id}` | Yes | PATCH/DELETE | |
 | POST | `/api/v1/editor/projects/{id}/operations` | Yes | Yes | `timeline.*`, `overlay.*`, `audio.*`, `video.*`, `composition.*`; optional `fps`. |
