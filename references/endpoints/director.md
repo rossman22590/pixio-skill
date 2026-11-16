@@ -273,8 +273,10 @@ priced like packaging on the edited length. `?dry_run=true` is a free quote.
 ### Duets
 
 A music video with an `idea` takes `singers` (`{"male": 1, "female": 2}`,
-1-based picture numbers): who sings each line is measured from the vocal,
-and each line's performance shots and lip-sync go to its singer. Free.
+or `{"first": 1, "second": 2}` for two women or two men, first = who sings
+first; 1-based picture numbers): singers are told apart by their voice, and
+each line's performance shots and lip-sync go to its singer, the other
+listening with lips closed. Free.
 
 ### Remake a video
 
