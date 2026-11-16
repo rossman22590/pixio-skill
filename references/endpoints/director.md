@@ -263,6 +263,13 @@ video: `{ object: "list", jobId, fps, data: [{ shot, startSeconds,
 endSeconds, seconds, thumbnailUrl }] }`; each thumbnail is at
 `GET …/shots/{n}` (JPEG, 1-based). `409 conflict` until the job is done.
 
+`POST /director/jobs/{id}/edit` with `shots` (required, in play order:
+`[1, 2, {"shot": 4, "trim_start": 0.3, "trim_end": 0.5}, 3]`) keeps, drops,
+reorders, repeats and trims them; add any packaging field (captions,
+filter, look, score, end card, formats, cutdowns…). The sound is crossfaded
+at each join and the source is never changed. The result is a new job,
+priced like packaging on the edited length. `?dry_run=true` is a free quote.
+
 ### Remake a video
 
 `POST /director/videos/remake` with a `video` (2 s to 7 min; file, URL or
@@ -277,13 +284,6 @@ watches every shot and writes it again as a film at the same cut times
 film written from an idea (clips, writing, up to `filmDesignedPictures`
 designed pictures held) plus `remakeWatchPerClip` per 15 s for watching the
 source; a 1-minute remake holds 900 credits. `?dry_run=true` is free.
-
-`POST /director/jobs/{id}/edit` with `shots` (required, in play order:
-`[1, 2, {"shot": 4, "trim_start": 0.3, "trim_end": 0.5}, 3]`) keeps, drops,
-reorders, repeats and trims them; add any packaging field (captions,
-filter, look, score, end card, formats, cutdowns…). The sound is crossfaded
-at each join and the source is never changed. The result is a new job,
-priced like packaging on the edited length. `?dry_run=true` is a free quote.
 
 ## Looks, filters, score and laughs
 
