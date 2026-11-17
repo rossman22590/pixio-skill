@@ -270,6 +270,17 @@ filter, look, score, end card, formats, cutdowns…). The sound is crossfaded
 at each join and the source is never changed. The result is a new job,
 priced like packaging on the edited length. `?dry_run=true` is a free quote.
 
+### Film voices
+
+`voice_samples: "used"` gives each clip only the voice samples its prompt
+names (`<Audio N>`), so an unused sample can't land on a speaker (use it with
+`voice_lock`); `clip_audios` sets each clip's own samples like `clip_images`
+(`[[1,2],[2],[],[1,3]]`, not with `voice_lock`); `no_speech` lists clips where
+nobody speaks (closed mouths); `fade` (0–3 s, default 0.5, `0` for spliced
+films). A film retake takes `audios` and `no_speech` for its clip. With
+`visual_qa`, a line spoken in the wrong voice shows in `qaIssues`. All free.
+Songs: `fill: "loop"` loops a song that ends early to exactly `duration`.
+
 ### Premium
 
 Shots, music videos, films, remakes and episodes take `video_model`
