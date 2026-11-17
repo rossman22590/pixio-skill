@@ -284,8 +284,8 @@ Songs: `fill: "loop"` loops a song that ends early to exactly `duration`.
 ### Premium
 
 Shots, music videos, films, remakes and episodes take `video_model`
-(`basic` or `premium`; left out, the account default, Basic unless Pixio
-changes it) and, on Premium, `resolution` (`480p` or `720p`, about twice the
+(`basic` or `premium`; left out, Pixio's current default, shown with what is
+offered in `GET /director/catalog` under `videoModels`) and, on Premium, `resolution` (`480p` or `720p`, about twice the
 cost). Premium is sharper and more lifelike and is offered when Pixio turns it
 on; otherwise `400 premium_unavailable`. Its renders are priced from the
 studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
