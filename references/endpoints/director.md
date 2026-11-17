@@ -270,6 +270,19 @@ filter, look, score, end card, formats, cutdowns…). The sound is crossfaded
 at each join and the source is never changed. The result is a new job,
 priced like packaging on the edited length. `?dry_run=true` is a free quote.
 
+### Premium
+
+Shots, music videos, films, remakes and episodes take `video_model`
+(`basic` or `premium`; left out, the account default, Basic unless Pixio
+changes it) and, on Premium, `resolution` (`480p` or `720p`, about twice the
+cost). Premium is sharper and more lifelike and is offered when Pixio turns it
+on; otherwise `400 premium_unavailable`. Its renders are priced from the
+studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
+writing its prompts, in place of the Basic clip price, so always quote with
+`?check=true` first. One version at a time, no draft/final (it is already full
+quality), and retakes cost the part price it was sold at. The job shows
+`videoModel`.
+
 ### Duets
 
 A music video with an `idea` takes `singers` (`{"male": 1, "female": 2}`,
