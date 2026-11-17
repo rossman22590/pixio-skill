@@ -281,12 +281,25 @@ films). A film retake takes `audios` and `no_speech` for its clip. With
 `visual_qa`, a line spoken in the wrong voice shows in `qaIssues`. All free.
 Songs: `fill: "loop"` loops a song that ends early to exactly `duration`.
 
-### Premium
+### Verbatim and re-sync
+
+`verbatim: true` on shots, music videos, films and their retakes uses your
+prompts exactly as sent (no rewrite or added lines; the prompt check may
+refuse but never edits). Not with an `idea`, remakes or episodes. On Premium
+and Ultra it skips the prompt-writing charge.
+
+`POST /director/videos/resync` with a music `video` and its `song` re-times the
+picture onto the song section by section (`section_s`, default 15) and lays the
+song on unchanged; priced like `videos/finish`.
+
+### Premium and Ultra
 
 Shots, music videos, films, remakes and episodes take `video_model`
-(`basic` or `premium`; left out, always `basic`) and, on Premium, `resolution`
-(`480p` or `720p`, about twice the cost). Premium is sharper and more lifelike
-and is offered when Pixio turns it on (`videoModels.premiumAvailable` in
+(`basic`, `premium` or `ultra`; left out, always `basic`) and, on Premium or
+Ultra, `resolution` (`480p` or `720p`, about twice the cost). Premium is
+sharper and more lifelike; Ultra uses the highest-quality model on every shot
+and costs more; both are priced and work the same way below. Premium is
+offered when Pixio turns it on (`videoModels.premiumAvailable` in
 `GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
 studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
 writing its prompts, in place of the Basic clip price, so always quote with
