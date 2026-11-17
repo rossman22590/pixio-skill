@@ -300,6 +300,9 @@ job also gets the same picture over your original song
 Any trouble with Premium falls back to Basic: if it can't be
 quoted the job starts on Basic (`videoModel: "basic"`, Basic price), and
 whatever the studio renders on Basic instead is charged at the Basic price.
+A retake of a Premium video never switches to Basic (that would re-render the
+whole video): if Premium can't be quoted it answers `503 premium_unavailable`
+and nothing is charged.
 
 ### Duets
 
