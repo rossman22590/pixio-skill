@@ -276,7 +276,18 @@ A music video with an `idea` takes `singers` (`{"male": 1, "female": 2}`,
 or `{"first": 1, "second": 2}` for two women or two men, first = who sings
 first; 1-based picture numbers): singers are told apart by their voice, and
 each line's performance shots and lip-sync go to its singer, the other
-listening with lips closed. Free.
+listening with lips closed. Free. When two voices are too alike to tell
+apart, `singer_parts` says exactly who sings when, in song seconds, with the
+same keys: `{"first": ["0-24.5", "40-49"], "second": ["24.5-40"]}`.
+
+Duet songs: `music/generate` with `voices` (`{"male": "a deep baritone",
+"female": "a powerful R&B voice"}`, or `{"first": "...", "second": "..."}`
+for two women or two men) and every lyric section tagged with its singer
+(`[verse: first]`, `[chorus: second]`). Man and woman: one take per tagged
+section, joined, `song` credits each. Two women or two men: one song in the
+first voice with the second singer's sections re-voiced (no joins),
+2 x `song` credits. A music video made from it (`song_job` plus `singers`
+with the same keys) knows exactly who sings when.
 
 ### Remake a video
 
