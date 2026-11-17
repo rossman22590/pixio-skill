@@ -292,26 +292,28 @@ and Ultra it skips the prompt-writing charge.
 picture onto the song section by section (`section_s`, default 15) and lays the
 song on unchanged; priced like `videos/finish`.
 
-### Premium and Ultra
+### Montage Basic, Montage Premium and Montage Ultra
 
 Shots, music videos, films, remakes and episodes take `video_model`
-(`basic`, `premium` or `ultra`; left out, always `basic`) and, on Premium or
-Ultra, `resolution` (`480p` or `720p`, about twice the cost). Premium is
-sharper and more lifelike; Ultra uses the highest-quality model on every shot
-and costs more; both are priced and work the same way below. Premium is
+(`montage-basic`, `montage-premium` or `montage-ultra`; left out, always
+`montage-basic`; each with its name in `GET /director/catalog` under
+`videoModels.models`) and, on Premium or Ultra, `resolution` (`480p` or
+`720p`, about twice the cost). Montage Premium is sharper and more lifelike;
+Montage Ultra uses the highest-quality model on every shot and costs more;
+both are priced and work the same way below. Premium is
 offered when Pixio turns it on (`videoModels.premiumAvailable` in
 `GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
 studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
 writing its prompts, in place of the Basic clip price, so always quote with
 `?check=true` first. One version at a time, no draft/final (it is already full
 quality), and retakes cost the part price it was sold at. The job shows
-`videoModel`. Premium music videos take `music_sync: "song"` to keep your
+`videoModel` and `videoModelName`. Premium music videos take `music_sync: "song"` to keep your
 exact song as the soundtrack, the lips re-timed onto it (a little more, in the
 quote); without it Premium uses its own sung audio, always in sync, and the
 job also gets the same picture over your original song
 (`output.withOriginalSong`, or `GET …/jobs/{id}/video?variant=song`), free.
 Any trouble with Premium falls back to Basic: if it can't be
-quoted the job starts on Basic (`videoModel: "basic"`, Basic price), and
+quoted the job starts on Basic (`videoModel: "montage-basic"`, Basic price), and
 whatever the studio renders on Basic instead is charged at the Basic price.
 A retake of a Premium video never switches to Basic (that would re-render the
 whole video): if Premium can't be quoted it answers `503 premium_unavailable`
