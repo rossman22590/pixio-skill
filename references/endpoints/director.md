@@ -284,18 +284,20 @@ Songs: `fill: "loop"` loops a song that ends early to exactly `duration`.
 ### Premium
 
 Shots, music videos, films, remakes and episodes take `video_model`
-(`basic` or `premium`; left out, Pixio's current default, shown with what is
-offered in `GET /director/catalog` under `videoModels`) and, on Premium, `resolution` (`480p` or `720p`, about twice the
-cost). Premium is sharper and more lifelike and is offered when Pixio turns it
-on; otherwise `400 premium_unavailable`. Its renders are priced from the
+(`basic` or `premium`; left out, always `basic`) and, on Premium, `resolution`
+(`480p` or `720p`, about twice the cost). Premium is sharper and more lifelike
+and is offered when Pixio turns it on (`videoModels.premiumAvailable` in
+`GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
 studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
 writing its prompts, in place of the Basic clip price, so always quote with
 `?check=true` first. One version at a time, no draft/final (it is already full
 quality), and retakes cost the part price it was sold at. The job shows
 `videoModel`. Premium music videos take `music_sync: "song"` to keep your
 exact song as the soundtrack, the lips re-timed onto it (a little more, in the
-quote); without it Premium uses its own sung audio, always in sync. Any
-trouble with Premium falls back to Basic: if it can't be
+quote); without it Premium uses its own sung audio, always in sync, and the
+job also gets the same picture over your original song
+(`output.withOriginalSong`, or `GET …/jobs/{id}/video?variant=song`), free.
+Any trouble with Premium falls back to Basic: if it can't be
 quoted the job starts on Basic (`videoModel: "basic"`, Basic price), and
 whatever the studio renders on Basic instead is charged at the Basic price.
 
