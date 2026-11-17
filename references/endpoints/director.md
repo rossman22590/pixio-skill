@@ -281,7 +281,9 @@ studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
 writing its prompts, in place of the Basic clip price, so always quote with
 `?check=true` first. One version at a time, no draft/final (it is already full
 quality), and retakes cost the part price it was sold at. The job shows
-`videoModel`.
+`videoModel`. Any trouble with Premium falls back to Basic: if it can't be
+quoted the job starts on Basic (`videoModel: "basic"`, Basic price), and
+whatever the studio renders on Basic instead is charged at the Basic price.
 
 ### Duets
 
