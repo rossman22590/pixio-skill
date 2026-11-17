@@ -297,6 +297,13 @@ song on unchanged; priced like `videos/finish`.
 - Lip fix: `POST /director/videos/lipfix` with `job_id` (or a `video`),
   `start_s` and `end_s` (a 4–14 s window, any start) makes that window again
   so the lips follow the vocal; nothing else changes.
+- Lip fix auto: `POST /director/videos/lipfix/auto` with `job_id` (or a
+  `video`) measures the lip-sync, lip-fixes every stretch that is off (windows
+  up to 8 s), re-tries each while it still measures off (`tries` 1–3), keeps
+  the best and gives back one video (10–40 minutes for 30 s). `max_windows`
+  (1–12) caps it; `start_s` / `end_s` limit it to a part. It holds
+  `max_windows` × `tries` × an 8 s lip fix and is charged only for the tries
+  it renders, each priced as a lip fix of its window, at least 16.
 - Montage Edit: `POST /director/videos/edit` with `job_id` (or a `video`) and a
   short `prompt` ("make it night with rain") changes the whole video (up to
   15 s) or only a 1–15 s window (`start_s`, `end_s`), spliced back; up to 6
@@ -318,7 +325,18 @@ song on unchanged; priced like `videos/finish`.
   `body`) for lip fix, Montage Edit, face fix or a section redo on your job.
   Nothing is fixed until you send one.
 
-Lip fix, Edit, Create and Analyze are priced from the studio's own quote of
+- Understand: `POST /director/understand/video` (or `/audio`) with `job_id`
+  (or a `video` / `audio`) gives a structured read as JSON on the done job
+  (`understanding`): summary, mood, visual style, scenes with times, the
+  sound's parts, voices and tempo, story beats and tips to make something like
+  it; `question` gets an `answer`, `measure_only` skips the deep read. No
+  words, lyrics or on-screen text are returned.
+- Film inspiration: a film with an `idea` takes 1–3 `inspiration` videos (up to
+  120 s each) and `inspiration_notes`; the writer borrows their camera,
+  lighting, colour and pacing, never people or shots. Each video is priced
+  like `understand/video`, at least 16, on top of the film.
+
+Lip fix, Edit, Create, Analyze and Understand are priced from the studio's own quote of
 the exact request, plus a 10% margin (the most a real bill has run over its
 quote), plus 30%, at least 16 credits (Analyze: about 16 a minute of video).
 `?dry_run=true` is a free quote.
