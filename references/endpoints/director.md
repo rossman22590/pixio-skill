@@ -292,7 +292,7 @@ and Ultra it skips the prompt-writing charge.
 picture onto the song section by section (`section_s`, default 15) and lays the
 song on unchanged; priced like `videos/finish`.
 
-### Lip fix, Montage Edit and Montage Create
+### Lip fix, Montage Edit, Montage Create, Crop and Analyze
 
 - Lip fix: `POST /director/videos/lipfix` with `job_id` (or a `video`),
   `start_s` and `end_s` (a 4–14 s window, any start) makes that window again
@@ -305,9 +305,23 @@ song on unchanged; priced like `videos/finish`.
   `prompt` makes a new 3–15 s video with sound (`duration_s`, `aspect_ratio`
   16:9 or 9:16, `resolution`).
 
-All three are priced from the studio's own quote of the exact request, plus a
-10% margin (the most a real bill has run over its quote), plus 30%, at least
-16 credits. `?dry_run=true` is a free quote.
+- Montage Crop: `POST /director/videos/edit/crop` with `job_id` (or a
+  `video`) trims to `start_s`–`end_s` and crops to a box (`x`, `y`, `width`,
+  `height`) or a shape (`aspect_ratio` 9:16, 1:1, 4:5… around `focus_x` /
+  `focus_y`), optional `max_side`, `audio` keep or mute. Frame-exact; priced
+  like `videos/finish` on the seconds kept (1.46 a second, at least 16).
+- Montage Analyze: `POST /director/videos/edit/analyze` with `job_id` (or a
+  `video`) checks it (`checks`: lipsync, faces, artifacts, text, continuity,
+  prompt_match; default all) and makes no video: the done job's `analysis` has
+  `overallScore`, `lipsync` stretches (verdict, `offset_ms`), `issues`,
+  `sections` scores and `suggestedFixes` — ready Pixio requests (`endpoint`,
+  `body`) for lip fix, Montage Edit, face fix or a section redo on your job.
+  Nothing is fixed until you send one.
+
+Lip fix, Edit, Create and Analyze are priced from the studio's own quote of
+the exact request, plus a 10% margin (the most a real bill has run over its
+quote), plus 30%, at least 16 credits (Analyze: about 16 a minute of video).
+`?dry_run=true` is a free quote.
 
 ### Montage Basic, Montage Premium and Montage Ultra
 
