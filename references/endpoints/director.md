@@ -292,6 +292,23 @@ and Ultra it skips the prompt-writing charge.
 picture onto the song section by section (`section_s`, default 15) and lays the
 song on unchanged; priced like `videos/finish`.
 
+### Lip fix, Montage Edit and Montage Create
+
+- Lip fix: `POST /director/videos/lipfix` with `job_id` (or a `video`),
+  `start_s` and `end_s` (a 4–14 s window, any start) makes that window again
+  so the lips follow the vocal; nothing else changes.
+- Montage Edit: `POST /director/videos/edit` with `job_id` (or a `video`) and a
+  short `prompt` ("make it night with rain") changes the whole video (up to
+  15 s) or only a 1–15 s window (`start_s`, `end_s`), spliced back; up to 6
+  reference `images`, `resolution` auto to 4k.
+- Montage Create: `POST /director/videos/edit/create` with 1–6 `images` and a
+  `prompt` makes a new 3–15 s video with sound (`duration_s`, `aspect_ratio`
+  16:9 or 9:16, `resolution`).
+
+All three are priced from the studio's own quote of the exact request, plus a
+10% margin (the most a real bill has run over its quote), plus 30%, at least
+16 credits. `?dry_run=true` is a free quote.
+
 ### Montage Basic, Montage Premium and Montage Ultra
 
 Shots, music videos, films, remakes and episodes take `video_model`
@@ -303,7 +320,8 @@ Montage Ultra uses the highest-quality model on every shot and costs more;
 both are priced and work the same way below. Premium is
 offered when Pixio turns it on (`videoModels.premiumAvailable` in
 `GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
-studio's own quote of the takes plus 30%, plus `premiumPrompts` credits for
+studio's own quote of the takes plus a 10% margin, plus 30%, plus
+`premiumPrompts` credits for
 writing its prompts, in place of the Basic clip price, so always quote with
 `?check=true` first. One version at a time, no draft/final (it is already full
 quality), and retakes cost the part price it was sold at. The job shows
