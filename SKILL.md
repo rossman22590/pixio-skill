@@ -229,6 +229,9 @@ capability is absent from both OpenAPI documents, it is unsupported.
 - `references/guides/pricing-and-billing.md`: list vs your price, quotes,
   Maker caps, ledger reconciliation.
 - `references/endpoints/route-map.md`: every route and every boundary.
+- `references/montage/pixio-director.md`: making videos with Montage
+  (`/api/v1/director/*`); routes to 58 craft files (prompting, tiers,
+  cost, formats, genres, acting, sound, editing) in `references/montage/`.
 - One file under `references/endpoints/` per endpoint family.
 - One file under `references/examples/` per end-to-end recipe;
   `examples/choose-model.md` ranks models by what this account pays.

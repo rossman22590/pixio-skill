@@ -95,3 +95,67 @@ Agent and account memory:
 ## Skill Evaluation
 
 - `evals/trigger-queries.json`: should-trigger and should-not-trigger prompts.
+
+## Montage Craft Skills
+
+How to make good videos with `/api/v1/director/*` (Montage), one file per
+topic in `montage/`. Start with `montage/pixio-director.md`, the end-to-end
+playbook; it routes to the rest. `endpoints/director.md` stays the contract.
+`node scripts/check-montage-skills.mjs` keeps them free of model names and
+non-v1 routes.
+
+Running jobs:
+
+- `montage/pixio-director.md`: end-to-end playbook and index.
+- `montage/pixio-tier-choice.md`: Montage Basic, Premium, Ultra or a tier mix.
+- `montage/pixio-cost-control.md`: what jobs cost in credits, quoting first.
+- `montage/pixio-jobs-polling.md`: job lifecycle, polling, downloads.
+- `montage/pixio-errors-recovery.md`: every error and how to recover.
+- `montage/pixio-batch-variants.md`: many versions efficiently.
+- `montage/pixio-storyboarding.md`: the storyboard stop.
+- `montage/pixio-video-qa.md`: checking a video before the user sees it.
+- `montage/pixio-understand.md`: structured reads of any video or sound.
+
+Prompting:
+
+- `montage/montage-basic-prompting.md`: prompts for Montage Basic and images.
+- `montage/montage-premium-prompting.md`: prompts for Premium and Ultra.
+- `montage/montage-edit-prompting.md`: instructions for Montage Edit.
+- `montage/pixio-prompt-director.md`: high-control shot prompts.
+- `montage/pixio-image-prompter.md`: pictures that videos are built on.
+
+Formats:
+
+- `montage/pixio-music-video.md`, `montage/pixio-duets.md`,
+  `montage/pixio-dance.md`, `montage/pixio-lyric-captions.md`
+- `montage/pixio-film.md`, `montage/pixio-short-drama.md`,
+  `montage/pixio-series-showrunner.md`, `montage/pixio-remake.md`
+- `montage/pixio-ads.md`, `montage/pixio-product-ads.md`,
+  `montage/pixio-brand-promo.md`, `montage/pixio-brands.md`,
+  `montage/pixio-ugc-creator.md`, `montage/pixio-game-trailers.md`
+- `montage/pixio-explainers.md`, `montage/pixio-documentary.md`,
+  `montage/pixio-kids.md`, `montage/pixio-social-formats.md`,
+  `montage/pixio-thumbnails-posters.md`
+
+Genres and looks:
+
+- `montage/pixio-horror.md`, `montage/pixio-comedy.md`,
+  `montage/pixio-action-fights.md`, `montage/pixio-sci-fi-fantasy.md`
+- `montage/pixio-anime-styles.md`, `montage/pixio-3d-animation.md`,
+  `montage/pixio-paper-handdrawn.md`
+- `montage/pixio-looks-styles.md`, `montage/pixio-lighting-color.md`
+
+Craft:
+
+- `montage/pixio-acting.md`, `montage/pixio-emotion-acting.md`,
+  `montage/pixio-characters.md`, `montage/pixio-dialogue-voices.md`
+- `montage/pixio-camera-language.md`, `montage/pixio-transitions-continuity.md`,
+  `montage/pixio-hooks-openings.md`, `montage/pixio-sound-design.md`
+
+Tools:
+
+- `montage/pixio-audio-tools.md`, `montage/pixio-song-generation.md`,
+  `montage/pixio-lipsync-fixing.md`, `montage/pixio-localization.md`
+- `montage/pixio-image-generation.md`, `montage/pixio-image-editing.md`
+- `montage/pixio-video-editing.md`, `montage/pixio-graphics-titles.md`,
+  `montage/pixio-upscale-finish.md`

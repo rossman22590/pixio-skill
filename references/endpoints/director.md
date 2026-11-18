@@ -393,7 +393,7 @@ song on unchanged; priced like `videos/finish`.
 Lip fix, Edit, Create, Analyze and Understand are priced from the studio's own quote of
 the exact request, plus a 10% margin (the most a real bill has run over its
 quote), plus 30%, at least 16 credits (Analyze: about 16 a minute of video).
-`?dry_run=true` is a free quote.
+They have no free quote: `?dry_run=true` answers 400 `preflight_unavailable`.
 
 ### Montage Basic, Montage Premium and Montage Ultra
 
