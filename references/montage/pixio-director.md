@@ -39,6 +39,7 @@ exactly from `GET /api/v1/director/catalog`.
 | A clip that starts from their picture | `POST /api/v1/director/videos/image` | multipart `image` + `prompt` |
 | A clip with given people, places, props | `POST /api/v1/director/videos/reference` | multipart `images` (Basic up to 9, Premium/Ultra up to 30), optional `videos`, `audios` (3 each) |
 | A story: cast, voices, dialogue, 30 s - 7 min | `POST /api/v1/director/videos/film` | `duration` multiple of 15 (30-420); `idea` or `clips` (`references/montage/pixio-film.md`) |
+| One unbroken shot, 20-60 s, no cuts | `POST /api/v1/director/videos/reference` or `videos/music` | `long_form: true`, Montage Basic only (`references/montage/pixio-long-form.md`) |
 | An ad | `/api/v1/director/videos/film` with `film_type=commercial`, or `/api/v1/director/videos/reference` | then `/api/v1/director/videos/package` (`references/montage/pixio-ads.md`) |
 | Explainer or documentary | `/api/v1/director/videos/film` with `film_type=explainer` / `documentary` | `references/montage/pixio-explainers.md` |
 | A vertical micro-drama episode | `/api/v1/director/videos/film` with `film_type=short_drama` | `references/montage/pixio-short-drama.md` |
@@ -231,6 +232,7 @@ Every file below lives in `references/montage/` next to this one.
 | `references/montage/montage-edit-prompting.md` | writing a `/api/v1/director/videos/edit` or `/api/v1/director/videos/edit/create` instruction |
 | `references/montage/pixio-music-video.md` | any music video: song, sections, singers, duets, lip-sync, lyric captions |
 | `references/montage/pixio-film.md` | story films, fights, documentaries as films, remakes and TV series |
+| `references/montage/pixio-long-form.md` | one unbroken 20-60 s take with no cuts (walks, dances, a singer coming toward the camera) |
 | `references/montage/pixio-video-qa.md` | a job is done: check it before delivery and choose the cheapest fix |
 | `references/montage/pixio-ads.md` | ads, UGC and short social videos: hook, brand, package, graphics, variants |
 | `references/montage/pixio-characters.md` | people, products or places that must look the same across shots, clips or episodes |

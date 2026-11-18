@@ -126,6 +126,7 @@ Prompting:
 
 Formats:
 
+- `montage/pixio-long-form.md`: one unbroken 20-60 s take.
 - `montage/pixio-music-video.md`, `montage/pixio-duets.md`,
   `montage/pixio-dance.md`, `montage/pixio-lyric-captions.md`
 - `montage/pixio-film.md`, `montage/pixio-short-drama.md`,
