@@ -212,6 +212,14 @@ when you start, so a `402` means nothing started.
   clip, redos and finals included. Premium and Ultra refuse it (use
   `resolution`). A reference shot can pick up more of a photo's background at
   1.0, so check the first clip.
+- Long takes: `long_form: true` on `videos/reference` (`duration` 20-60) or
+  `videos/music` (`long_form_start` / `long_form_end`, a 20-60 s part of the
+  song) makes one unbroken Montage Basic shot, no cuts, rendered in 2-4
+  pieces that carry on from each other. One place, at most 3 people. About
+  18 credits a second (1.7x at `megapixels: 1.0`) plus a writer round when the
+  AI writes the pieces; `long_form_pieces` sends your own (one prompt per 15 s
+  piece). Answers 400 `long_form_unavailable` until it opens to every
+  account; Premium and Ultra refuse it.
 - `realism` (0-1, natural matte skin, Montage Basic only): films and music
   videos already took it; `videos/reference` now does (default 0) and a
   series episode can set its own (default: the show's). 0 for animation.
