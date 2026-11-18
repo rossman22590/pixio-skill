@@ -203,7 +203,18 @@ when you start, so a `402` means nothing started.
   every person the section names, each matched to their own picture. Its
   hold is `faceFix` per section times the passes, from the studio's own
   estimate, rounded up to a tenth (a section with two people is about 2x);
-  each section is charged once if anyone in it visibly changed.
+  each section is charged once if anyone in it visibly changed. `face`
+  (`largest` default, `smallest`, `left`, `right`, `centre`) picks someone
+  other than the biggest face; it is chosen where it first appears and
+  followed.
+- `megapixels: 1.0` on `videos/reference`, `videos/film` and `videos/music`
+  renders Montage Basic sharper (1344x768-class, default 0.7) at 1.7x per
+  clip, redos and finals included. Premium and Ultra refuse it (use
+  `resolution`). A reference shot can pick up more of a photo's background at
+  1.0, so check the first clip.
+- `realism` (0-1, natural matte skin, Montage Basic only): films and music
+  videos already took it; `videos/reference` now does (default 0) and a
+  series episode can set its own (default: the show's). 0 for animation.
 - A song from `music/generate` ends when its structure is complete and can
   come back shorter than `duration`; the job then has `durationShort`
   (`requestedSeconds`, `actualSeconds`). Add sections or tags to the lyrics.
