@@ -29,7 +29,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/voiceover/voices` | Voices for a packaging `voiceover_text` (free) |
 | POST | `/director/videos/text` | One 5–15 s shot from a prompt |
 | POST | `/director/videos/image` | Animate one picture (`image`) |
-| POST | `/director/videos/reference` | Shot from up to 9 `images`, 3 `videos`, 3 `audios` |
+| POST | `/director/videos/reference` | Shot from up to 9 `images` (30 on Montage Premium/Ultra), 3 `videos`, 3 `audios` |
 | POST | `/director/videos/music` | Music video from `song` (or `song_job`), 15 s per section |
 | POST | `/director/videos/music/{id}/redo` | Re-shoot one `section` of a finished music video |
 | POST | `/director/videos/film` | Film from `clips` prompts or an `idea` |
@@ -297,6 +297,19 @@ song on unchanged; priced like `videos/finish`.
 - Lip fix: `POST /director/videos/lipfix` with `job_id` (or a `video`),
   `start_s` and `end_s` (a 4–14 s window, any start) makes that window again
   so the lips follow the vocal; nothing else changes.
+- Relip: `POST /director/videos/relip` with `job_id` (or a `video` and optional
+  `audio`) re-does the lips of the whole video to the original song; only the
+  mouth and jaw change. `source` (video / song), `only_sung`, `sung_pad_s`,
+  `isolate_vocal`, `soundtrack`, `mask_grow`, `feather`, `sharpen`,
+  `color_match`, `offset_s`. Priced from the studio's quote (~0.05 $/s of
+  video; 15 s ≈ 108), or like finishing when it runs on the studio's machine.
+  `lip_check: "relip"` on `videos/music` relips the video when it is done,
+  at the same price (`lipCheckJobId`).
+- Tier mix on Premium / Ultra `videos/music` and `videos/film`: `tier_mix`
+  (`off` | `auto` | `manual`), `basic_sections` / `basic_clips` (manual, 1-based
+  JSON list), `tier_mix_size` (`larger` | `basic` | `premium`),
+  `tier_mix_retime` (music). Basic parts at the Basic price, Premium parts at
+  the Premium price.
 - Lip fix auto: `POST /director/videos/lipfix/auto` with `job_id` (or a
   `video`) measures the lip-sync, lip-fixes every stretch that is off (windows
   up to 8 s), re-tries each while it still measures off (`tries` 1–3), keeps
@@ -329,8 +342,38 @@ song on unchanged; priced like `videos/finish`.
   (or a `video` / `audio`) gives a structured read as JSON on the done job
   (`understanding`): summary, mood, visual style, scenes with times, the
   sound's parts, voices and tempo, story beats and tips to make something like
-  it; `question` gets an `answer`, `measure_only` skips the deep read. No
+  it, and (video, with a voice) the lip-sync measured frame by frame
+  (`measured.lipsync`; `lipsync: false` skips it); `question` gets an
+  `answer`, `measure_only` skips the deep read. No
   words, lyrics or on-screen text are returned.
+- Ad graphics: `POST /director/videos/graphics` with `job_id` (or a `video`)
+  animates a timeline over it — hooks, price tags, arrows, checklists,
+  buttons, an end card, karaoke captions, a music bed — never over a face.
+  Send `graphics` (up to 40 elements), or `auto: true` with a `brief`;
+  `POST /director/videos/graphics/plan` returns `plan.graphics` to edit first.
+  Priced like `videos/finish` on the video's seconds, plus the studio's quote
+  of a plan (~16) or music bed (~26); a plan alone is 16.
+- Packaging `dub_language` dubs the speech in each speaker's cloned voice
+  (lips do not match; priced like `videos/finish` on the video's seconds);
+  `subtitle_language` translates the subtitles (+16).
+- `POST /director/jobs/{id}/song/rebuild` (free) remakes a finished Montage
+  Premium music video's version with your original song; `songRebuild` on the
+  job goes `running`, then `done` or `failed`.
+- Assemble: `POST /director/videos/assemble` joins `clips` (finished jobs or
+  uploaded `videos`) with trims, speed, transitions and `audio_tracks`, or
+  `replace`s one shot of a finished film.
+- Audio tools under `/director/audio/`: `transcribe`, `stems`, `clean`,
+  `master`, `voiceover`, `dub`, `sfx` (made by a sound model from a
+  `description`, `engine: "library"` for the sound library; `count` takes,
+  `duration_s`, `steps`, `cfg`, `negative_prompt`), `foley` (sound in sync
+  with a `job_id` video or uploaded `video` of up to 30 s; `output` video or
+  audio, `keep_original`, `mix_db`); extra downloads in the job's `files`.
+  Priced like `videos/finish` on the length made (1.46/s, at least 16);
+  transcribe and library sfx are 16; model sfx 0.2 per second made
+  (count × duration), at least 16.
+- Films take `cast`: one face and one voice per person.
+- Montage Premium and Ultra take up to 30 `images` (6–9 a clip works best);
+  Basic takes 9.
 - Film inspiration: a film with an `idea` takes 1–3 `inspiration` videos (up to
   120 s each) and `inspiration_notes`; the writer borrows their camera,
   lighting, colour and pacing, never people or shots. Each video is priced
