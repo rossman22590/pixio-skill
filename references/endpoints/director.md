@@ -12,7 +12,8 @@ for agents, limits and prices.
 Start with `GET /director/catalog`: it lists every endpoint with its accepted
 fields, the looks and styles, and the credit prices.
 
-Text limits (characters): `prompt` 8000 on shots, images and redos; `idea`
+Text limits (characters): `prompt` 8000 on shots, images and redos (30000
+with `video_model` `montage-premium` or `montage-ultra`); `idea`
 4000 and `style` 500 on music videos, films and `music/plan`; `story` 4000 on
 `prompts/write`; `prompt` 4000 and `lyrics` 6000 on `music/generate`;
 packaging `tagline` 120, `cta` 60, `legal` 300 and `voiceover_text` 1500 (also
@@ -101,9 +102,12 @@ Prompts written in the studio's official format (`integrated_multimodal_descript
   you send your own prompts. Redos, face fix, and music videos or films made
   from an `idea` are not checked.
 - Free preflight: add `?check=true` (or `?dry_run=true`) to any of those five
-  URLs (`videos/package` takes `?dry_run=true`). You get `200 { object: "director.preflight", credits.quoted,
+  URLs (`videos/remake`, `videos/package`, `series/{id}/episodes` and
+  `jobs/{id}/edit` take `?dry_run=true`). You get `200 { object: "director.preflight", credits.quoted,
   promptCheck, … }` plus a note when the real request would be refused.
-  Nothing starts.
+  Nothing starts. Other endpoints have no free quote and answer 400
+  `preflight_unavailable` to either flag; nothing starts.
+- `fix_prompt`: `off` and `safe` are free; `ai` adds 16 credits.
 
 Agents should run `?check=true` first for official-format prompts, fix every
 `ERROR`, then start the job.
@@ -208,6 +212,13 @@ when you start, so a `402` means nothing started.
   warns about speech words right after a line.
 - End cards: `tagline_size` (3–20, default 6.8) and `cta_size` (2–12, default
   4.5), as a % of the frame's short side.
+- Short dramas: `film_type: "short_drama"` with an `idea` makes a vertical
+  micro-drama episode (9:16 unless `aspect` is sent; hook in the first 3 s,
+  one beat per 15 s clip, close-ups, short lines, no on-screen text).
+  `drama_trope`: `auto` (default), `revenge`, `hidden_identity`, `rich_poor`,
+  `betrayal`, `second_chance`, `contract_marriage`, `fated_mate`,
+  `secret_baby`. `cliffhanger` (default true). On `videos/film`,
+  `prompts/write` and `series/{id}/episodes`; priced like any written film.
 - Explainers: `film_type: "explainer"` with an `idea` makes a narrated
   vertical-video explainer (AI narration read by a studio voice or your
   `voiceover_sample`, one shot per sentence, word-by-word captions, no end
