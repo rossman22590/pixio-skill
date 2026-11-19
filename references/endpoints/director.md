@@ -41,6 +41,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film (`people: "all"` for group shots) |
+| POST | `/director/videos/facerepair` | Put each character's own reference face back where a finished Montage Basic video smeared it (`job_id`, optional `pictures`) |
 | POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
 | GET / POST | `/director/brands` | List / save brands (free) |
 | GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
@@ -228,6 +229,17 @@ when you start, so a `402` means nothing started.
   (long takes too): sharper Montage Basic faces that smear less on head turns,
   same likeness, same price. Premium and Ultra refuse it unless `tier_mix` is
   on (then the Basic parts get it).
+- `face_repair: true` on Montage Basic `videos/reference` (long takes too),
+  `videos/film` and `videos/music` made with reference pictures: once the
+  video is done, a face repair job puts each character's own reference face
+  back where it smeared (head turns, mid shots). Only your pictures are used;
+  faces that already look right stay as rendered. The repaired copy is its own
+  job (`faceRepairJobId`, poll it); the original is unchanged. 59 credits per
+  15 s, held with the video (`?check=true` shows `credits.faceRepair`), given
+  back if the repair never starts (`faceRepairSkipped`). Faces come out a
+  little softer: pair it with `sharp_faces: true`. Premium and Ultra refuse it
+  unless `tier_mix` is on; not with `variants`. Stand-alone on any finished
+  Basic video: `POST /api/v1/director/videos/facerepair`, same price.
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
