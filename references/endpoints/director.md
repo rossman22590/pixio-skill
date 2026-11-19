@@ -210,7 +210,7 @@ when you start, so a `402` means nothing started.
 - `megapixels: 1.0` on `videos/reference`, `videos/film` and `videos/music`
   renders Montage Basic sharper (1344x768-class, default 0.7) at 1.7x per
   clip, redos and finals included. Premium and Ultra refuse it (use
-  `resolution`). A reference shot can pick up more of a photo's background at
+  `resolution`) unless `tier_mix` is on, where it applies to the Basic parts. A reference shot can pick up more of a photo's background at
   1.0, so check the first clip.
 - `GET /api/v1/director/jobs/{id}/poster`: a small still (JPEG, at most
   480 px) of a finished video, for thumbnails. `parts/{n}` plays each 15 s
@@ -226,7 +226,11 @@ when you start, so a `402` means nothing started.
   answers 400 `long_form_unavailable` and nothing is held.
 - `sharp_faces: true` on `videos/reference`, `videos/film` and `videos/music`
   (long takes too): sharper Montage Basic faces that smear less on head turns,
-  same likeness, same price. Premium and Ultra refuse it.
+  same likeness, same price. Premium and Ultra refuse it unless `tier_mix` is
+  on (then the Basic parts get it).
+- The music video writer plans one concept for the song first (a premise with
+  a turn, one specific world, a recurring motif) and avoids stock settings
+  unless the idea names them; `music/plan` returns it as `result.concept`.
 - `realism` (0-1, natural matte skin, Montage Basic only): films and music
   videos already took it; `videos/reference` now does (default 0) and a
   series episode can set its own (default: the show's). 0 for animation.
