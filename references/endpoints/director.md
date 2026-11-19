@@ -224,6 +224,9 @@ when you start, so a `402` means nothing started.
   AI writes the pieces; `long_form_pieces` sends your own (one prompt per 15 s
   piece). Premium and Ultra refuse it; if long takes are switched off it
   answers 400 `long_form_unavailable` and nothing is held.
+- `sharp_faces: true` on `videos/reference`, `videos/film` and `videos/music`
+  (long takes too): sharper Montage Basic faces that smear less on head turns,
+  same likeness, same price. Premium and Ultra refuse it.
 - `realism` (0-1, natural matte skin, Montage Basic only): films and music
   videos already took it; `videos/reference` now does (default 0) and a
   series episode can set its own (default: the show's). 0 for animation.
