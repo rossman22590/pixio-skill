@@ -46,6 +46,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required) |
+| POST | `/director/videos/lyric/theme/preview` | A lyric-video background (`custom_theme` or `theme`) drawn as one JPEG, free |
 | POST | `/director/videos/lyric/style` | A lyric-video style plan from `style_prompt`, without rendering, to send back as `style` |
 | POST | `/director/videos/slideshow` | A photo slideshow cut to the beat of your song (`images` 2-60, `song` or `song_job`, `layout`, `transition`, `captions`, `title`, `end_card`) |
 | POST | `/director/videos/lyric` | A full-length lyric video from your song (`song` or `song_job`, optional `lyrics`, `look`, `theme`, `background`, `tuning`) |
@@ -306,6 +307,14 @@ when you start, so a `402` means nothing started.
   background); `style_prompt` describes the look in words (+16 credits),
   `style` applies a saved plan. `POST /api/v1/director/videos/lyric/style`
   writes a style plan without rendering (16 credits).
+- `art_style` on `videos/reference`, `videos/film` and `videos/music`:
+  `animated`, `match_references` or `live_action`, for pictures that are
+  not photos. Free.
+- Lyric videos take `custom_theme` (your own animated background as layers:
+  sky, blobs, noise, rays, waves, silhouette, orb, grid, particles, each with
+  `react` to the music). `POST /api/v1/director/videos/lyric/theme/preview`
+  draws a theme as one JPEG, free, in seconds. `lyrics` takes a paste from a
+  lyrics site as is.
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
