@@ -283,6 +283,16 @@ when you start, so a `402` means nothing started.
   `chromatic_split`, `push_left`, `push_up`, `zoom_through`), a per-clip
   `cut_accent` and `beat_sync` (`cuts`, `accent` or `cuts_accent`, with
   `beat_track`, `beat_accent`, `beat_snap_max_s`).
+- Packaging and `videos/graphics`: `caption_style` adds `highlight`,
+  `karaoke`, `neon`, `kinetic`, `gradient`, `glitch`, `outline`,
+  `editorial` and `wipe`; `title_style` (`calm`, `lockup`, `bold`,
+  `cinematic`, `neon`) styles the opening title; a `lower_thirds` item's
+  `style` (`clean_bar`, `dark_card`, `accent_underline`, `bold_block`,
+  `side_rule`, `soft_pill`, `kicker`) styles a name card. Graphics also
+  take `title_card` and `lower_third` elements. Same price.
+- Montage Ultra Plus and Montage Max can be switched off by Pixio: then
+  `videoModels.models[].available` is false in `GET /api/v1/director/catalog`
+  and a call naming them gets `400 premium_unavailable` (nothing held).
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
