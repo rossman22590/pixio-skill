@@ -46,6 +46,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required) |
+| POST | `/director/videos/lyric/style` | A lyric-video style plan from `style_prompt`, without rendering, to send back as `style` |
 | POST | `/director/videos/slideshow` | A photo slideshow cut to the beat of your song (`images` 2-60, `song` or `song_job`, `layout`, `transition`, `captions`, `title`, `end_card`) |
 | POST | `/director/videos/lyric` | A full-length lyric video from your song (`song` or `song_job`, optional `lyrics`, `look`, `theme`, `background`, `tuning`) |
 | POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
@@ -293,6 +294,18 @@ when you start, so a `402` means nothing started.
 - Montage Ultra Plus and Montage Max can be switched off by Pixio: then
   `videoModels.models[].available` is false in `GET /api/v1/director/catalog`
   and a call naming them gets `400 premium_unavailable` (nothing held).
+- `face_redraw: true` on Montage Basic shots (`videos/text`, `image`,
+  `reference`), films and music videos: when the video is done it is redrawn
+  at 2K on cloud GPUs, faces far from the camera much closer to the character.
+  The redrawn copy is its own job (`faceRedrawJobId`). Priced from the cloud
+  cost like Premium (about 437 credits for 15 s; `?check=true` shows
+  `credits.faceRedraw`), held with the video and given back if it never
+  starts. Landscape 16:9 only; `400 face_redraw_unavailable` while Pixio has
+  it off.
+- Lyric videos are cut into scenes by default (`scenes: "off"` for one
+  background); `style_prompt` describes the look in words (+16 credits),
+  `style` applies a saved plan. `POST /api/v1/director/videos/lyric/style`
+  writes a style plan without rendering (16 credits).
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
