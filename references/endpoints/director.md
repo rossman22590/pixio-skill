@@ -212,6 +212,10 @@ when you start, so a `402` means nothing started.
   clip, redos and finals included. Premium and Ultra refuse it (use
   `resolution`). A reference shot can pick up more of a photo's background at
   1.0, so check the first clip.
+- `GET /api/v1/director/jobs/{id}/poster`: a small still (JPEG, at most
+  480 px) of a finished video, for thumbnails. `parts/{n}` plays each 15 s
+  clip of a film or music video as soon as it is rendered, while the job
+  still runs.
 - Long takes: `long_form: true` on `videos/reference` (`duration` 20-60) or
   `videos/music` (`long_form_start` / `long_form_end`, a 20-60 s part of the
   song) makes one unbroken Montage Basic shot, no cuts, rendered in 2-4
