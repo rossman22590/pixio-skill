@@ -13,7 +13,8 @@ Start with `GET /director/catalog`: it lists every endpoint with its accepted
 fields, the looks and styles, and the credit prices.
 
 Text limits (characters): `prompt` 8000 on shots, images and redos (30000
-with `video_model` `montage-premium` or `montage-ultra`); `idea`
+with a paid `video_model`: `montage-premium`, `montage-ultra`,
+`montage-ultra-plus` or `montage-max`); `idea`
 4000 and `style` 500 on music videos, films and `music/plan`; `story` 4000 on
 `prompts/write`; `prompt` 4000 and `lyrics` 6000 on `music/generate`;
 packaging `tagline` 120, `cta` 60, `legal` 300 and `voiceover_text` 1500 (also
@@ -42,6 +43,10 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film (`people: "all"` for group shots) |
 | POST | `/director/videos/facerepair` | Put each character's own reference face back where a finished Montage Basic video smeared it (`job_id`, optional `pictures`) |
+| POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
+| POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
+| POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required) |
+| POST | `/director/videos/lyric` | A full-length lyric video from your song (`song` or `song_job`, optional `lyrics`, `look`, `theme`, `background`, `tuning`) |
 | POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
 | GET / POST | `/director/brands` | List / save brands (free) |
 | GET / POST / DELETE | `/director/brands/{id}` | Read / change (send only what changes) / delete a brand |
@@ -240,6 +245,31 @@ when you start, so a `402` means nothing started.
   little softer: pair it with `sharp_faces: true`. Premium and Ultra refuse it
   unless `tier_mix` is on; not with `variants`. Stand-alone on any finished
   Basic video: `POST /api/v1/director/videos/facerepair`, same price.
+- `best_quality: true` on Montage Basic `videos/reference`, `videos/film` and
+  `videos/music`: the best-quality lever. It turns on `megapixels: 1.0`,
+  `sharp_faces: true` and, with reference pictures, `face_repair: true`
+  (anything you send yourself wins) and is priced as those three. Premium and
+  the higher tiers refuse it unless `tier_mix` is on.
+- Video tools on a finished video (`job_id`, or an uploaded `video` up to
+  2 minutes), each a new job, the original unchanged, 59 credits per 15 s:
+  `videos/relight` (a `preset` `blue_amber` / `cyan_noir` / `warm_cream`, or
+  your `light_picture` plus `light`), `videos/motion_transfer` (a new
+  character from 1-3 `images`, character first; `outfit` required; neutral
+  standing pose, mid shots work best) and `videos/headswap` (the head from
+  your own `head_picture`, `face` in words; `consent: true` required: faces
+  you own or have consent for, never a real public figure; every use logged).
+- `videos/lyric`: a full-length lyric video from your song (`song` up to
+  10 minutes, or `song_job`), each word lighting up as it is sung. Send
+  `lyrics` (`[Chorus]` / `[Verse]` tags mark sections) or have them heard from
+  the vocal. `look`: `auto` (default), `classic`, `cinematic`, `neon`,
+  `kinetic`, `handwritten`, `glitch`, `minimal`, `poster`, `dreamy`,
+  `highlight`, `karaoke`, `pop` or `editorial`; `beat_sync` (default true);
+  `theme`, your own `background` picture or video, or `background: "ai"` (one
+  looping AI clip, scenery or abstract only); every knob in `tuning`. 16 credits
+  per started minute of song, plus 115 with an AI background.
+- Lip fix `engine: "retake"` (default `h3`): only the masked mouth is redrawn
+  (windows up to 7 s; `retake_mask` `lower` / `mouth`, `retake_denoise`
+  0.3-1.0). Same pricing as any lip fix.
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
@@ -437,15 +467,20 @@ the exact request, plus a 10% margin (the most a real bill has run over its
 quote), plus 30%, at least 16 credits (Analyze: about 16 a minute of video).
 They have no free quote: `?dry_run=true` answers 400 `preflight_unavailable`.
 
-### Montage Basic, Montage Premium and Montage Ultra
+### Montage Basic, Premium, Ultra, Ultra Plus and Max
 
 Shots, music videos, films, remakes and episodes take `video_model`
-(`montage-basic`, `montage-premium` or `montage-ultra`; left out, always
-`montage-basic`; each with its name in `GET /director/catalog` under
-`videoModels.models`) and, on Premium or Ultra, `resolution` (`480p` or
-`720p`, about twice the cost). Montage Premium is sharper and more lifelike;
-Montage Ultra uses the highest-quality model on every shot and costs more;
-both are priced and work the same way below. Premium is
+(`montage-basic`, `montage-premium`, `montage-ultra`, `montage-ultra-plus` or
+`montage-max`; left out, always `montage-basic`; each with its name in
+`GET /director/catalog` under `videoModels.models`) and, on Premium or Ultra,
+`resolution` (`480p` or `720p`, about twice the cost). Montage Premium is
+sharper and more lifelike; Montage Ultra uses the highest-quality model on
+every shot and costs more; Montage Ultra Plus is Ultra at native 1080p and
+Montage Max is Ultra at native 4K, the top tier (price order: Max > Ultra
+Plus > Ultra > Premium). Ultra Plus and Max render at their own size
+(`resolution` and `upscale` do not apply) and are never swapped for Basic:
+when they can't render you get `premium_unavailable` and nothing is charged.
+All the paid tiers are priced and work the same way below. Premium is
 offered when Pixio turns it on (`videoModels.premiumAvailable` in
 `GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
 studio's own quote of the takes plus a 10% margin, plus 30%, plus

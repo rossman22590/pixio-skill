@@ -16,6 +16,8 @@ price differ. Choose with `video_model` in the request body on `videos/text`, `v
 | Montage Basic | `montage-basic` (or leave it out) | the default; lip-sync locked to the customer's own audio; named looks, `styles`, `realism`, `fight_flow`; draft then final; the lowest price |
 | Montage Premium | `montage-premium` | sharper, more lifelike, richer motion, camera work and native sound; priced from a quote per job |
 | Montage Ultra | `montage-ultra` | the highest-quality model on every shot; works like Premium and costs more |
+| Montage Ultra Plus | `montage-ultra-plus` | Ultra at native 1080p; costs more than Ultra; no `resolution` / `upscale` |
+| Montage Max | `montage-max` | Ultra at native 4K, the top tier and the highest price; no `resolution` / `upscale` |
 | Tier mix | `tier_mix: "auto"` or `"manual"`, with `montage-premium` or `montage-ultra` | each 15 s clip / section on the tier it suits, each at its own tier's price |
 
 All three bill in Pixio credits; Basic is the cheapest, not free.
