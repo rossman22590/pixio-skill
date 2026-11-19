@@ -46,6 +46,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required) |
+| POST | `/director/videos/slideshow` | A photo slideshow cut to the beat of your song (`images` 2-60, `song` or `song_job`, `layout`, `transition`, `captions`, `title`, `end_card`) |
 | POST | `/director/videos/lyric` | A full-length lyric video from your song (`song` or `song_job`, optional `lyrics`, `look`, `theme`, `background`, `tuning`) |
 | POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
 | GET / POST | `/director/brands` | List / save brands (free) |
@@ -270,6 +271,18 @@ when you start, so a `402` means nothing started.
 - Lip fix `engine: "retake"` (default `h3`): only the masked mouth is redrawn
   (windows up to 7 s; `retake_mask` `lower` / `mouth`, `retake_denoise`
   0.3-1.0). Same pricing as any lip fix.
+- `POST /api/v1/director/videos/slideshow`: 2-60 photos (`images`, in
+  order) and an optional song (`song` or `song_job`) become one video
+  that changes photo on the beat; `layout` kenburns / carousel / gallery /
+  polaroid / auto, `transition`, `captions`, `title`, `end_card`. Priced
+  like finishing the video's length.
+- `join_accent` on `videos/music` and `videos/film`: `flash`, `punch`,
+  `shake`, `glitch` or `freeze` on every join; no frame moves. Free.
+- Assemble gains 12 transitions (`flash`, `cinematic_zoom`, `whip_pan`,
+  `glitch`, `iris`, `ripple`, `swirl`, `noise_dissolve`,
+  `chromatic_split`, `push_left`, `push_up`, `zoom_through`), a per-clip
+  `cut_accent` and `beat_sync` (`cuts`, `accent` or `cuts_accent`, with
+  `beat_track`, `beat_accent`, `beat_snap_max_s`).
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
