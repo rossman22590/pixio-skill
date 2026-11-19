@@ -333,6 +333,9 @@ when you start, so a `402` means nothing started.
   credits). Templates also work as a `block` element in `videos/graphics`
   and in a lyric video's `blocks` (up to 4, at the intro, each chorus, the
   outro or a second; free).
+- `plan_only: true` on a Montage Lyric Video plans it without drawing it, in
+  about a minute (16 credits): the job's `plan` has the scenes, the line
+  timing (never the words) and the `style` to send back on the real render.
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
