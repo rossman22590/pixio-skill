@@ -127,6 +127,8 @@ Prompting:
 Formats:
 
 - `montage/pixio-long-form.md`: one unbroken 20-60 s take.
+- `montage/pixio-photoreal-shorts.md`: believable live-action shorts, 1-20 min.
+- `montage/pixio-blocking-map.md`: staging people with a colour-coded outline picture.
 - `montage/pixio-music-video.md`, `montage/pixio-duets.md`,
   `montage/pixio-dance.md`, `montage/pixio-lyric-captions.md`
 - `montage/pixio-film.md`, `montage/pixio-short-drama.md`,

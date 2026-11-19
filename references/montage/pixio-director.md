@@ -233,6 +233,8 @@ Every file below lives in `references/montage/` next to this one.
 | `references/montage/pixio-music-video.md` | any music video: song, sections, singers, duets, lip-sync, lyric captions |
 | `references/montage/pixio-film.md` | story films, fights, documentaries as films, remakes and TV series |
 | `references/montage/pixio-long-form.md` | one unbroken 20-60 s take with no cuts (walks, dances, a singer coming toward the camera) |
+| `references/montage/pixio-photoreal-shorts.md` | believable live-action shorts of 1-20 minutes (acts as films, joined with assemble) |
+| `references/montage/pixio-blocking-map.md` | staging who stands where with a colour-coded outline picture sent as a reference |
 | `references/montage/pixio-video-qa.md` | a job is done: check it before delivery and choose the cheapest fix |
 | `references/montage/pixio-ads.md` | ads, UGC and short social videos: hook, brand, package, graphics, variants |
 | `references/montage/pixio-characters.md` | people, products or places that must look the same across shots, clips or episodes |

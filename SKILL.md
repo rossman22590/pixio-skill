@@ -230,7 +230,7 @@ capability is absent from both OpenAPI documents, it is unsupported.
   Maker caps, ledger reconciliation.
 - `references/endpoints/route-map.md`: every route and every boundary.
 - `references/montage/pixio-director.md`: making videos with Montage
-  (`/api/v1/director/*`); routes to 59 craft files (prompting, tiers,
+  (`/api/v1/director/*`); routes to 61 craft files (prompting, tiers,
   cost, formats, genres, acting, sound, editing) in `references/montage/`.
 - One file under `references/endpoints/` per endpoint family.
 - One file under `references/examples/` per end-to-end recipe;
