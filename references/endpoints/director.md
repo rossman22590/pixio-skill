@@ -308,8 +308,10 @@ when you start, so a `402` means nothing started.
   `style` applies a saved plan. `POST /api/v1/director/videos/lyric/style`
   writes a style plan without rendering (16 credits).
 - `art_style` on `videos/reference`, `videos/film` and `videos/music`:
-  `animated`, `match_references` or `live_action`, for pictures that are
-  not photos. Free.
+  `animated` (or `anime` / `cartoon`), `match_references` or
+  `live_action`, for pictures that are not photos. Free. Left out, a prompt,
+  idea or style that asks for animation is treated as animated; send
+  `realism: 0.7` or `art_style: "live_action"` to keep the photoreal look.
 - Lyric videos take `custom_theme` (your own animated background as layers:
   sky, blobs, noise, rays, waves, silhouette, orb, grid, particles, each with
   `react` to the music). `POST /api/v1/director/videos/lyric/theme/preview`
