@@ -46,6 +46,10 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required) |
+| GET | `/director/templates` | The motion-graphics templates with their variables, free (`kind`, `q`) |
+| GET | `/director/templates/{name}` | One template with its variables, free |
+| POST | `/director/templates/render` | Render a template as a video (`name` + `variables`, or a `prompt`) |
+| POST | `/director/templates/pick` | The writer picks and fills a template from words, without rendering |
 | POST | `/director/videos/lyric/theme/preview` | A lyric-video background (`custom_theme` or `theme`) drawn as one JPEG, free |
 | POST | `/director/videos/lyric/style` | A lyric-video style plan from `style_prompt`, without rendering, to send back as `style` |
 | POST | `/director/videos/slideshow` | A photo slideshow cut to the beat of your song (`images` 2-60, `song` or `song_job`, `layout`, `transition`, `captions`, `title`, `end_card`) |
@@ -261,7 +265,8 @@ when you start, so a `402` means nothing started.
   standing pose, mid shots work best) and `videos/headswap` (the head from
   your own `head_picture`, `face` in words; `consent: true` required: faces
   you own or have consent for, never a real public figure; every use logged).
-- `videos/lyric`: a full-length lyric video from your song (`song` up to
+- `videos/lyric` (Montage Lyric Video, `videoModel: "montage-lyric-video"` on
+  the job): a full-length lyric video from your song (`song` up to
   10 minutes, or `song_job`), each word lighting up as it is sung. Send
   `lyrics` (`[Chorus]` / `[Verse]` tags mark sections) or have them heard from
   the vocal. `look`: `auto` (default), `classic`, `cinematic`, `neon`,
@@ -270,7 +275,7 @@ when you start, so a `402` means nothing started.
   `theme`, your own `background` picture or video, or `background: "ai"` (one
   looping AI clip, scenery or abstract only); every knob in `tuning`. 16 credits
   per started minute of song, plus 115 with an AI background.
-- Lip fix `engine: "retake"` (default `h3`): only the masked mouth is redrawn
+- Lip fix `engine: "retake"` (default `standard`): only the masked mouth is redrawn
   (windows up to 7 s; `retake_mask` `lower` / `mouth`, `retake_denoise`
   0.3-1.0). Same pricing as any lip fix.
 - `POST /api/v1/director/videos/slideshow`: 2-60 photos (`images`, in
@@ -317,6 +322,17 @@ when you start, so a `402` means nothing started.
   `react` to the music). `POST /api/v1/director/videos/lyric/theme/preview`
   draws a theme as one JPEG, free, in seconds. `lyrics` takes a paste from a
   lyrics site as is.
+- Motion-graphics templates (title cards, lower thirds, kinetic text, captions,
+  charts, transitions, carousels, overlays, backgrounds):
+  `GET /api/v1/director/templates` (`kind`, `q`) and
+  `GET /api/v1/director/templates/{name}` list them with their variables,
+  free. `POST /api/v1/director/templates/render` renders one (`name` +
+  `variables`, or a `prompt` the writer turns into a pick, +16 credits),
+  as mp4 or a transparent webm / mov, priced like finishing its length.
+  `templates/pick` returns the writer's choice without rendering (16
+  credits). Templates also work as a `block` element in `videos/graphics`
+  and in a lyric video's `blocks` (up to 4, at the intro, each chorus, the
+  outro or a second; free).
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
