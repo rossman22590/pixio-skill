@@ -610,8 +610,8 @@ watches every shot and writes it again as a film at the same cut times
 (clip k = the source's 15 s window k), with your `changes` ("the man is
 <Picture 1>", "set it at night", "make it 3D animation") and up to 9
 `images`. `sound`: `original` (default, kept in sync) or `new`; `motion`:
-`loose` (default) or `medium`. The film is the source rounded up to 15 s
-(30 s at least). It works like a film afterwards: `storyboard`, `speed`,
+`loose` (default) or `medium`. It renders in whole 15 s clips and
+the film is trimmed back to the source's length (a 10 s video gives 10 s). It works like a film afterwards: `storyboard`, `speed`,
 `upscale`, `visual_qa`, `package`, retakes and draft → final. Priced like a
 film written from an idea (clips, writing, up to `filmDesignedPictures`
 designed pictures held) plus `remakeWatchPerClip` per 15 s for watching the
