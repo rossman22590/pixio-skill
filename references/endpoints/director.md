@@ -73,7 +73,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/series/{id}/episodes` | Episodes with recaps, threads, changes, `jobId` |
 | POST | `/director/series/{id}/season` | Plan a season's arc (writer job) |
 | POST | `/director/images/text` · `/images/edit` · `/images/reference` | Images |
-| POST | `/director/music/generate` | A song from a description and lyrics |
+| POST | `/director/music/generate` | A song from a description and lyrics, or from a short `idea` the AI songwriter writes up |
 | POST | `/director/music/plan` | Writer: sections, vocals and (with `idea`) a treatment |
 | POST | `/director/prompts/write` | Writer: ready-to-shoot clip prompts from a `story` (films, commercials, single shots) |
 | POST | `/director/prompts/check` | Check prompts against the house rules (free, synchronous) |
@@ -349,6 +349,10 @@ when you start, so a `402` means nothing started.
 - Packaging returns a clean copy (no titles, captions, logo or end card) in
   `deliverables` by default; `clean: false` skips it. Same price.
 - Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
+- `music/generate` takes an `idea` (3-2000 characters): the AI songwriter
+  writes the description and lyrics (+13 credits), returned in
+  `result.writtenByAi`. `prompt` is then optional; your own `prompt` /
+  `lyrics` always win.
 - `POST /api/v1/director/videos/site_promo`: a public web address becomes a
   scrolling promo video (title, lower third, end card, optional music), 8-60 s.
   Priced like finishing its length.
