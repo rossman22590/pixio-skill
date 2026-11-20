@@ -351,7 +351,7 @@ when you start, so a `402` means nothing started.
 - Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
 - `music/generate` takes an `idea` (3-2000 characters): the AI songwriter
   writes the description and lyrics (+13 credits), returned in
-  `result.writtenByAi`. `prompt` is then optional; your own `prompt` /
+  `writtenByAi`. `prompt` is then optional; your own `prompt` /
   `lyrics` always win.
 - `POST /api/v1/director/videos/site_promo`: a public web address becomes a
   scrolling promo video (title, lower third, end card, optional music), 8-60 s.
