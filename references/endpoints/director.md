@@ -348,6 +348,11 @@ when you start, so a `402` means nothing started.
 - Packaging returns a clean copy (no titles, captions, logo or end card) in
   `deliverables` by default; `clean: false` skips it. Same price.
 - Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
+- A made packaging `score` now watches the finished video first
+  (`score_watch`, default on), so the music follows the cut and covers the
+  whole length; it leads the mix where nobody speaks (`score_mix`
+  `auto` / `lead` / `under`, `score_sound_db`). Priced from its cost
+  parts (71 credits for 30 s; `score_watch: false` costs less).
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
