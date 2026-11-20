@@ -336,6 +336,18 @@ when you start, so a `402` means nothing started.
 - `plan_only: true` on a Montage Lyric Video plans it without drawing it, in
   about a minute (16 credits): the job's `plan` has the scenes, the line
   timing (never the words) and the `style` to send back on the real render.
+- Montage Lyric Video: every design choice is tunable; anything left out stays
+  automatic. `position` fixes where the words sit (`center`, `lower`,
+  `upper`, `left`, `right`, `stacked`; default centred and varied per
+  scene). `style` takes exact `scenes`, `palettes`, `layouts` per section,
+  `entrances` / `exits`, `cut_on_beat`, `camera_strength`, `react`
+  `{zoom, light, bass}`, `bursts` and `title_card`, and a `plan_only` job's
+  plan can be sent back as `style`. `strict_style: true` refuses any
+  invalid part (422 naming each field) instead of dropping it with a note. Template colour slots take any
+  `#RRGGBB` (`custom_hex` in `GET /api/v1/director/templates`).
+- Packaging returns a clean copy (no titles, captions, logo or end card) in
+  `deliverables` by default; `clean: false` skips it. Same price.
+- Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
 - The music video writer plans one concept for the song first (a premise with
   a turn, one specific world, a recurring motif) and avoids stock settings
   unless the idea names them; `music/plan` returns it as `result.concept`.
