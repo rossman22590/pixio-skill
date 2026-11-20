@@ -348,6 +348,9 @@ when you start, so a `402` means nothing started.
 - Packaging returns a clean copy (no titles, captions, logo or end card) in
   `deliverables` by default; `clean: false` skips it. Same price.
 - Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
+- Remakes keep the source's length; `duration` (a multiple of 15, 15-420)
+  asks for a longer film. Packaging's `voiceover_gap_db` (3-30) sets the
+  music bed exactly that far under a voiceover.
 - A made packaging `score` now watches the finished video first
   (`score_watch`, default on), so the music follows the cut and covers the
   whole length; it leads the mix where nobody speaks (`score_mix`
