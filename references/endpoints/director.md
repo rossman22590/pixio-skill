@@ -365,7 +365,8 @@ when you start, so a `402` means nothing started.
 - Shot-level fixes: `shot` on `videos/film/{id}/redo` and
   `videos/music/{id}/redo` re-shoots one shot inside the clip / section and
   splices it back in place (the soundtrack plays on, the length is kept;
-  `shot_lip_sync` locks the lips to the sound under it). Same price as the
+  `shot_lip_sync` locks the lips to the sound under it; on an older video
+  whose pictures were not kept, send them again as `images`). Same price as the
   clip / section redo, or the paid tier's quote. `GET
   /api/v1/director/jobs/{id}/shots/{n}/range?clip=N` (free) shows the range;
   Assemble clips take `shot` (with `job_id`, or `"<job id>:<shot>"`),
