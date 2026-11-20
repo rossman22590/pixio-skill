@@ -33,9 +33,9 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/image` | Animate one picture (`image`) |
 | POST | `/director/videos/reference` | Shot from up to 9 `images` (30 on Montage Premium/Ultra), 3 `videos`, 3 `audios` |
 | POST | `/director/videos/music` | Music video from `song` (or `song_job`), 15 s per section |
-| POST | `/director/videos/music/{id}/redo` | Re-shoot one `section` of a finished music video |
+| POST | `/director/videos/music/{id}/redo` | Re-shoot one `section` of a finished music video, or one `shot` inside it |
 | POST | `/director/videos/film` | Film from `clips` prompts or an `idea` |
-| POST | `/director/videos/film/{id}/redo` | Re-shoot one `clip` of a finished film |
+| POST | `/director/videos/film/{id}/redo` | Re-shoot one `clip` of a finished film, or one `shot` inside it |
 | POST | `/director/videos/film/{id}/final` | Render a finished draft at full quality (same clips, pictures, seeds) |
 | POST | `/director/videos/music/{id}/final` | Render a finished draft music video at full quality |
 | GET | `/director/jobs/{id}/pictures/{n}` | One reference picture a film or music video used |
@@ -83,6 +83,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/jobs/{id}/parts/{n}` | Stream one clip or section; Range supported |
 | GET | `/director/jobs/{id}/shots` | A finished video's shots with thumbnails (free) |
 | GET | `/director/jobs/{id}/shots/{n}` | One shot's thumbnail, JPEG, 1-based (free) |
+| GET | `/director/jobs/{id}/shots/{n}/range` | The range Assemble uses for one shot; `?clip=N` counts it inside a clip / section (free) |
 | POST | `/director/jobs/{id}/edit` | Cut a finished video by its shots into a new job |
 | POST | `/director/videos/remake` | Remake a video (2 s–7 min) shot for shot as a new film, with your changes |
 | GET | `/director/jobs/{id}/video` · `/image` · `/audio` | 302 to the finished file |
@@ -353,6 +354,22 @@ when you start, so a `402` means nothing started.
   writes the description and lyrics (+13 credits), returned in
   `writtenByAi`. `prompt` is then optional; your own `prompt` /
   `lyrics` always win.
+- Film and music video finishing, all free and off by default:
+  `color_match` (`auto`, `median` or `first`) gives every clip one
+  look (also on `videos/assemble`, and on a Long Form reference or music
+  video it levels colour drift); `cutout: true` crops uploaded pictures
+  shot on a plain studio backdrop to the subject so the grey wall stays out of
+  the scene; `crowd_faces: true` makes the writer fill crowds with real,
+  distinct faces; music videos take `on_beat: true` (joins and cuts land on
+  the beat; not with `long_form`). `face_fix` is `off` or `auto`.
+- Shot-level fixes: `shot` on `videos/film/{id}/redo` and
+  `videos/music/{id}/redo` re-shoots one shot inside the clip / section and
+  splices it back in place (the soundtrack plays on, the length is kept;
+  `shot_lip_sync` locks the lips to the sound under it). Same price as the
+  clip / section redo, or the paid tier's quote. `GET
+  /api/v1/director/jobs/{id}/shots/{n}/range?clip=N` (free) shows the range;
+  Assemble clips take `shot` (with `job_id`, or `"<job id>:<shot>"`),
+  `clip` and `audio_offset_s` (-2 to 2).
 - `POST /api/v1/director/videos/site_promo`: a public web address becomes a
   scrolling promo video (title, lower third, end card, optional music), 8-60 s.
   Priced like finishing its length.
