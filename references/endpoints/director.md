@@ -348,6 +348,10 @@ when you start, so a `402` means nothing started.
 - Packaging returns a clean copy (no titles, captions, logo or end card) in
   `deliverables` by default; `clean: false` skips it. Same price.
 - Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
+- `videos/graphics` element types also include charts and counters
+  (`stat`, `bar_chart`, `line_chart`, `bar_race`, `map`), product
+  pieces (`turntable`, `device_mockup`, `screen_tour`) and handwritten
+  ones (`hand_title`, `hand_arrow`, `hand_frame`, `scribble_wipe`).
 - Remakes keep the source's length; `duration` (a multiple of 15, 15-420)
   asks for a longer film. Packaging's `voiceover_gap_db` (3-30) sets the
   music bed exactly that far under a voiceover.
