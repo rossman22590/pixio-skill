@@ -52,6 +52,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/templates/pick` | The writer picks and fills a template from words, without rendering |
 | POST | `/director/videos/lyric/theme/preview` | A lyric-video background (`custom_theme` or `theme`) drawn as one JPEG, free |
 | POST | `/director/videos/lyric/style` | A lyric-video style plan from `style_prompt`, without rendering, to send back as `style` |
+| POST | `/director/videos/site_promo` | A website promo from a public web address (`url`, `title`, `cta`, `duration`, `aspect`, optional music) |
 | POST | `/director/videos/slideshow` | A photo slideshow cut to the beat of your song (`images` 2-60, `song` or `song_job`, `layout`, `transition`, `captions`, `title`, `end_card`) |
 | POST | `/director/videos/lyric` | A full-length lyric video from your song (`song` or `song_job`, optional `lyrics`, `look`, `theme`, `background`, `tuning`) |
 | POST | `/director/videos/package` | End card, logo, packshot, fine print, captions, music bed, voiceover (file or script), other frame shapes, cutdowns |
@@ -348,6 +349,15 @@ when you start, so a `402` means nothing started.
 - Packaging returns a clean copy (no titles, captions, logo or end card) in
   `deliverables` by default; `clean: false` skips it. Same price.
 - Dubbing takes a language name (`Spanish`) or a code (`es`, `es-ES`).
+- `POST /api/v1/director/videos/site_promo`: a public web address becomes a
+  scrolling promo video (title, lower third, end card, optional music), 8-60 s.
+  Priced like finishing its length.
+- Montage Lyric Video and `videos/graphics`: `format: "webm_alpha"` returns
+  only the text layer on a see-through background; `motion_blur` (0-1) and
+  `layout_check` are free. Lyric `timing_engine: "private"` hears the words
+  on the studio so the audio never leaves it.
+- Music videos take an optional `treatment` (up to 4000 characters): your own
+  director's treatment, which the writer's plan follows.
 - `videos/graphics` element types also include charts and counters
   (`stat`, `bar_chart`, `line_chart`, `bar_race`, `map`), product
   pieces (`turntable`, `device_mockup`, `screen_tour`) and handwritten
