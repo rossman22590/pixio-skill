@@ -102,6 +102,9 @@ The answer carries (numbers illustrative):
 ```
 
 - With `variants`, `credits` also has `perVersion` and `versions`; `quoted` is the total for every version.
+- `credits.held` appears on a preflight when the job holds more than its price while it runs (make sure the
+  balance covers it); the rest is given back when it settles. `credits.charged` is more than `quoted` only when
+  the work cost more than quoted.
 - A single shot with packaging (`brand_id` or `package`) splits into `credits.clip` and `credits.packaging`.
 - A note says when the real request would be refused (for example a checker ERROR).
 
