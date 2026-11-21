@@ -93,6 +93,7 @@ the full list.
 | Area | Routes |
 |---|---|
 | Discovery | `GET /guide`, `GET /openapi.json`, `GET /platform/openapi.json`, `GET /capabilities` |
+| MCP | `POST /mcp` (streamable HTTP, same API key; Montage tools: guide, catalog, credits, quote, start, job, jobs) |
 | Account | `GET /me`, `GET /subscription`, `GET /credits`, `GET /credits/ledger` |
 | Pricing | `GET /pricing`, `POST /generations/estimate` |
 | Models | `GET /models`, `GET /models/{id}`, `GET /params`, `GET/POST/DELETE /models/favorites`, `GET /preferences/models`, `GET /preferences/models/catalog` |
@@ -185,6 +186,23 @@ Read `references/guides/errors-and-concurrency.md` for the retry matrix,
 
 Read `references/endpoints/projects.md` and
 `references/examples/project-authoring.md`.
+
+## MCP
+
+`https://beta.pixio.myapps.ai/api/v1/mcp` is a streamable-HTTP MCP server
+(stateless, JSON responses) with the same API key as every route
+(`Authorization: Bearer` or `X-API-Key`). Its tools are the Montage routes:
+`pixio_guide`, `pixio_catalog`, `pixio_credits`, `pixio_quote` (the free
+`?check=true` preflight), `pixio_start` (refuses unless `confirm_spend: true`),
+`pixio_job` and `pixio_jobs`. `pixio_quote` / `pixio_start` take `endpoint`
+(a catalog key such as `videos/music`), `fields` (the REST body) and `id` for
+endpoints on an earlier job. Prices, holds and results are exactly the REST
+API's. Add it to Claude Code with:
+
+```bash
+claude mcp add --transport http pixio https://beta.pixio.myapps.ai/api/v1/mcp \
+  --header "Authorization: Bearer $PIXIO_API_KEY"
+```
 
 ## Agent Protocol
 
