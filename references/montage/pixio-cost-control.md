@@ -62,7 +62,7 @@ There are only two places a price comes from, and you never make one up:
 | Films | per 15 s clip (`filmClipFinal`, draft `filmClipDraft`), plus writing and designed pictures with an `idea`; `adReview`, `factCheck`, `episodeRecap` where they apply |
 | Montage Premium and Ultra | priced from the studio's quote of the takes plus `premiumPrompts` for writing their prompts, in place of the Basic part price; only the `?check=true` quote tells you the number |
 | Upscale, finish, packaging, cutting by shots | `upscaleMostDetail` per started 15 s; `finishPerSecond` / `packagePerSecond` on the seconds written, each with a minimum |
-| Face fix | `faceFix` per section it visibly changed |
+| Face fix | `faceFix` per section it runs on |
 | Lip fix, Lip fix auto, Relip, Montage Edit, Montage Create, Montage Analyze, Understand | priced from the studio's quote of the exact request, at least 16 credits; no free preflight |
 | Crop, graphics, assemble, audio tools (`/director/audio/*`) | priced like finishing on the seconds made (with a minimum) or a fixed amount; see the catalog |
 | `visual_qa`, `score`, `laugh_track`, `steps` above the default, `vsa: false`, `fix_prompt: "ai"`, storyboard stills | each adds its own catalog price; the quote shows the total |
@@ -126,7 +126,7 @@ Every job (`GET /api/v1/director/jobs/{id}`) carries `credits: { quoted, charged
 - **Cancel** (`DELETE /api/v1/director/jobs/{id}`) still charges finished parts.
 - **Designed pictures:** the hold covers the most the studio might design (`filmDesignedPictures` for a film or
   episode, `designedSets` for a music video); only the pictures made are charged.
-- **Face fix** is charged only for the sections it visibly changed (`faceFixReport`); the rest of the hold goes back.
+- **Face fix** is charged its full quote, every section it ran on (`faceFixReport` shows what changed).
 - **Variants:** each extra version is its own job (`versionJobIds`), billed like the first; every version is held up
   front.
 - **Shot packaging:** the packaging job (`packageJobId`) is held with the shot and given back if it never starts
@@ -164,7 +164,7 @@ A redo costs one clip or section. A Premium retake costs the part price it was s
 
 **Fix the part, not the video.** Lips off in one stretch: `POST /api/v1/director/videos/lipfix` on a 4-14 s window,
 or Lip fix auto (`/videos/lipfix/auto`, held as `max_windows` x `tries` lip fixes, charged only for the tries it
-renders). Far faces soft: `videos/facefix` (charged only for sections it visibly changed). See
+renders). Far faces soft: `videos/facefix` (charged per section it runs on). See
 `references/montage/pixio-lipsync-fixing.md`.
 
 **Tier mix instead of all-Premium.** `tier_mix: "auto"` on a Premium film or music video puts sung or spoken

@@ -115,7 +115,7 @@ Write each defect as: time (s), clip or section, what is wrong, severity.
 | One bad film clip (clone, wrong person, wound, line) | `POST /api/v1/director/videos/film/{id}/redo`: `clip`, new `seed`, corrected `prompt`, `clip_images` | one clip render (Premium: the part price it was sold at) |
 | One bad music section | `POST /api/v1/director/videos/music/{id}/redo` with `section` | one section render |
 | One wrong thing in a good shot (colour, object, costume, sky) | `POST /api/v1/director/videos/edit` (Montage Edit) on a 1-15 s window | priced per request, at least 16; higher `resolution` costs more |
-| Small far faces smeared | `POST /api/v1/director/videos/facefix` with `sections`; `"people": "all"` for group shots | `faceFix` credits per section it visibly changed |
+| Small far faces smeared | `POST /api/v1/director/videos/facefix` with `sections`; `"people": "all"` for group shots | `faceFix` credits per section |
 | Too soft | `POST /api/v1/director/videos/upscale` (`detail` 0-1, default 0.6) | per started 15 s (catalog) |
 | Trim, cut-out or new shape | `POST /api/v1/director/videos/edit/crop` (`start_s`/`end_s`, `aspect_ratio`) | like `videos/finish` on the seconds kept, at least 16 |
 | Drop or reorder shots | `GET /api/v1/director/jobs/{id}/shots`, then `POST /api/v1/director/jobs/{id}/edit` with `shots` | like packaging on the edited length; `?dry_run=true` free |

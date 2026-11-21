@@ -218,7 +218,7 @@ when you start, so a `402` means nothing started.
   every person the section names, each matched to their own picture. Its
   hold is `faceFix` per section times the passes, from the studio's own
   estimate, rounded up to a tenth (a section with two people is about 2x);
-  each section is charged once if anyone in it visibly changed. `face`
+  a finished face fix is charged the full hold. `face`
   (`largest` default, `smallest`, `left`, `right`, `centre`) picks someone
   other than the biggest face; it is chosen where it first appears and
   followed.
@@ -733,9 +733,9 @@ Extra work you ask for is priced in proportion: `steps` above the default
 `visual_qa: "local"` (`visualQaLocal` per part). `?check=true` shows the total. `music/plan`
 without an `idea` (the song analysis alone) costs `songAnalysis`.
 
-Single shots are billed as at least 8 seconds. A face fix is charged only
-for the sections it visibly changed (`faceFixReport`); with `people: "all"`
-each such section is charged once for all its passes.
+Single shots are billed as at least 8 seconds. A finished face fix is
+charged its full quote, every section it ran on (`faceFixReport` shows what
+changed).
 
 Films and music videos list the pictures they used in `pictures` (`number`,
 `tag`, `designed`, `what`, `url`); each is served at

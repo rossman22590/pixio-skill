@@ -135,7 +135,7 @@ cut.
   section's prompt names, each matched to their own picture; about one section render per person, so slower and
   priced by the passes).
 - `seed`.
-- Billing: `faceFix` credits per section, charged only for sections it visibly changed. The done job's
+- Billing: `faceFix` credits per section it runs on, the full quote. The done job's
   `faceFixReport` gives, per section, the likeness before and after and whether the change is `visible`.
 
 ```bash
@@ -169,7 +169,7 @@ upscale again. A draft film or music video can also be finished later with `.../
 |---|---|---|
 | upscale | per started 15 s of video | about a minute or two per 15 s; long videos longer |
 | finish | per second written, with a minimum | about 3 min per 15 s at 1080p |
-| facefix | `faceFix` per visibly changed section (times the passes with `people: "all"`) | about 3 min per 15 s section, per person |
+| facefix | `faceFix` per section (times the passes with `people: "all"`) | about 3 min per 15 s section, per person |
 
 ## Checklist
 
