@@ -48,7 +48,7 @@ Both endpoints:
 | `megapixels` | 0.5-16 (1 MP = 1024x1024) | 4 | priced between 0.5 and 16; below 4 MP the picture is rendered larger and shrunk |
 | `seed` | integer | random | send one and keep it to re-make the same picture; change it for a new take |
 | `steps` | sampling steps | 6 | 8 and 12 looked the same as 6 in tests; leave it (more steps cost more in proportion) |
-| `image_model` | `high`, or leave it out | standard | `high`: closer face shape and eyes, a little more skin detail, about 1.55x the time and price |
+| `image_model` | `high`, `premium`, or leave it out | standard | `high`: closer face shape and eyes, a little more skin detail, about 1.55x the time and price. `premium`: made in the cloud (up to 14 reference pictures), priced from the studio's quote, ignores `seed`/`steps`; 409 `not_available` while it is off |
 
 Only on `/api/v1/director/images/text`: `enhance` (default false). The studio rewrites a short prompt into a
 detailed caption first, adding about 25-30 s. Useful for a quick idea; skip it when you have written a full prompt

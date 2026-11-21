@@ -37,8 +37,9 @@ lines.
 | more than two lead singers, a band, a choir | not a duet: one lead in `singers`-free mode, others as non-singing band members (closed lips) |
 | nobody sings on screen | `lipsync=none` (story video); `singers` is refused with `lipsync=none` |
 
-`singers` needs `idea` (the AI writer assigns lines to singers; with your own `sections` it is refused). The two
-picture numbers must differ and exist in `images`.
+`singers` works with an `idea` (the AI writer assigns lines to singers) or with your own `sections` (your prompts
+are used as written; who sings when comes from the voices, or exactly from `singer_parts`). The two picture numbers
+must differ and exist in `images`.
 
 ## 1. Pictures: one per singer, built to be told apart
 

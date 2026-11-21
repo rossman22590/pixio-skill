@@ -222,9 +222,9 @@ when you start, so a `402` means nothing started.
   (`largest` default, `smallest`, `left`, `right`, `centre`) picks someone
   other than the biggest face; it is chosen where it first appears and
   followed.
-- `megapixels: 1.0` on `videos/reference`, `videos/film` and `videos/music`
-  renders Montage Basic sharper (1344x768-class, default 0.7) at 1.7x per
-  clip, redos and finals included. Premium and Ultra refuse it (use
+- `megapixels: 0.8` (1.2x), `0.9` (1.45x) or `1.0` (1.7x) on
+  `videos/reference`, `videos/film` and `videos/music` renders Montage Basic
+  sharper (1.0 is 1344x768-class, default 0.7), priced per clip by that factor, redos and finals included. Premium and Ultra refuse it (use
   `resolution`) unless `tier_mix` is on, where it applies to the Basic parts. A reference shot can pick up more of a photo's background at
   1.0, so check the first clip.
 - `GET /api/v1/director/jobs/{id}/poster`: a small still (JPEG, at most
@@ -502,6 +502,15 @@ song on unchanged; priced like `videos/finish`.
 - Lip fix: `POST /director/videos/lipfix` with `job_id` (or a `video`),
   `start_s` and `end_s` (a 4–14 s window, any start) makes that window again
   so the lips follow the vocal; nothing else changes.
+- Montage Lip Sync: `POST /director/videos/montage_lipsync` (multipart `image`
+  + `audio`; `resolution` 480P / 768P default / 1080P / 2K, `singing`, `seed`):
+  one picture speaks or sings the whole audio, original audio laid back on.
+  Priced from the studio's quote (about 11 credits a second at 768P); 409
+  `not_available` while it is switched off.
+- Premium image: `image_model: "premium"` on `images/text`, `images/edit`,
+  `images/reference` (1-14 pictures) makes the picture in the cloud, priced
+  from the studio's quote; `seed` and `steps` are ignored; 409
+  `not_available` while it is switched off.
 - Relip: `POST /director/videos/relip` with `job_id` (or a `video` and optional
   `audio`) re-does the lips of the whole video to the original song; only the
   mouth and jaw change. `source` (video / song), `only_sung`, `sung_pad_s`,
