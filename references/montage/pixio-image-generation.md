@@ -48,6 +48,7 @@ Both endpoints:
 | `megapixels` | 0.5-16 (1 MP = 1024x1024) | 4 | priced between 0.5 and 16; below 4 MP the picture is rendered larger and shrunk |
 | `seed` | integer | random | send one and keep it to re-make the same picture; change it for a new take |
 | `steps` | sampling steps | 6 | 8 and 12 looked the same as 6 in tests; leave it (more steps cost more in proportion) |
+| `sampler` | `euler` or `lcm` (Basic only) | `euler` | same price. For pictures of people, `megapixels: 16` + `sampler: "lcm"` + the default 6 `steps` gives clean, even skin and lips; 12 steps with `lcm` brings back sheen and lip cracks |
 | `image_model` | `high`, `premium`, or leave it out | standard | `high`: closer face shape and eyes, a little more skin detail, about 1.55x the time and price. `premium`: made in the cloud (up to 14 reference pictures), priced from the studio's quote, ignores `seed`/`steps`; 409 `not_available` while it is off |
 
 Only on `/api/v1/director/images/text`: `enhance` (default false). The studio rewrites a short prompt into a
@@ -152,13 +153,18 @@ curl -fsS -X POST "$BASE/api/v1/director/images/text" \
 
 ### Locking a face from a photo (`/api/v1/director/images/reference`)
 
+Skin in pictures of people: write "natural healthy skin with an even tone and a soft, smooth, realistic
+texture, smooth natural lips", never "visible pores", and only when a person is in the shot. Make every picture
+of a person straight from their original casting picture, never from a picture made from another picture (each
+pass sharpens the skin more; by the third the mouth goes patchy).
+
 Never describe a pictured face in words (eyes, brows, nose, jaw, lips, skin tone, makeup). The model redraws the
 face from the words and it drifts from the photo. Name the picture and say "exactly her face".
 
 ```bash
 curl -fsS -X POST "$BASE/api/v1/director/images/reference" -H "Authorization: Bearer $PIXIO_API_KEY" \
   -F "images=@customer.jpg" -F aspect=1:1 -F megapixels=8 -F image_model=high -F seed=4 \
-  --form-string "prompt=Close portrait, head and shoulders, of exactly the same woman as in <Picture 1>, with exactly her face, features and skin from <Picture 1>, head turned three-quarters to the left, lips closed, plain grey wall, soft even light from the front, real matte skin with visible pores"
+  --form-string "prompt=Close portrait, head and shoulders, of exactly the same woman as in <Picture 1>, with exactly her face, features and skin from <Picture 1>, head turned three-quarters to the left, lips closed, plain grey wall, soft even light from the front, natural healthy skin with an even tone and a soft, smooth, realistic texture, smooth natural lips"
 ```
 
 ```text

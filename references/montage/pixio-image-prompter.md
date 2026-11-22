@@ -167,7 +167,7 @@ a full body. Neutral pose, arms down, facing the camera, calm face, lips closed,
 them from the approved sheet or the customer's photo with `/api/v1/director/images/reference`:
 
 ```text
-Tight close-up portrait of exactly the same man as in <Picture 1>, with exactly his face, features and skin from <Picture 1>, facing the camera, lips closed, calm neutral expression, plain light-grey studio wall, soft even front light, real matte skin with visible pores, realistic photograph.
+Tight close-up portrait of exactly the same man as in <Picture 1>, with exactly his face, features and skin from <Picture 1>, facing the camera, lips closed, calm neutral expression, plain light-grey studio wall, soft even front light, natural healthy skin with an even tone and a soft, smooth, realistic texture, smooth natural lips, realistic photograph.
 ```
 
 `aspect` 1:1 or 2:3, `megapixels` 8, `image_model` high. Face first: at 8 MP a medium shot gives a face of about
