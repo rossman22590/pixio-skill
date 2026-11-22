@@ -29,6 +29,12 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/montage` | What Montage is, for agents: makes, quickstart, limits, prices (public) |
 | GET | `/director/catalog` | Endpoints, fields, looks, styles, prices |
 | GET | `/director/voiceover/voices` | Voices for a packaging `voiceover_text` (free) |
+| POST | `/director/plan` | A goal in plain words → endpoint, settings, picture kit, prompt skeleton, order of calls (free) |
+| POST | `/director/prompts/compile` | A structured shot list → the tier's prompt format, with its check (free, no AI) |
+| POST | `/director/prompts/precheck` | What a render is likely to have refused (a known song, a real person, a brand) (free) |
+| POST | `/director/videos/share` | A finished video made anywhere becomes a job usable as `job_id` (16 credits) |
+| GET | `/director/jobs/{id}/watch` | Shot scores of a film / music video sent with `watch` (free) |
+| POST / GET | `/director/jobs/{id}/verify` | Check a finished video against its prompts, clip by clip (40 credits); GET the result |
 | POST | `/director/videos/text` | One 5–15 s shot from a prompt |
 | POST | `/director/videos/image` | Animate one picture (`image`) |
 | POST | `/director/videos/reference` | Shot from up to 9 `images` (30 on Montage Premium/Ultra), 3 `videos`, 3 `audios` |
@@ -127,6 +133,28 @@ Prompts written in the studio's official format (`integrated_multimodal_descript
 
 Agents should run `?check=true` first for official-format prompts, fix every
 `ERROR`, then start the job.
+
+- `POST /director/plan` (free): send a `goal` ("30 s horror cold open,
+  Premium, 2 characters, dialogue") and optional `duration`, `video_model`,
+  `characters`, `has_song`, `has_pictures`, `aspect`. You get the endpoint,
+  settings, inputs, a picture kit, a compiled prompt skeleton for clip 1 and
+  the order of calls. Quote with `?check=true` before rendering.
+- `POST /director/prompts/compile` (free, deterministic): `references`
+  ([{id, kind: person|place|thing, what, voice}]), `shots` ([{start, end,
+  place, framing, subjects_in_frame, camera_move, speaker_id, line,
+  action}]), `summary`, `style`, `video_model`, `duration`. Name a reference
+  in text as `@id`; upload pictures in the returned `references_order`.
+- `POST /director/prompts/precheck` (free): `prompt` or `clips`,
+  `video_model`, `has_song`, `song_title`, `song_copyright_free`,
+  `pictures_count`. `ok` is false when a risk is `block`.
+- `watch` on `videos/music` and `videos/film` (`true` or `{"checks":
+  [...]}`, +40 credits): every shot is scored once the video is done (faces,
+  hands, props, characters, speakers by default; also beats, duplicates,
+  background, poses). Read `GET /director/jobs/{id}/watch`, then redo a bad
+  shot with `shot` on the redo route (priced as usual). `POST
+  /director/jobs/{id}/verify` (40 credits) checks a finished video against
+  its own prompts. Both work only while shot scoring is switched on;
+  otherwise 400 `watch_unavailable` and nothing is charged.
 
 ## Fights, prompt repair and section balance
 
