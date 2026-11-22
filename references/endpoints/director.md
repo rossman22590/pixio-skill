@@ -46,7 +46,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required) |
-| POST | `/director/videos/motion_copy` | Your character does the moves of the biggest person in a video, move for move (up to 8 s; quoted) |
+| POST | `/director/videos/motion_copy` | Your character does the moves of the biggest person in a video, move for move (up to 8 s; 130 credits a call) |
 | GET | `/director/templates` | The motion-graphics templates with their variables, free (`kind`, `q`) |
 | GET | `/director/templates/{name}` | One template with its variables, free |
 | POST | `/director/templates/render` | Render a template as a video (`name` + `variables`, or a `prompt`) |
@@ -513,9 +513,8 @@ song on unchanged; priced like `videos/finish`.
   words; optional `place_picture`, `place`, `action`, `start_picture`,
   `seed`): the biggest person's moves (dance, fight, sport, any motion) done
   by your character, move for move on the same beats, with the video's sound.
-  Up to 8 s per call (a longer video: its first 8 s). Priced from the
-  studio's quote (about 110 credits for 8 s). It is not upscaled for you:
-  run `videos/upscale` on the result.
+  Up to 8 s per call (a longer video: its first 8 s), 130 credits a call.
+  It is not upscaled for you: run `videos/upscale` on the result.
 - `sampler` on `images/text`, `images/edit`, `images/reference` (Basic only):
   `euler` (default) or `lcm`, same price. For pictures of people,
   `megapixels: 16` + `sampler: "lcm"` + the default 6 `steps` gives clean,
