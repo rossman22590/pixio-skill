@@ -108,7 +108,9 @@ Keep it away from the speaker's face side; face avoidance will move it anyway (s
 
 - `captions: true`: word-by-word karaoke captions of the speech. `lyric_captions: true`: of the song's isolated
   vocal; send the real `lyrics` (up to 20,000 characters) for exact spelling. Not both at once.
-  The words are drawn into the pixels only, never stored or returned.
+  The words are drawn into the pixels only, never stored or returned. With `lyrics` the words are timed one by
+  one to the sung vocal, so fast non-stop singing keeps every line.
+- Captions only: send `graphics: []` with `captions` or `lyric_captions`; no dummy element needed.
 - Style: `caption_style` (`subtitle` / `pop`), `caption_words` (1-8, default 4), `caption_position` (`bottom`,
   `center`, `lower_third` or 0-1), `caption_font`, `caption_size` (1.5-15 % of the height), `caption_color`,
   `caption_stroke_color`, `caption_stroke_width`, `caption_shadow`, `caption_highlight_color`,

@@ -581,9 +581,9 @@ song on unchanged; priced like `videos/finish`.
   (`realism`, `sharp_faces`, `megapixels` do not apply) and its `final`
   renders at full quality. Leave it off for the full render (the default).
   Refused on the paid tiers; films and reference shots do not take it.
-  `draft_attention` with it: `sparse` (default, fastest), `full` (about 10%
-  slower, much closer to the full render: same shot, steadier people) or
-  `spark` (about 8% slower; renders as `full` where it is not available).
+  `draft_attention` (only with it; 400 otherwise): `fast` (default, the
+  quickest) or `full` (about 18% slower, much closer to the full render:
+  same shot, steadier people).
   Same price.
 - Cut, fix or redo part of a finished video (each makes a new job; pick the
   smallest tool): cut, reorder or trim shots with `jobs/{id}/shots` then
