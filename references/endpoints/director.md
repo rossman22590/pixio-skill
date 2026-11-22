@@ -35,6 +35,12 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/share` | A finished video made anywhere becomes a job usable as `job_id` (16 credits) |
 | GET | `/director/jobs/{id}/watch` | Shot scores of a film / music video sent with `watch` (free) |
 | POST / GET | `/director/jobs/{id}/verify` | Check a finished video against its prompts, clip by clip (40 credits); GET the result |
+| POST | `/director/make` | One call: a song + photos → music video, or an idea → film; every step billed as a normal job (`?check=true` quotes) |
+| GET | `/director/make/{id}` | A make run: stage, `renderJob` (poll; it starts the render when the picture is ready) |
+| POST / GET | `/director/characters`, `/locations`, `/props` | Saved entries with locked wording and pictures (free, up to 100 each) |
+| GET / POST / DELETE | `/director/{characters\|locations\|props}/{id}` | One entry; POST saves a new version (`?version=N`, `id@vN`) |
+| POST | `/director/library/from-series`, `/director/library/resolve` | Copy a series cast member in; show what a request will use |
+| POST | `/director/previs` | 3D blocking per shot: frames, greybox clip, camera, prompt and a ready `videos/reference` request (16 credits a shot) |
 | POST | `/director/videos/text` | One 5–15 s shot from a prompt |
 | POST | `/director/videos/image` | Animate one picture (`image`) |
 | POST | `/director/videos/reference` | Shot from up to 9 `images` (30 on Montage Premium/Ultra), 3 `videos`, 3 `audios` |
@@ -107,6 +113,31 @@ catalog lists them per endpoint as `maxLength`.
 - Fields not listed for the endpoint in `/director/catalog` are ignored, so
   check spelling against the catalog. `styles` takes
   `[{ "style": "<key>", "strength": 0.7 }]` on `videos/text` and `videos/image`.
+
+## Make, saved characters and previs
+
+- `POST /director/make`: `song` (or `song_job`) + `images` (singer first) →
+  music video; only an `idea` → film (`duration` 30–420, multiple of 15).
+  Optional `references`, `style`, `aspect`, `video_model` (default
+  `montage-basic`), `settings` (other `videos/music` / `videos/film`
+  fields). A song with no photo first gets a singer picture from
+  `images/text`. Each step is an ordinary job priced as if called directly;
+  the start needs a balance covering every step (402 otherwise). Poll
+  `GET /director/make/{id}`.
+- Saved characters / locations / props: `name`, `what` (locked wording,
+  ≤600 chars), `notes`, `roles`, up to 8 `pictures`; characters also
+  `voice` and `voice_what`. Use your ids in `characters` or `sheet` on
+  `videos/text|image|reference|music|film` (same price); `attach_pictures:
+  true` on music videos and films adds their saved pictures. Never write an
+  id inside prompt text (400).
+- `POST /director/previs`: `scene`, 1-6 `shots`, `cast` (≤4, pictures from
+  `images`), `props`, `beats`, `engine` (`blocking` default, or `motion`
+  from `motion_video`, `motion_video_id` or `motion_prompt`), `video_model`
+  (`montage-basic` or `montage-premium`). The job's `previs.shots[]` has
+  frames, greybox clip, camera, prompt and a `renderRequest` to send to
+  `videos/reference`. 16 credits a shot, plus a Basic source clip with
+  `motion_prompt` (two with `missing_people: "auto"`). `?dry_run=true` is a
+  free plan.
 
 ## Prompt checking
 
