@@ -515,10 +515,23 @@ song on unchanged; priced like `videos/finish`.
   by your character, move for move on the same beats, with the video's sound.
   Up to 8 s per call (a longer video: its first 8 s), 130 credits a call.
   It is not upscaled for you: run `videos/upscale` on the result.
-- `montage_draft: true` on `videos/text` and `videos/image` (Montage Basic
-  only): a fast draft render in about half the time, not the highest
-  quality; `steps` does not apply; same price. Leave it off for the full
-  render (the default). Refused on the paid tiers.
+- `montage_draft: true` on `videos/text`, `videos/image` and `videos/music`
+  (Montage Basic only): a fast draft render in about half the time, not the
+  highest quality; `steps` does not apply; same price. On a music video each
+  section is drafted from its first picture with its slice of the song
+  (`realism`, `sharp_faces`, `megapixels` do not apply) and its `final`
+  renders at full quality. Leave it off for the full render (the default).
+  Refused on the paid tiers; films and reference shots do not take it.
+- Cut, fix or redo part of a finished video (each makes a new job; pick the
+  smallest tool): cut, reorder or trim shots with `jobs/{id}/shots` then
+  `jobs/{id}/edit`; trim, join or swap pieces with `videos/assemble`
+  (`clips` with `shot` / `clip` / `audio_offset_s`, or `replace` one shot of
+  a film); reframe with `videos/edit/crop`; redo one shot with `shot` on
+  `videos/music/{id}/redo` or `videos/film/{id}/redo`; change 1-15 s from
+  words with `videos/edit` (`start_s` / `end_s`); bad lips with
+  `videos/lipfix` or `videos/lipfix/auto`. Re-render when most of it is
+  wrong, previewing with `montage_draft`. Cut music videos on whole
+  sections or the beat so the lips stay on the song.
 - `sampler` on `images/text`, `images/edit`, `images/reference` (Basic only):
   `euler` (default) or `lcm`, same price. For pictures of people,
   `megapixels: 16` + `sampler: "lcm"` + the default 6 `steps` gives clean,
