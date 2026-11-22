@@ -515,6 +515,10 @@ song on unchanged; priced like `videos/finish`.
   by your character, move for move on the same beats, with the video's sound.
   Up to 8 s per call (a longer video: its first 8 s), 130 credits a call.
   It is not upscaled for you: run `videos/upscale` on the result.
+- `montage_draft: true` on `videos/text` and `videos/image` (Montage Basic
+  only): a fast draft render in about half the time, not the highest
+  quality; `steps` does not apply; same price. Leave it off for the full
+  render (the default). Refused on the paid tiers.
 - `sampler` on `images/text`, `images/edit`, `images/reference` (Basic only):
   `euler` (default) or `lcm`, same price. For pictures of people,
   `megapixels: 16` + `sampler: "lcm"` + the default 6 `steps` gives clean,
