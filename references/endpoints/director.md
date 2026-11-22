@@ -53,7 +53,8 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/jobs/{id}/pictures/{n}` | One reference picture a film or music video used |
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
-| POST | `/director/videos/facefix` | Re-render small faces in a finished music video, film or single clip (`people: "all"` for group shots; `strength` 0.45 is the best balance) |
+| POST | `/director/videos/facefix` | Re-render small faces in a finished music video, film, single clip or motion copy (`people: "all"` for group shots; `strength` 0.45 is the best balance) |
+| POST | `/director/videos/facefix/upload` | Face fix of your own video (up to 15 s) from 1-3 `face_picture`; +3 credits without a `prompt` |
 | POST | `/director/videos/facerepair` | Put each character's own reference face back where a finished Montage Basic video smeared it (`job_id`, optional `pictures`) |
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
@@ -581,9 +582,9 @@ song on unchanged; priced like `videos/finish`.
   (`realism`, `sharp_faces`, `megapixels` do not apply) and its `final`
   renders at full quality. Leave it off for the full render (the default).
   Refused on the paid tiers; films and reference shots do not take it.
-  `draft_attention` (only with it; 400 otherwise): `fast` (default, the
-  quickest) or `full` (about 18% slower, much closer to the full render:
-  same shot, steadier people).
+  `draft_attention` (only with it; 400 otherwise): `full` (default: the
+  same shot as the full render, steadier people) or `fast` (the quickest
+  draft, about 18% less time).
   Same price.
 - Cut, fix or redo part of a finished video (each makes a new job; pick the
   smallest tool): cut, reorder or trim shots with `jobs/{id}/shots` then
