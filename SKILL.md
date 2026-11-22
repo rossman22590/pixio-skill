@@ -194,7 +194,8 @@ Read `references/endpoints/projects.md` and
 (`Authorization: Bearer` or `X-API-Key`). Its tools are the Montage routes:
 `pixio_guide`, `pixio_catalog`, `pixio_credits`, `pixio_plan` (a goal in
 plain words becomes a plan, free), `pixio_quote` (the free
-`?check=true` preflight), `pixio_start` (refuses unless `confirm_spend: true`),
+`?check=true` preflight; when its `ready` is false, fix the
+prompt-check errors named in `blocked` before starting), `pixio_start` (refuses unless `confirm_spend: true`),
 `pixio_job` and `pixio_jobs`. `pixio_quote` / `pixio_start` take `endpoint`
 (a catalog key such as `videos/music`), `fields` (the REST body) and `id` for
 endpoints on an earlier job. Prices, holds and results are exactly the REST
