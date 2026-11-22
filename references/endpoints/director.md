@@ -53,7 +53,7 @@ catalog lists them per endpoint as `maxLength`.
 | GET | `/director/jobs/{id}/pictures/{n}` | One reference picture a film or music video used |
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
-| POST | `/director/videos/facefix` | Re-render small faces in a finished music video or film (`people: "all"` for group shots) |
+| POST | `/director/videos/facefix` | Re-render small faces in a finished music video, film or single clip (`people: "all"` for group shots; `strength` 0.45 is the best balance) |
 | POST | `/director/videos/facerepair` | Put each character's own reference face back where a finished Montage Basic video smeared it (`job_id`, optional `pictures`) |
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
