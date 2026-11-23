@@ -59,7 +59,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`, `consent: true` required; `target` picks whose head) |
-| POST | `/director/videos/replace_person` | Replace a whole person (face to clothes) in a finished video with your character from 1-3 `images` (`outfit` and `consent: true` required; `person`, `engine` `tracked` / `whole_frame` / `person_only`, `keep_background: "exact"`) |
+| POST | `/director/videos/replace_character` | Replace a whole person (face to clothes) in a finished video with your character from 1-3 `images` (`outfit` and `consent: true` required; `person`, `engine` `tracked` / `whole_frame` / `person_only`, `keep_background: "exact"`) |
 | POST | `/director/videos/motion_copy` | Your character does the moves of the biggest person in a video, move for move (up to 8 s; 130 credits a call) |
 | GET | `/director/templates` | The motion-graphics templates with their variables, free (`kind`, `q`) |
 | GET | `/director/templates/{name}` | One template with its variables, free |
@@ -330,7 +330,7 @@ when you start, so a `402` means nothing started.
   your own `head_picture`, `face` in words; `consent: true` required: faces
   you own or have consent for, never a real public figure; every use logged;
   `target` picks whose head when several people are in shot) and
-  `videos/replace_person` (the whole person, face to clothes, becomes your
+  `videos/replace_character` (the whole person, face to clothes, becomes your
   character from 1-3 `images`; `outfit` and `consent: true` required (a
   fictional character or a person who agreed, never a real public figure);
   `person` picks who; `engine` `tracked` (default where available),
