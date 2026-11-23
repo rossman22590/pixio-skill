@@ -117,7 +117,9 @@ Keep it away from the speaker's face side; face avoidance will move it anyway (s
   `caption_uppercase`, `caption_animation` (`none` / `pop` / `fade`). Captions also move off faces and graphics.
 - Caption quality (opt-in, same price): `caption_never_hide: true` (a caption with no free spot moves or shrinks
   instead of hiding), `caption_min_s` (0.2-2: each caption stays up at least this long; fast lines merge),
-  `caption_fill_gaps: true` (lyric captions stay up through short sung gaps). Use all three for lyric videos.
+  `caption_fill_gaps: true` (lyric captions stay up through short sung gaps), `caption_align: "sections"` (with
+  `lyrics`: each part of the song is timed on its own, so one hard stretch cannot pull later words early). Use all
+  four for lyric videos.
   In depth: `references/montage/pixio-lyric-captions.md`.
 - Music bed (ads without music only): `music_prompt` (up to 2000 characters; makes an instrumental of the video's
   length; priced on top, see the catalog) or `music_job` (one of your finished `/api/v1/director/music/generate`
