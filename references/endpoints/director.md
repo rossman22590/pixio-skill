@@ -109,6 +109,9 @@ catalog lists them per endpoint as `maxLength`.
   multipart.
 - A media field takes a multipart file, a URL string, or a path from your own
   Pixio assets. Lists also accept `<field>_urls` (for example `images_urls`).
+- Send big pictures as a URL or asset path: those are passed on as links
+  (each up to 30 MB), while uploaded files share a limit of about 100 MB per
+  request. 1280-2048 px on the long side is plenty.
 - `song_job` and `job_id` take a **finished Director job id** from this API.
 - `brand_id` takes a brand id from `POST /director/brands`. Only your own
   brands work.
