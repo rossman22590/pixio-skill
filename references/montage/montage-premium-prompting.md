@@ -122,6 +122,7 @@ Shot 3 (9-12s): [Close-up, slow push-in] a silent held moment. <a rising train r
 - No negative-prompt field: write "Do not generate..." / "No ..." sentences. Negatives are reliable for subtitles
   and audio; for visuals prefer positive description, with a short exclusions line at the end.
 - "Keep it subtitle-free" every time. It helps but cannot fully prevent subtitles.
+- **Never name a feeling you do not want.** "She never cries: no tears, dry bright eyes, no sad or pained face" shows crying: naming an emotion (cry, tears, sad, angry, scared...) makes the video show it, even after "no" or "never". Write the feeling you want instead: "bright, shining eyes and an easy, open smile". The prompt checker warns with a rewrite (it never blocks); wanted crying and "never stops smiling" are fine.
 
 **Words to avoid**
 - **No grain, noise or film-stock words, ever, not even negated.**

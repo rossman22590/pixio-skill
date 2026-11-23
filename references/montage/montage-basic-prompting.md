@@ -158,6 +158,7 @@ If a photo is supplied, use it. Never drop or ignore a caller-supplied reference
 - Spell out unusual objects exactly: "a single narrow white six-panel door, hinged on the left". Don't write just "the door".
 - On-screen text, signs and labels come out garbled. Avoid them, or keep them to 1-2 short words in quotes.
 - Describe what IS there. There is no negative prompt, and lists like "no X, no Y" hurt.
+- **Never name a feeling you do not want.** "She never cries: no tears, dry bright eyes, no sad or pained face" shows crying: naming an emotion (cry, tears, sad, angry, scared...) makes the video show it, even after "no" or "never". Write the feeling you want instead: "bright, shining eyes and an easy, open smile". The prompt checker warns with a rewrite (it never blocks); wanted crying and "never stops smiling" are fine.
 - **Shadow people in the background come from the prompt.** "She is the only person anywhere in the video; no other people, no crowd, no dancers" draws a crowd: there is no negative prompt, and every word shows up. The same goes for "crowd silhouettes" in atmosphere shots. When only the cast should appear, never name crowds, dancers, silhouettes, figures or "other people" at all; describe each place positively as empty ("the club is empty after hours, every booth and the dance floor empty"; "the street is deserted"). Use silhouettes only when the idea really has a crowd. The checker warns (78 % of stored music prompts had it).
 - Gimmicky details distract: a smuggled-phone subplot read as silly. Keep stories grounded and physical.
 

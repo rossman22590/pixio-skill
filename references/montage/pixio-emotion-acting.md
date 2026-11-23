@@ -37,6 +37,7 @@ instruction.
 7. **Never describe a pictured face's features** (eye shape, nose, lips, skin tone): the picture carries the face;
    words redraw it and it drifts. Describe what the face **does**, not what it **looks like**.
 8. **Restraint.** Extreme words (furious, hysterical, terrified) make Premium eyes glow and Basic faces grimace.
+9. **Never name a feeling you do not want.** "She never cries: no tears, dry bright eyes, no sad or pained face" shows crying: naming an emotion (cry, tears, sad, angry, scared...) makes the video show it, even after "no" or "never". Write the feeling you want instead: "bright, shining eyes and an easy, open smile". The prompt checker warns with a rewrite (it never blocks); wanted crying and "never stops smiling" are fine.
 
 ## Before you write: one line per character per scene
 
