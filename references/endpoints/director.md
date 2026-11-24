@@ -364,11 +364,17 @@ when you start, so a `402` means nothing started.
   keeps every pixel outside the person; the new face keeps the original
   actor's lip and jaw movement: `keep_mouth` on by default (`false` for the
   plain swap), `keep_mouth_jaw: false` for the lips only,
-  `keep_mouth_strength` 0.8-1.6, default 1.0; same price). To swap 2-6
-  people in one call, send `people`: a JSON list of
+  `keep_mouth_strength` 0.8-1.6, default 1.0; same price). `zoom` (default
+  true) renders a small person as a close crop and keeps it only when it looks
+  more like your character; `face_repair` (default true) puts your
+  character's own face back in frames where the likeness is still weak;
+  `false` turns either off. `fight: true` (default false) for fight and
+  fast-action scenes: the face repair leaves covered, fast or crossing frames
+  alone, so no face is painted over a fist. To swap 2 people in one call (2 is the most; 3 or
+  more is refused), send `people`: a JSON list of
   `{"person": "left", "outfit": "...", "identity": "...", "pictures": [1, 2]}`
   (`person` and `outfit` required; `pictures` = 1-3 of your `images` by
-  position, counted from 1, up to 9 `images` in all; leave out the top-level
+  position, counted from 1, up to 6 `images` in all; leave out the top-level
   `person` / `outfit` / `identity`). They are swapped one after another, an
   earlier one is never undone, the job finishes with the last, and it costs one
   swap per person. If a person cannot be swapped, the job stops there and only what was
