@@ -654,7 +654,10 @@ song on unchanged; priced like `videos/finish`.
   `lipfix: "off"`). `polish: true` on Basic `videos/music`, `videos/film`
   and `videos/reference` polishes the finished video the same way.
   Face fix also takes `auto_keep_mouth` (default true; `false` keeps the
-  fixed face whole).
+  fixed face whole) and `mode`: `single` (default, the one-pass fix),
+  `polish` (the full Polish chain, priced like Polish) or `restore` (no
+  re-render, the original expression kept; priced like finishing;
+  `restore_fidelity` 0.3-1).
 - `picture_numbering` on `videos/music` and `videos/film` with `clip_images`:
   `clip` (default) means `<Picture N>` is the N-th picture of that clip's own
   list; `upload` means your prompts use the upload order and each clip's tags
