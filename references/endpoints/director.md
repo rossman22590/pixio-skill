@@ -364,7 +364,15 @@ when you start, so a `402` means nothing started.
   keeps every pixel outside the person; the new face keeps the original
   actor's lip and jaw movement: `keep_mouth` on by default (`false` for the
   plain swap), `keep_mouth_jaw: false` for the lips only,
-  `keep_mouth_strength` 0.8-1.6, default 1.0; same price).
+  `keep_mouth_strength` 0.8-1.6, default 1.0; same price). To swap 2-6
+  people in one call, send `people`: a JSON list of
+  `{"person": "left", "outfit": "...", "identity": "...", "pictures": [1, 2]}`
+  (`person` and `outfit` required; `pictures` = 1-3 of your `images` by
+  position, counted from 1, up to 9 `images` in all; leave out the top-level
+  `person` / `outfit` / `identity`). They are swapped one after another, an
+  earlier one is never undone, the job finishes with the last, and it costs one
+  swap per person. If a person cannot be swapped, the job stops there and only what was
+  already rendered is charged.
 - `videos/lyric` (Montage Lyric Video, `videoModel: "montage-lyric-video"` on
   the job): a full-length lyric video from your song (`song` up to
   10 minutes, or `song_job`), each word lighting up as it is sung. Send
