@@ -55,6 +55,8 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video, film, single clip or motion copy (`people: "all"` for group shots; `strength` 0.45 is the best balance) |
 | POST | `/director/videos/facefix/upload` | Face fix of your own video (up to 15 s) from 1-3 `face_picture`; +3 credits without a `prompt` |
+| POST | `/director/videos/montage_swap` | Premium Montage Swap: the people or objects in 1-8 pictures replace those in a 4-15 s video |
+| POST | `/director/videos/montage_motion` | Premium Montage Motion Transfer: the people in 1-8 pictures perform a 4-15 s video's motion |
 | POST | `/director/videos/facerepair` | Put each character's own reference face back where a finished Montage Basic video smeared it (`job_id`, optional `pictures`) |
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
@@ -587,6 +589,15 @@ song on unchanged; priced like `videos/finish`.
   one picture speaks or sings the whole audio, original audio laid back on.
   Priced from the studio's quote (about 11 credits a second at 768P); 409
   `not_available` while it is switched off.
+- Premium Montage Swap: `POST /director/videos/montage_swap`, and Premium
+  Montage Motion Transfer: `POST /director/videos/montage_motion` (multipart
+  `video` of 4-15 s + 1-8 `images`; optional `prompt`, `resolution` 480p /
+  720p default / 1080p). Swap puts the people or objects in the pictures into
+  the video; Motion Transfer makes the people in the pictures perform the
+  video's motion. Sound and aspect are kept. Priced from the studio's quote
+  (about 40 credits a second at 720p, 18 at 480p, 97 at 1080p). Only your own
+  video and people who agreed, never a public figure. 409 `not_available`
+  while it is switched off.
 - Motion copy: `POST /director/videos/motion_copy` (multipart: a `video` or
   `job_id` with the motion, 1-3 `images` of your character, `character` in
   words; optional `place_picture`, `place`, `action`, `start_picture`,
