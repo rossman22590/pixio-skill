@@ -62,7 +62,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/relight` | New lighting on a finished video, up to 2 min (`preset`, or `light_picture` + `light`) |
 | POST | `/director/videos/motion_transfer` | A new character from 1-3 `images` takes over a finished video's motion and camera (`outfit` required) |
 | POST | `/director/videos/headswap` | Replace the head in a finished video with your own `head_picture` (`face`; `target` picks whose head) |
-| POST | `/director/videos/replace_character` | Replace a whole person (face to clothes) in a finished video with your character from 1-3 `images` (`outfit` required; `person`, `engine` `tracked` / `whole_frame` / `person_only`, `keep_background: "exact"`) |
+| POST | `/director/videos/replace_character` | Replace a whole person (face to clothes) in a finished video with your character from 1-3 `images` (`outfit` required; `person`, `engine` `tracked` / `whole_frame` / `person_only`, `keep_background: "exact"`, `keep_mouth` on by default) |
 | POST | `/director/videos/motion_copy` | Your character does the moves of the biggest person in a video, move for move (up to 8 s; 130 credits a call) |
 | GET | `/director/templates` | The motion-graphics templates with their variables, free (`kind`, `q`) |
 | GET | `/director/templates/{name}` | One template with its variables, free |
@@ -361,7 +361,10 @@ when you start, so a `402` means nothing started.
   a person who agreed, never a real public figure;
   `person` picks who; `engine` `tracked` (default where available),
   `whole_frame` or `person_only` (experimental); `keep_background: "exact"`
-  keeps every pixel outside the person).
+  keeps every pixel outside the person; the new face keeps the original
+  actor's lip and jaw movement: `keep_mouth` on by default (`false` for the
+  plain swap), `keep_mouth_jaw: false` for the lips only,
+  `keep_mouth_strength` 0.8-1.6, default 1.0; same price).
 - `videos/lyric` (Montage Lyric Video, `videoModel: "montage-lyric-video"` on
   the job): a full-length lyric video from your song (`song` up to
   10 minutes, or `song_job`), each word lighting up as it is sung. Send
