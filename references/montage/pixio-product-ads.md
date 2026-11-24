@@ -68,6 +68,14 @@ Every product film is one of these. Pick from the product's form, not from habit
 - **Turntable:** one continuous slow orbit of a still product with a light sweep, then a locked front hold. Good
   for 5 s cutdowns and e-commerce pages.
 
+**Story ads (people using the product):** give the ad a four-beat spine (setup, problem, choice, resolution) and
+give every clip one beat. Put the product inside the action (worn, held, used), not only in hero shots, and end on
+a packshot. The product's own pictures win over everything else; send front and back pictures to fix its cut,
+colours, print and logo. Words in the picture only come from a picture you send. Per shot: a start state, one
+action, the change, an end state; a static wide first when a pose matters; heads in frame; one camera move; small
+physical acting; nobody looks into the lens unless the format needs it. With several heroes, mirror their beats.
+Commercial mode (`film_type: "commercial"` or a `brand_id`) writes ads this way for you.
+
 Pacing by length: **5 s** = one small peak and a stable close (Basic: 1-2 shots). **10 s** = 1-2 peaks, 1-2 quiet
 beats (Basic: 3 shots). **15 s** = 2-3 peaks, 2 quiet beats (Basic: 4-5 shots; Premium: 4-6). No shot under 2.5 s on
 Basic; the last 2-3 s are always a locked packshot with room for the end card.

@@ -313,7 +313,11 @@ when you start, so a `402` means nothing started.
 - Long takes: `long_form: true` on `videos/reference` (`duration` 20-60) or
   `videos/music` (`long_form_start` / `long_form_end`, a 20-60 s part of the
   song) makes one unbroken Montage Basic shot, no cuts, rendered in 2-4
-  pieces that carry on from each other. One place, at most 3 people. About
+  pieces that carry on from each other. One place; at most 3 main people
+  across the joins (passers-by and crowds seen once are fine). Also on its
+  own route, `POST /director/videos/long_form` (`prompt` or
+  `long_form_pieces`, `duration` 20-60, default 30, 1-9 `images`): the same
+  job and price. About
   18 credits a second (1.7x at `megapixels: 1.0`) plus a writer round when the
   AI writes the pieces; `long_form_pieces` sends your own (one prompt per 15 s
   piece). Premium and Ultra refuse it; if long takes are switched off it

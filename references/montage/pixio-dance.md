@@ -78,6 +78,10 @@ Music-video sections are fixed 15 s windows joined by hard cuts at the 15 s mark
 
 ## 3. Writing moves as body mechanics
 
+Fit the moves to the time: about one move-phrase per 8 counts, never a routine crammed into a 5 s shot. For each
+phrase name the support foot and where the weight transfers, and list the motions that must not happen (no
+spins off the support foot, no feet sliding, no arms passing through the body). Check the take against that list.
+
 Every move-phrase answers: **which body part, which direction, on which count, where the weight goes, what the
 arms do, and where the eyes look.**
 

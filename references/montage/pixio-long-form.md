@@ -20,16 +20,19 @@ last 22 frames (0.92 s, picture and sound) of the piece before, so the joins don
 | A singer performing a 20-60 s part of their song in one take | **a long take** on `videos/music` |
 | A story with cuts, several places, a flashback, a montage | a film (`POST /api/v1/director/videos/film`) |
 | The whole 3-minute song | a normal music video (with cuts), or a long take on a 20-60 s part |
-| More than 3 people with faces, a fight, a duet that cuts between singers | a film or a normal music video |
+| More than 3 main people who stay in the shot across the joins, a fight, a duet that cuts between singers | a film or a normal music video |
 | 5-15 s | a normal clip: it is one shot already |
 
 ## The fields
 
-`POST /api/v1/director/videos/reference` (multipart):
+`POST /api/v1/director/videos/long_form` (multipart; `long_form` is implied, `duration` defaults to 30), or
+`POST /api/v1/director/videos/reference` with `long_form=true` (the same job and price):
 - `long_form=true`, `duration` 20-60, 1-9 `images` (every piece sees every picture). Leave `video_model` out or send
   `montage-basic`.
 - `prompt` = the idea of the whole shot in plain words (who, where, the one camera move, what happens, how it ends).
   The writer plans the pieces and writes each one. Name what each `<Picture N>` shows.
+- Passers-by and crowds are fine: the 3-people limit covers only the main people who stay in the shot across a
+  join. Anyone seen inside one piece only gets their own look and a visible face.
 - Or `long_form_pieces`: your own prompt for every piece (a JSON list of strings, one per piece), when you write
   them yourself. No writer round is charged then.
 - `megapixels=1.0` for a sharper 1344x768-class render (1.7x the price), `seed`, `steps`, `realism` as usual.
