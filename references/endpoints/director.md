@@ -686,8 +686,9 @@ song on unchanged; priced like `videos/finish`.
   `audio`) re-does the lips of the whole video to the original song; only the
   mouth and jaw change. `source` (video / song), `only_sung`, `sung_pad_s`,
   `isolate_vocal`, `soundtrack`, `mask_grow`, `feather`, `sharpen`,
-  `color_match`, `offset_s`. Priced from the studio's quote (~0.05 $/s of
-  video; 15 s ≈ 108), or like finishing when it runs on the studio's machine.
+  `color_match`, `offset_s`. Priced from the studio's quote (about 7 credits
+  a second of video; 15 s ≈ 108 credits), or like finishing when it runs on
+  the studio's machine.
   `lip_check: "relip"` on `videos/music` relips the video when it is done,
   at the same price (`lipCheckJobId`).
 - Tier mix on Premium / Ultra `videos/music` and `videos/film`: `tier_mix`

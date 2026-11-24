@@ -265,6 +265,8 @@ capability is absent from both OpenAPI documents, it is unsupported.
 
 - Use only `pixio/...` model IDs returned for the authenticated account.
 - Use the returned param schema; preserve types; honour `constraints`.
+- State every price, quote, hold and charge in Pixio credits ("888
+  credits"), never in dollars, including Director / Montage jobs.
 - Treat `202` as queued, not completed.
 - Treat `outputUrl`, asset `url`, and resolved media URLs as expiring.
 - Branch on `code`, not on the `error` sentence.

@@ -81,11 +81,13 @@ GET /credits/ledger?generationId={id}
 - `matchedBy: none` with `billedAt` set: the movement exists but was not
   linked; report unlinked, not unbilled.
 
-## Converting To Dollars
+## Prices Are In Credits
 
-`/pricing` publishes `usdPerCredit` (cheapest pack), `plans[].usdPerCredit`,
-and `creditPacks[]`. Multiply `expectedDebit` by the rate the user actually
-buys at; state which rate you used.
+Every quote, hold, charge and refund in the API is in Pixio credits. Tell the
+user credits ("quoted at 888 credits"), never a dollar figure. `/pricing`
+also publishes `usdPerCredit`, `plans[].usdPerCredit` and `creditPacks[]`:
+those are what credits cost to buy, for a billing or top-up page only. Do not
+convert a quote or a charge into dollars with them.
 
 ## Agent Rules
 

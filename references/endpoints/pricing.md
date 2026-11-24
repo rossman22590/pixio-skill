@@ -2,7 +2,7 @@
 
 The live price list for the calling account. Every model the key can reach,
 with the list price and what this account is actually charged, plus plan and
-credit-pack prices so credits can be turned into dollars.
+credit-pack prices. Every price in the API is in Pixio credits.
 
 ```bash
 curl -fsS "$PIXIO_BASE_URL/pricing" \
@@ -82,8 +82,9 @@ Field meanings per model:
 - Use `yourCredits` for ranking and budgeting, never `listCredits`.
 - For any model with `pricing.rate`, quote with `POST /generations/estimate`
   and the real file before promising a price.
-- Turn credits into dollars with `usdPerCredit` (cheapest pack) or a specific
-  plan's `usdPerCredit`.
+- Quote, budget and report in Pixio credits ("888 credits"), never in dollars.
+  `usdPerCredit`, `plans` and `creditPacks` are what credits cost to buy, for a
+  billing page only; do not convert a quote or a charge with them.
 - Show the ten cheapest models for this account:
 
 ```bash
