@@ -145,7 +145,11 @@ catalog lists them per endpoint as `maxLength`.
   frames, greybox clip, camera, prompt and a `renderRequest` to send to
   `videos/reference`. 16 credits a shot, plus a Basic source clip with
   `motion_prompt` (two with `missing_people: "auto"`). `?dry_run=true` is a
-  free plan.
+  free plan. Optional `action` (the action in plain words, e.g. "Kai sprints
+  down the alley and vaults the crate"): an AI agent builds the set, cast,
+  real motion, lights and cameras from it; a few minutes longer, +1 writer
+  round. `look`: `mannequin` (default) or `toon`. Neither works with
+  `engine: "motion"`.
 
 ## Prompt checking
 
