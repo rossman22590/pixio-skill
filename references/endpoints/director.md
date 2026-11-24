@@ -356,8 +356,9 @@ when you start, so a `402` means nothing started.
   your own `head_picture`, `face` in words; faces you own or have consent
   for, never a real public figure; every use logged;
   `target` picks whose head when several people are in shot) and
-  `videos/replace_character` (the whole person, face to clothes, becomes your
-  character from 1-3 `images`; `outfit` required; a fictional character or
+  `videos/replace_character` (200 credits per 15 s per person; the whole
+  person, face to clothes, becomes your character from 1-3 `images`;
+  `outfit` required; a fictional character or
   a person who agreed, never a real public figure;
   `person` picks who; `engine` `tracked` (default where available),
   `whole_frame` or `person_only` (experimental); `keep_background: "exact"`
