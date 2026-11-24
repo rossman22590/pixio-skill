@@ -286,7 +286,15 @@ when you start, so a `402` means nothing started.
   a finished face fix is charged the full hold. `face`
   (`largest` default, `smallest`, `left`, `right`, `centre`) picks someone
   other than the biggest face; it is chosen where it first appears and
-  followed.
+  followed. On single clips and uploads `face: "picture"` follows the person
+  who matches `<Picture 1>` in every frame (best with several faces).
+  `face_engine`: `pixelai` (default: small faces fixed fully, close-ups left
+  alone, only the face redrawn, no box) or `classic` (the method before).
+  `full_strength: true` gives every face the full `strength` (bigger faces
+  otherwise get less): try 0.6 with it when a soft face came back almost
+  unchanged; 0.75 can break the face. `start_s` / `end_s` on single clips
+  and uploads fix only that window. `sections` also takes one number.
+  None of these change the price.
 - `megapixels: 0.8` (1.2x), `0.9` (1.45x) or `1.0` (1.7x) on
   `videos/reference`, `videos/film` and `videos/music` renders Montage Basic
   sharper (1.0 is 1344x768-class, default 0.7), priced per clip by that factor, redos and finals included. Premium and Ultra refuse it (use
@@ -597,6 +605,11 @@ song on unchanged; priced like `videos/finish`.
   same shot as the full render, steadier people) or `fast` (the quickest
   draft, about 18% less time).
   Same price.
+- Montage Basic single clips: `sampler` on `videos/text` and `videos/image`
+  is `res_multistep` (default: sharper, livelier motion) or `euler` (the
+  look before). `r2v_model` on `videos/reference` is `omni` (default: about
+  twice as sharp) or `dasiwa` (the model before; send it when likeness to
+  the pictures matters most). Same price.
 - Cut, fix or redo part of a finished video (each makes a new job; pick the
   smallest tool): cut, reorder or trim shots with `jobs/{id}/shots` then
   `jobs/{id}/edit`; trim, join or swap pieces with `videos/assemble`
