@@ -654,8 +654,9 @@ song on unchanged; priced like `videos/finish`.
   `lipfix: "off"`). `polish: true` on Basic `videos/music`, `videos/film`
   and `videos/reference` polishes the finished video the same way.
   Face fix also takes `auto_keep_mouth` (default true; `false` keeps the
-  fixed face whole) and `mode`: `single` (default, the one-pass fix),
-  `polish` (the full Polish chain, priced like Polish) or `restore` (no
+  fixed face whole) and `mode`: `polish` (default since 2026-11-24: the
+  full Polish chain, priced like Polish, 337 per 15 s section), `single`
+  (the one-pass fix, 130 per section) or `restore` (no
   re-render, the original expression kept; priced like finishing;
   `restore_fidelity` 0.3-1).
 - `picture_numbering` on `videos/music` and `videos/film` with `clip_images`:
