@@ -294,9 +294,13 @@ when you start, so a `402` means nothing started.
   alone, only the face redrawn, no box) or `classic` (the method before).
   `full_strength: true` gives every face the full `strength` (bigger faces
   otherwise get less): try 0.6 with it when a soft face came back almost
-  unchanged; 0.75 can break the face. `start_s` / `end_s` on single clips
-  and uploads fix only that window. `sections` also takes one number.
-  None of these change the price.
+  unchanged; 0.75 can break the face. Over about 0.4 it redraws the mouth
+  too: `keep_mouth` (on by default when the clip has sound) puts the original
+  mouth and jaw back so the lip-sync never changes, so give sung or spoken
+  shots their sound. `min_likeness` (0.2-0.95, off by default) keeps the
+  original face in frames that look less like the person. `start_s` /
+  `end_s` on single clips and uploads fix only that window. `sections` also
+  takes one number. None of these change the price.
 - `megapixels: 0.8` (1.2x), `0.9` (1.45x) or `1.0` (1.7x) on
   `videos/reference`, `videos/film` and `videos/music` renders Montage Basic
   sharper (1.0 is 1344x768-class, default 0.7), priced per clip by that factor, redos and finals included. Premium and Ultra refuse it (use
