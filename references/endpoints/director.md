@@ -54,6 +54,7 @@ catalog lists them per endpoint as `maxLength`.
 | POST | `/director/videos/upscale` | ~1080p upscale of `job_id` or an uploaded clip (≤15 s) |
 | POST | `/director/videos/finish` | Grade, grain, loudness, deflicker |
 | POST | `/director/videos/facefix` | Re-render small faces in a finished music video, film, single clip or motion copy (`people: "all"` for group shots; `strength` 0.45 is the best balance) |
+| POST | `/director/videos/polish` | Polish a finished video: lip fix, 2x upscale, checked face fix (a 4-14 s window or the whole video) |
 | POST | `/director/videos/facefix/upload` | Face fix of your own video (up to 15 s) from 1-3 `face_picture`; +3 credits without a `prompt` |
 | POST | `/director/videos/montage_swap` | Premium Montage Swap: the people or objects in 1-8 pictures replace those in a 4-15 s video |
 | POST | `/director/videos/montage_motion` | Premium Montage Motion Transfer: the people in 1-8 pictures perform a 4-15 s video's motion |
@@ -639,10 +640,21 @@ song on unchanged; priced like `videos/finish`.
   `videos/lipfix` or `videos/lipfix/auto`. Re-render when most of it is
   wrong, previewing with `montage_draft`. Cut music videos on whole
   sections or the beat so the lips stay on the song.
-- `sampler` on `images/text`, `images/edit`, `images/reference` (Basic only):
-  `euler` (default) or `lcm`, same price. For pictures of people,
-  `megapixels: 16` + `sampler: "lcm"` + the default 6 `steps` gives clean,
-  even skin and lips.
+- Pictures on Basic: `images/text` and `images/reference` default to
+  `megapixels: 16` + `sampler: "lcm"` + 6 `steps`, the best recipe for
+  people (a default text picture is 40 credits; `megapixels: 4` +
+  `sampler: "euler"` is the old look at 33). `images/edit` stays 4 MP with
+  `euler`.
+- Polish: `POST /director/videos/polish` with `job_id` runs the finishing
+  chain on a finished video: lip fix to its own sound, 2x upscale, then a
+  face fix with its pictures, checked frame by frame. `start_s` / `end_s`
+  for one 4-14 s window, or neither for the whole video. `lipfix` auto / on /
+  off, `lipfix_keep` always (default) / gain, `face_from_job` or `image_urls`
+  (1-3) for the face. 337 credits per 15 s section (250 with
+  `lipfix: "off"`). `polish: true` on Basic `videos/music`, `videos/film`
+  and `videos/reference` polishes the finished video the same way.
+  Face fix also takes `auto_keep_mouth` (default true; `false` keeps the
+  fixed face whole).
 - `picture_numbering` on `videos/music` and `videos/film` with `clip_images`:
   `clip` (default) means `<Picture N>` is the N-th picture of that clip's own
   list; `upload` means your prompts use the upload order and each clip's tags
