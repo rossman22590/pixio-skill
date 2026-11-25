@@ -1,121 +1,199 @@
-# Pixio Public API Skill
+# Pixio Skill
 
-Agent Skill for integrating with the complete Pixio public REST API (`/api/v1`)
-from backends, workers, scripts, automations, CLIs, desktop apps, mobile
-backends, and agents. Mirrors the deployed contracts as of 2026-10-07.
+**Give your AI agent the whole Pixio studio.** One Agent Skill that teaches
+Claude Code, Codex, and any skills-compatible agent to generate images, video,
+and audio, direct finished films and music videos with Montage, and build
+production integrations on the Pixio public API, all without wasting a credit.
 
-It covers:
+```text
+Use $pixio-skill to make a 30-second vertical music video from my song and
+these three photos. Quote it first, test on Montage Basic, and give me the file.
+```
 
-- API key authentication, immediate revocation, and trust boundaries;
-- discovery through the media OpenAPI document, the platform OpenAPI
-  document, `/capabilities`, and `/guide`;
-- account identity, plan, credits, concurrency limit, and Maker daily caps
-  (`/me`);
-- the live per-account price list (`/pricing`) and quotes measured the way
-  they bill (`/generations/estimate`);
-- model discovery with tier and pricing fields, params with constraints,
-  favorites, and read-only preferences;
-- the full prompt optimizer, the style gallery with viral-template recipes,
-  and the prompt library;
-- idempotent generation, polling, billing reports, and ledger reconciliation;
-- clean media URLs, managed uploads, asset folders, filtering by model,
-  downloads (including Songcraft tiers), and resolving project media
-  references;
-- workflow create/read/update/delete and runs with per-node overrides;
-- project authoring: generic and typed CRUD for Boards, Canvas, Cinema
-  storyboards, Cam View scenes, Video Agent projects, and timeline editor
-  projects; validated operations; prompt-to-project direction; Video Agent
-  per-segment generation;
-- the streaming Pixio agent (`/agent`), locked characters, and training
-  status;
-- retries, concurrency 429s, content-policy 422s, project 409s, signed URLs,
-  page and cursor pagination;
-- clear boundaries for unsupported surfaces and internal routes.
+- **Covers everything public:** every `/api/v1` route, both OpenAPI documents,
+  and the Montage Director MCP.
+- **Spends carefully:** quotes before it spends, keeps to your budget, and
+  sends one idempotent request per job.
+- **Knows the craft:** 62 Montage playbooks cover prompting, tiers, acting,
+  sound, editing, and genres.
+- **Stays current:** checks GitHub for updates once a day and fast-forwards
+  safely.
+
+Mirrors the deployed API as of **2026-11-16** (`skill-version.json`).
+
+---
 
 ## Install
 
+**Any skills manager**
+
 ```bash
-npx skills add .
+npx skills add rossman22590/pixio-skill
 ```
 
-Or install from the repository URL supported by your skill manager.
+**Claude Code (manual)**
 
-## Use
+```bash
+git clone https://github.com/rossman22590/pixio-skill ~/.claude/skills/pixio-skill
+```
+
+**Codex (manual)**
+
+```bash
+git clone https://github.com/rossman22590/pixio-skill ~/.codex/skills/pixio-skill
+```
+
+Then give the agent your key as an environment variable. Create keys on the
+**Integrations** screen in the Pixio app.
+
+```bash
+export PIXIO_API_KEY=your-key
+node scripts/pixio-smoke.mjs   # read-only: checks the key, specs, models, credits
+```
+
+### Add the Montage Director MCP (optional)
+
+The same key also works for the Montage tools over MCP: plan, quote, start,
+and watch jobs.
+
+```bash
+claude mcp add --transport http montage-director https://beta.pixio.myapps.ai/api/v1/mcp \
+  --header "Authorization: Bearer $PIXIO_API_KEY"
+```
+
+`pixio_start` refuses to run unless `confirm_spend: true` is set, so the agent
+cannot spend by accident.
+
+---
+
+## What you can ask for
+
+| You say | The agent does |
+|---|---|
+| "Make a product shot of this bottle on marble" | Picks a model by your real price, quotes it, generates once, and returns the file |
+| "Cheapest good text-to-video for my plan?" | Reads `GET /pricing` and ranks models by what **your** account pays |
+| "Music video for this song with these photos" | Montage `videos/music`: storyboard, Basic draft, final, then upscale |
+| "A 2-minute short film with two characters" | Montage `videos/film` with a locked cast, voices, and dialogue |
+| "Fix the lips at 0:42" or "Swap the actor" | Lip fix, face fix, Character Swap, or Montage Edit on just that window |
+| "30 s ad with our logo and end card" | Film `commercial`, then `package` with your brand kit |
+| "Build me a Node or Python client" | Typed client with auth, retries, idempotency, polling, and error codes |
+| "Why did I get a 402 / 422 / 429?" | Branches on `code` and explains the fix |
+| "Can the API do X?" | Checks both contracts and `/capabilities`, and says no plainly when it can't |
+
+---
+
+## Montage, in one minute
+
+Montage is Pixio's Director API (`/api/v1/director/*`). It turns text,
+pictures, songs, and voices into finished videos: clips, music videos, films,
+ads, explainers, short dramas, and whole TV series with a fixed cast.
+
+| Tier | `video_model` | Use it for |
+|---|---|---|
+| Montage Basic | `montage-basic` (default) | Tests and drafts, lip-sync locked to your own song, named looks, long films. The lowest price. |
+| Montage Premium | `montage-premium` | Sharper, more lifelike motion: action, crowds, products |
+| Montage Ultra / Ultra Plus / Max | `montage-ultra`, `-ultra-plus`, `-max` | Hero shots, up to native 1080p or 4K |
+| Montage Quality | `montage-quality` | Native 1080p with sound, 4–30 s takes; cinema, fights, performance |
+| Tier mix | `tier_mix: "auto"` | Each section on the tier that suits it |
+
+The agent follows the house rules every time: **test on Basic**, use the
+customer's own song first, use every picture they supplied, **no film grain**,
+and quote prices in **Pixio credits only**. Start with
+[`references/montage/pixio-director.md`](references/montage/pixio-director.md).
+
+---
+
+## How the agent spends credits
 
 ```text
-Use $pixio-skill to build a cost-aware Node integration that identifies the
-account, prices a model, quotes the exact request, generates once with an
-idempotency key, polls, and reconciles the charge.
+GET /me  →  GET /pricing  →  POST /generations/estimate  →  approve?
+        →  POST /generate  (Idempotency-Key)  →  poll  →  reconcile ledger
 ```
+
+`scripts/pixio-run.mjs` runs that whole loop in one command and spends
+**nothing** unless you pass a budget:
+
+```bash
+node scripts/pixio-run.mjs --model pixio/... --params '{"prompt":"..."}'                    # quote only
+node scripts/pixio-run.mjs --model pixio/... --params '{"prompt":"..."}' --max-credits 50   # run it
+```
+
+| Script | What it does |
+|---|---|
+| `scripts/pixio-run.mjs` | Quotes, checks the budget, generates once with an idempotency key, polls, and reports the charge |
+| `scripts/pixio-wait.mjs <contentId>` | Resumes polling a job that is already running. Never dispatches. |
+| `scripts/pixio-smoke.mjs` | Read-only check of the key, specs, models, and credits |
+| `scripts/pixio-skill-update.mjs` | Checks GitHub for a newer skill; `--apply` fast-forwards a clean clone |
+| `scripts/check-montage-skills.mjs` | Keeps the Montage playbooks clean (no model names, v1 routes only) |
+
+---
+
+## What's inside
 
 ```text
-Use $pixio-skill to direct a Cinema storyboard from this brief over the Pixio
-API and resolve its frame images for display.
+SKILL.md                    entrypoint: Start Here, protocols, agent rules
+references/
+  index.md                  pick the right document
+  pixio-api.md              the whole contract in tables
+  endpoints/   (32)         one file per route family, including director.md
+  guides/                   agent state machines, integrations, media, errors, billing
+  examples/                 end-to-end recipes: Node, Python, image, video, workflows
+  montage/     (62)         craft playbooks: tiers, prompting, formats, genres, fixes
+  evals/                    trigger queries and behavior scenarios
+scripts/                    run, wait, smoke, update, montage lint
+agents/openai.yaml          Codex display metadata
 ```
 
-The skill entrypoint is `SKILL.md`. Endpoint contracts, guides, examples,
-smoke checks, and evaluation prompts live under `references/` and `scripts/`.
+**Full surface:** discovery, account, pricing and quotes, models and params,
+the prompt optimizer, styles and the prompt library, uploads, assets and
+folders, generations, workflows, typed projects (Boards, Canvas, Cinema,
+Cam View, Video Agent, Editor), Montage Director, the streaming `/agent`,
+characters, and training status.
 
-## Updating
-
-Agents check for a newer version at the start of a session with
-`node scripts/pixio-skill-update.mjs` (compares `skill-version.json` with this
-repo on GitHub). `--apply` fast-forwards a clean git clone; it never overwrites
-local edits. Bump `skill-version.json` on every sync so installed copies see it.
-
-## Changelog
-
-- **2026-10-07**: `POST /generate` returns `creditsCharged`, `freeAllowance`
-  and `notCoveredBy`; `/models` and `/pricing` add `freeExcept` (settings that
-  are never free); quotes add `notCoveredBy` and show the Maker allowance only
-  to Maker plans that include the model; new `422 price_unavailable`;
-  idempotent replay reports the stored job's model; estimates measure external
-  media from a safe-downloaded copy. New: `scripts/pixio-run.mjs` (quote,
-  budget, idempotent generate, poll), `scripts/pixio-skill-update.mjs` (check
-  GitHub for updates), `examples/choose-model.md`, and
-  `evals/behavior-scenarios.json`; SKILL.md gains a Start Here table and a
-  shorter description.
-- **2026-10-01**: every error body now carries a machine `code` beside `error`
-  (documented in the new "Error envelope" section of
-  `references/overview.md`); malformed JSON is `400 invalid_json`;
-  `/generate` pipeline failures stay `400` and now carry a `code`
-  (`invalid_request`, `provider_error`, `model_unavailable`,
-  `plan_restricted`, `maker_in_flight`, `generation_failed`, `server_error`), so clients that
-  branch on status are unaffected, and its idempotent replay also returns
-  `providerId`/`modelId`; provider names
-  and raw upstream bodies no longer appear in error text, generation, workflow
-  run, or video-agent `error`/`reason` fields, and generation `params` echoes
-  omit internal keys; workflow-run `429` matches `/generate`; workflow run
-  lists return `hasMore` and clamp `limit` to 1-50 (never an error), and
-  `/credits/ledger`, `/prompt-library`, and `/training` also return `hasMore`;
-  `/prompts/optimize` charges 5 credits per call, only once validation has
-  passed, and returns `cost`; `/agent` rejects histories over 1,000,000 characters
-  with `413 request_too_large`; an unknown model on
-  `/video-agent/projects/{id}/generate` stays `400 model_not_available`; the model
-  detail routes return `outputs` and the list returns `defaultCredits` and
-  `fromCredits`. The OpenAPI documents gained a shared `ApiError` schema and
-  the `/agent`, `/models/favorites`, workflow CRUD, `/assets/models`,
-  `/capabilities`, and Video Agent generate operations.
-- **2026-10-02**: `/media` and `/images` accept only image, video, or audio
-  (images 10MB, video 250MB, audio 30MB); a bad upload is `400
-  invalid_request`, and a URL that is private or internal, redirects, is not
-  media, or is too large is `400 invalid_media_url` (previously any file type
-  was accepted and a failed URL download was `502`). `/prompts/optimize`
-  attachment URLs must be public internet addresses, redirects are not
-  followed, and a refused attachment is an uncharged `400`. Pixio storage paths
-  and URLs in `/generate`, `/generations/estimate`, Video Agent generate, and
-  workflow-run params (saved nodes included) must belong to the calling
-  account, else `400 invalid_media_url`; re-upload another account's file
-  (such as a public gallery output) through `/media` first. Saved workflows
-  silently drop internal-only params on create and `PATCH`. Every id
-  `GET /models` lists now always runs the listed model, an ambiguous loose id
-  is `404 model_not_found`, and `modelId` on generations, assets, and the
-  prompt library is the canonical listed id. `pixio/edit`, `pixio/remix`,
-  `pixio/reframe`, and `pixio/image-to-3d` previously ran a different model
-  than listed and now run the listed one.
+---
 
 ## Safety
 
-Pixio API keys are secrets. Keep them out of browsers, mobile binaries, public
-repos, screenshots, logs, and signed-URL query strings. The included smoke
-script is read-only and never dispatches generation work.
+- **API keys are secrets.** Keep them out of browsers, mobile binaries, public
+  repos, URLs, screenshots, and logs. Keys have full account access and
+  revoke immediately.
+- **No surprise spending.** The agent quotes before it spends, keeps to
+  `--max-credits`, and sends one `Idempotency-Key` per job. It never retries
+  paid work blindly after an ambiguous failure.
+- **Public API only.** The agent never calls internal, admin, webhook, or
+  browser-session routes. It reports a missing capability as unsupported
+  instead of working around it.
+- The smoke script is read-only and never starts generation work.
+
+---
+
+## Staying current
+
+At the start of a session (at most once a day) the agent runs
+`node scripts/pixio-skill-update.mjs`:
+
+| Exit code | Meaning |
+|---|---|
+| `0` | Up to date |
+| `10` | Newer version available. `--apply` fast-forwards a clean git clone and never overwrites local edits. |
+| `1` | GitHub unreachable. The agent continues and reads `GET /guide` for anything newer. |
+
+**Maintainers:** bump `skill-version.json` on every sync so installed copies
+pick up the change.
+
+## What's new
+
+- **2026-11-24:** Montage Quality (`montage-quality`), native 1080p on text,
+  image, and reference clips, Character Swap for 2–6 people,
+  `replace_character`, and face fix modes (Single, Polish, Restore).
+- **2026-11-22:** the Montage Director MCP (plan, quote with ready/blocked,
+  start, jobs), fast drafts with `montage_draft`, motion copy, and cutting a
+  finished video by its shots.
+- **2026-11-21:** a Lip Sync endpoint, Premium images, and duets built from
+  your own song sections.
+- **2026-10-07:** `pixio-run.mjs`, the update checker, `choose-model.md`,
+  behavior evals, and `creditsCharged` / `freeAllowance` / `notCoveredBy` on
+  `/generate`.
+- **2026-10-01:** every error body carries a machine `code`.
+
+The full history is in `git log`.
