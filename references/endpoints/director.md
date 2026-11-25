@@ -306,6 +306,11 @@ when you start, so a `402` means nothing started.
   original face in frames that look less like the person. `start_s` /
   `end_s` on single clips and uploads fix only that window. `sections` also
   takes one number. None of these change the price.
+- `megapixels: 2.0` on `videos/text`, `videos/image` and single
+  `videos/reference` clips (up to 15 s, Montage Basic, not drafts, not
+  `long_form`): native 1080p (1920x1088, 1088x1920 portrait, 1440x1440
+  square) on a cloud GPU, priced 3.8x. On text and image it is the only
+  `megapixels` value.
 - `megapixels: 0.8` (1.2x), `0.9` (1.45x) or `1.0` (1.7x) on
   `videos/reference`, `videos/film` and `videos/music` renders Montage Basic
   sharper (1.0 is 1344x768-class, default 0.7), priced per clip by that factor, redos and finals included. Premium and Ultra refuse it (use
