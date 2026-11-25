@@ -371,10 +371,12 @@ when you start, so a `402` means nothing started.
   actor's lip and jaw movement: `keep_mouth` on by default (`false` for the
   plain swap), `keep_mouth_jaw: false` for the lips only,
   `keep_mouth_strength` 0.8-1.6, default 1.0; same price). `zoom` (default
-  true) renders a small person as a close crop and keeps it only when it looks
-  more like your character; `face_repair` (default true) puts your
-  character's own face back in frames where the likeness is still weak;
-  `false` turns either off. `fight: true` (default false) for fight and
+  false) renders a small person as a close crop and keeps it only when it
+  looks more like your character: send `zoom: true` for wide shots, dance and
+  fights (about 2x the render time, same price); `face_repair` (default true)
+  puts your character's own face back in frames where the likeness is still
+  weak, `false` turns it off. Character pictures must show only the character,
+  no other people even in the background. `fight: true` (default false) for fight and
   fast-action scenes: the face repair leaves covered, fast or crossing frames
   alone, so no face is painted over a fist. To swap 2 people in one call (2 is the most; 3 or
   more is refused), send `people`: a JSON list of
@@ -420,11 +422,12 @@ when you start, so a `402` means nothing started.
 - Montage Ultra Plus and Montage Max can be switched off by Pixio: then
   `videoModels.models[].available` is false in `GET /api/v1/director/catalog`
   and a call naming them gets `400 premium_unavailable` (nothing held).
-- `face_redraw: true` on Montage Basic shots (`videos/text`, `image`,
-  `reference`), films and music videos: when the video is done it is redrawn
-  at 2K on cloud GPUs, faces far from the camera much closer to the character.
-  The redrawn copy is its own job (`faceRedrawJobId`). Priced from the cloud
-  cost like Premium (about 437 credits for 15 s; `?check=true` shows
+- `upscale_2k: true` (old name `face_redraw`, still accepted) on Montage
+  Basic shots (`videos/text`, `image`, `reference`), films and music videos:
+  when the video is done the whole frame is redrawn at 2K on a cloud GPU,
+  faces far from the camera much closer to the character. The 2K copy is its
+  own job (`faceRedrawJobId`). Priced from the cloud cost like Premium (about
+  115 credits for 5 s, 286 for 15 s; `?check=true` shows
   `credits.faceRedraw`), held with the video and given back if it never
   starts. Landscape 16:9 only; `400 face_redraw_unavailable` while Pixio has
   it off.
