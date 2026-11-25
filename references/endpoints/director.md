@@ -12,9 +12,9 @@ for agents, limits and prices.
 Start with `GET /director/catalog`: it lists every endpoint with its accepted
 fields, the looks and styles, and the credit prices.
 
-Text limits (characters): `prompt` 8000 on shots, images and redos (30000
-with a paid `video_model`: `montage-premium`, `montage-ultra`,
-`montage-ultra-plus` or `montage-max`); `idea`
+Text limits (characters): `prompt` 24664 on shots and redos, 20000 on
+images (30000 with a paid `video_model`: `montage-premium`, `montage-ultra`,
+`montage-ultra-plus`, `montage-max` or `montage-quality`); `idea`
 4000 and `style` 500 on music videos, films and `music/plan`; `story` 4000 on
 `prompts/write`; `prompt` 4000 and `lyrics` 6000 on `music/generate`;
 packaging `tagline` 120, `cta` 60, `legal` 300 and `voiceover_text` 1500 (also
@@ -798,6 +798,7 @@ Montage Max is Ultra at native 4K, the top tier (price order: Max > Ultra
 Plus > Ultra > Premium). Ultra Plus and Max render at their own size
 (`resolution` and `upscale` do not apply) and are never swapped for Basic:
 when they can't render you get `premium_unavailable` and nothing is charged.
+Montage Quality (`montage-quality`) is its own model at native 1080p with sound: 4-30 s a take, up to 10 pictures, 5 videos and 5 audio files a take, about 10.4 credits a second (priced from the studio's quote like the other paid tiers). It is offered even while the other paid tiers are off, never falls back to another model, renders at its own size (`resolution` and `upscale` do not apply), and is for new shots (`videos/text`, `videos/image`, `videos/reference`) and films only; music videos, remakes and episodes refuse it.
 All the paid tiers are priced and work the same way below. Premium is
 offered when Pixio turns it on (`videoModels.premiumAvailable` in
 `GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
