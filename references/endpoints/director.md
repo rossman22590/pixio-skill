@@ -798,7 +798,7 @@ Montage Max is Ultra at native 4K, the top tier (price order: Max > Ultra
 Plus > Ultra > Premium). Ultra Plus and Max render at their own size
 (`resolution` and `upscale` do not apply) and are never swapped for Basic:
 when they can't render you get `premium_unavailable` and nothing is charged.
-Montage Quality (`montage-quality`) is its own model at native 1080p with sound: 4-30 s a take, up to 10 pictures, 5 videos and 5 audio files a take, about 10.4 credits a second (priced from the studio's quote like the other paid tiers). It is offered even while the other paid tiers are off, never falls back to another model, renders at its own size (`resolution` and `upscale` do not apply), and is for new shots (`videos/text`, `videos/image`, `videos/reference`) and films only; music videos, remakes and episodes refuse it.
+Montage Quality (`montage-quality`) is its own model at native 1080p with sound: 4-30 s a take, up to 10 pictures, 5 videos and 5 audio files a take, about 10.4 credits a second (priced from the studio's quote like the other paid tiers). It is offered even while the other paid tiers are off, never falls back to another model, renders at its own size (`resolution` and `upscale` do not apply), and is for new shots (`videos/text`, `videos/image`, `videos/reference`) and films only; music videos, remakes and episodes refuse it. Best for cinema, top-level fights and music-video performance shots (as a `videos/reference` shot). It sings with its own voice: for lips on your exact song, use Montage Basic.
 All the paid tiers are priced and work the same way below. Premium is
 offered when Pixio turns it on (`videoModels.premiumAvailable` in
 `GET /director/catalog`); otherwise `400 premium_unavailable`. Its renders are priced from the
